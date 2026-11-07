@@ -12,7 +12,7 @@ const LOCAL_SERVER_URL := "ws://127.0.0.1:8080"
 ## >>> INSERT YOUR DEPLOYED RENDER WEBSOCKET URL HERE AFTER DEPLOYMENT <<<
 ## Example: "wss://thejudge-server.onrender.com"
 ## ==============================================================================
-const PRODUCTION_SERVER_URL := "wss://YOUR-RENDER-SERVICE.onrender.com"
+const PRODUCTION_SERVER_URL := "wss://thejudge.onrender.com"
 
 ## Placeholder marker used to detect unconfigured production deployment.
 const PRODUCTION_PLACEHOLDER_SUBSTRING := "YOUR-RENDER-SERVICE"
