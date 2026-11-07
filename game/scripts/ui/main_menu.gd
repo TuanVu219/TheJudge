@@ -11,6 +11,7 @@ const PAGE_JOIN_ROOM := "JoinRoomPage"
 const ROOM_DETAILS_SCENE_PATH := "res://scenes/room/RoomDetails.tscn"
 const ROOM_MANAGER_SCRIPT = preload("res://scripts/network/room_manager.gd")
 const NetworkConfig = preload("res://scripts/network/network_config.gd")
+const WebMobileInput = preload("res://scripts/ui/web_mobile_input.gd")
 const LOCAL_PLAYER_ID := "local_player"
 const LOCAL_DISPLAY_NAME := "You"
 
@@ -49,8 +50,20 @@ func _ready() -> void:
 	_connect_settings()
 	_connect_button_feedback()
 	_init_player_names()
+	_setup_mobile_inputs()
 	_hook_network_events()
 	_show_page(PAGE_HOME, false)
+
+
+func _setup_mobile_inputs() -> void:
+	WebMobileInput.bind_line_edit(join_code_input, "Nhập mã phòng (6 ký tự) / Enter room code:", true)
+	WebMobileInput.bind_line_edit(join_player_name_input, "Nhập tên người chơi / Enter your name:", false)
+	WebMobileInput.bind_line_edit(create_player_name_input, "Nhập tên người chơi / Enter your name:", false)
+	WebMobileInput.bind_line_edit(create_room_name_input, "Nhập tên phòng / Enter room name:", false)
+	if join_server_input != null:
+		WebMobileInput.bind_line_edit(join_server_input, "Nhập địa chỉ máy chủ / Enter server address:", false)
+	if settings_server_input != null:
+		WebMobileInput.bind_line_edit(settings_server_input, "Nhập địa chỉ máy chủ / Enter server address:", false)
 
 
 func _hook_network_events() -> void:
