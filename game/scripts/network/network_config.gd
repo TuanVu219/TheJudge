@@ -50,7 +50,7 @@ static func is_production_configured() -> bool:
 ## Web build: configured production URL or placeholder
 static func get_default_server_url(force_web: Variant = null) -> String:
 	var check_web: bool = is_web() if force_web == null else bool(force_web)
-	if check_web:
+	if check_web or is_production_configured():
 		return get_production_server_url()
 	return LOCAL_SERVER_URL
 

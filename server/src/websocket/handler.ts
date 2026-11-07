@@ -229,6 +229,7 @@ export class WebSocketHandler {
 
   private handleLeaveRoom(player: Player, msg: ClientMessage): void {
     const code = msg.room_code || player.currentRoomCode;
+    player.currentRoomCode = null;
     if (!code) {
       player.send({ type: "ERROR", error_code: "NOT_IN_ROOM", message: "You are not in a room." });
       return;

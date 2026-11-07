@@ -282,7 +282,10 @@ func _on_server_room_closed(code: String, reason: String) -> void:
 		_emit_room_updated(room)
 	if active_room_code == code or active_room_code.is_empty():
 		active_room_code = ""
-		active_player_id = ""
+		if network_client != null and not network_client.client_player_id.is_empty():
+			active_player_id = network_client.client_player_id
+		else:
+			active_player_id = ""
 	room_closed.emit(code, reason)
 
 
@@ -623,10 +626,10 @@ func leave_room(room_code: String, player_id: String) -> Dictionary:
 			"type": "LEAVE_ROOM",
 			"room_code": room_code,
 		})
-	_rooms_by_code.erase(normalize_room_code(room_code))
-	if active_room_code == room_code or active_player_id == player_id:
+	if active_room_code == room_code:
 		active_room_code = ""
-		active_player_id = ""
+		if network_client != null and not network_client.client_player_id.is_empty():
+			active_player_id = network_client.client_player_id
 
 	var room: Variant = find_room_by_code(room_code)
 	if room == null:
@@ -643,23 +646,15 @@ func leave_room(room_code: String, player_id: String) -> Dictionary:
 			room.host_player_id = str(next_player.get("player_id", ""))
 			next_player["is_host"] = true
 			_emit_room_updated(room)
-			if active_room_code == room.room_code and active_player_id == player_id:
-				active_room_code = ""
-				active_player_id = ""
 			return {"success": true, "room": room.to_dictionary(), "room_closed": false, "message": "Host left. Migrated host to next player."}
 		else:
 			room.status = STATUS_CLOSED
+			_rooms_by_code.erase(normalize_room_code(room_code))
 			_emit_room_updated(room)
-			if active_room_code == room.room_code:
-				active_room_code = ""
-				active_player_id = ""
 			return {"success": true, "room": room.to_dictionary(), "room_closed": true, "message": "The host left and closed the room."}
 
 	room.remove_player(player_id)
 	_emit_room_updated(room)
-	if active_room_code == room.room_code and active_player_id == player_id:
-		active_room_code = ""
-		active_player_id = ""
 	return {"success": true, "room": room.to_dictionary(), "room_closed": false, "message": "Player left the room."}
 
 
