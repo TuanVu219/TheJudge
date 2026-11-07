@@ -134,7 +134,17 @@ func create_room_online(
 
 	var response: Dictionary = await _await_network_response(5.0)
 	if not bool(response.get("success", false)):
-		return response
+		if str(response.get("error_code")) == "ALREADY_IN_ROOM" or str(response.get("message")).contains("Leave current room"):
+			network_client.send_message({"type": "LEAVE_ROOM"})
+			var tree := get_tree()
+			if tree != null:
+				await tree.create_timer(0.35).timeout
+			network_client.send_message(msg)
+			response = await _await_network_response(5.0)
+			if not bool(response.get("success", false)):
+				return response
+		else:
+			return response
 
 	return {"success": true, "room": get_active_room_record(), "error_code": "", "message": "Room created."}
 
@@ -161,7 +171,17 @@ func join_room_online(room_code: String, player_id: String, display_name: String
 
 	var response: Dictionary = await _await_network_response(5.0)
 	if not bool(response.get("success", false)):
-		return response
+		if str(response.get("error_code")) == "ALREADY_IN_ROOM" or str(response.get("message")).contains("Leave current room"):
+			network_client.send_message({"type": "LEAVE_ROOM"})
+			var tree := get_tree()
+			if tree != null:
+				await tree.create_timer(0.35).timeout
+			network_client.send_message(msg)
+			response = await _await_network_response(5.0)
+			if not bool(response.get("success", false)):
+				return response
+		else:
+			return response
 
 	return {"success": true, "room": get_active_room_record(), "error_code": "", "message": "Joined room."}
 
@@ -260,8 +280,9 @@ func _on_server_room_closed(code: String, reason: String) -> void:
 	if room != null:
 		room.status = STATUS_CLOSED
 		_emit_room_updated(room)
-	if active_room_code == code:
+	if active_room_code == code or active_room_code.is_empty():
 		active_room_code = ""
+		active_player_id = ""
 	room_closed.emit(code, reason)
 
 
@@ -439,12 +460,21 @@ func start_match(room_code: String, requesting_player_id: String) -> Dictionary:
 	room.started_match_roster = room.players.duplicate(true)
 	room.status = STATUS_STARTED
 	_emit_room_updated(room)
+	match_started.emit(room_code, room.started_match_roster.duplicate(true), str(room.game_mode))
 	return {
 		"success": true,
 		"room": room.to_dictionary(),
 		"roster": room.started_match_roster.duplicate(true),
 		"message": "Match started.",
 	}
+
+
+func start_room_match(room_code: String, requesting_player_id: String) -> Dictionary:
+	return start_match(room_code, requesting_player_id)
+
+
+func switch_player_team(room_code: String, player_id: String, target_team_id: int) -> Dictionary:
+	return update_player_team(room_code, player_id, target_team_id)
 
 
 func get_started_match_roster(room_code: String) -> Array[Dictionary]:
@@ -593,6 +623,10 @@ func leave_room(room_code: String, player_id: String) -> Dictionary:
 			"type": "LEAVE_ROOM",
 			"room_code": room_code,
 		})
+	_rooms_by_code.erase(normalize_room_code(room_code))
+	if active_room_code == room_code or active_player_id == player_id:
+		active_room_code = ""
+		active_player_id = ""
 
 	var room: Variant = find_room_by_code(room_code)
 	if room == null:
@@ -603,12 +637,23 @@ func leave_room(room_code: String, player_id: String) -> Dictionary:
 		return _failure("PLAYER_NOT_IN_ROOM", "This player is not in the room.")
 
 	if player_id == room.host_player_id:
-		room.status = STATUS_CLOSED
-		_emit_room_updated(room)
-		if active_room_code == room.room_code:
-			active_room_code = ""
-			active_player_id = ""
-		return {"success": true, "room": room.to_dictionary(), "room_closed": true, "message": "The host left and closed the room."}
+		if room.players.size() > 1:
+			room.remove_player(player_id)
+			var next_player: Dictionary = room.players[0]
+			room.host_player_id = str(next_player.get("player_id", ""))
+			next_player["is_host"] = true
+			_emit_room_updated(room)
+			if active_room_code == room.room_code and active_player_id == player_id:
+				active_room_code = ""
+				active_player_id = ""
+			return {"success": true, "room": room.to_dictionary(), "room_closed": false, "message": "Host left. Migrated host to next player."}
+		else:
+			room.status = STATUS_CLOSED
+			_emit_room_updated(room)
+			if active_room_code == room.room_code:
+				active_room_code = ""
+				active_player_id = ""
+			return {"success": true, "room": room.to_dictionary(), "room_closed": true, "message": "The host left and closed the room."}
 
 	room.remove_player(player_id)
 	_emit_room_updated(room)

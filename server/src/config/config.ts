@@ -15,7 +15,7 @@ export const CONFIG = {
     "2v2": 8,
     "3v3": 10,
   } as Record<string, number>,
-  VALID_CHARACTERS: ["mint", "peach", "sky"] as const,
+  VALID_CHARACTERS: ["mint", "peach", "sky", "lemon", "berry", "lavender"] as const,
   DEFAULT_CHARACTER_ID: "mint",
   TEAM_RED: 1,
   TEAM_BLUE: 2,

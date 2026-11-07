@@ -33,6 +33,9 @@ export class ServerRoomManager {
         if (!room) {
             return false;
         }
+        for (const player of room.players.values()) {
+            player.currentRoomCode = null;
+        }
         room.status = "CLOSED";
         this.roomsByCode.delete(norm);
         return true;

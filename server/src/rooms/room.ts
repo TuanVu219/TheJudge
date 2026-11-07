@@ -81,7 +81,19 @@ export class Room {
     player.currentRoomCode = null;
     this.players.delete(playerId);
 
+    if (this.players.size === 0) {
+      this.status = "CLOSED";
+      return { success: true, roomClosed: true };
+    }
+
     if (playerId === this.hostPlayerId) {
+      // Migrate host to the next remaining player in room
+      const nextPlayer = this.players.values().next().value;
+      if (nextPlayer) {
+        this.hostPlayerId = nextPlayer.playerId;
+        nextPlayer.isHost = true;
+        return { success: true, roomClosed: false };
+      }
       this.status = "CLOSED";
       return { success: true, roomClosed: true };
     }
@@ -128,7 +140,7 @@ export class Room {
     if (!player) {
       return { success: false, error_code: "PLAYER_NOT_IN_ROOM", message: "Player not found in room." };
     }
-    if (!CONFIG.VALID_CHARACTERS.includes(characterId as any)) {
+    if (!CONFIG.VALID_CHARACTERS.includes(characterId as any) && !characterId.startsWith("skin:")) {
       return { success: false, error_code: "INVALID_CHARACTER", message: "Invalid character choice." };
     }
 

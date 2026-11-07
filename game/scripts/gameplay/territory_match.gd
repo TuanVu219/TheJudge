@@ -8,6 +8,7 @@ const TEAM_RED := 1
 const TEAM_BLUE := 2
 const PLAYER_SCENE = preload("res://scenes/characters/PlayerCharacter.tscn")
 const ARENA_PLAYER_SCRIPT = preload("res://scripts/gameplay/arena_player.gd")
+const Wardrobe = preload("res://scripts/characters/wardrobe.gd")
 const DEFAULT_ROUND_SECONDS := 30.0
 const LOBBY_SCENE_PATH := "res://scenes/lobby/Lobby.tscn"
 
@@ -421,7 +422,7 @@ func _finish_round() -> void:
 	var red_names: Array[String] = []
 	var blue_names: Array[String] = []
 	for p in _spawned_roster:
-		var pname := str(p.get("display_name", p.get("player_id", "Player")))
+		var pname := Wardrobe.clean_name(str(p.get("display_name", p.get("player_id", "Player"))))
 		if int(p.get("team_id", 0)) == TEAM_RED:
 			red_names.append(pname)
 		else:

@@ -2,6 +2,8 @@ extends Node
 
 ## Offline movement controller for a reused PlayerCharacter scene instance.
 
+const Wardrobe = preload("res://scripts/characters/wardrobe.gd")
+
 const TEAM_RED := 1
 const TEAM_BLUE := 2
 
@@ -67,14 +69,24 @@ func _ready() -> void:
 		shirt_color = Color(0.08, 0.24, 0.65)
 		default_display_name = "Blue Player" if not is_bot else "BLUE Bot"
 
-	var final_name := display_name if not display_name.is_empty() else default_display_name
+	var decoded := Wardrobe.decode_from_display_name(display_name)
+	var final_name := str(decoded.get("name", ""))
+	if final_name.is_empty():
+		final_name = default_display_name
 	_character.call("set_display_name", final_name)
-	_apply_character_preset()
-	var shirt := _character.get_node_or_null("VisualRoot/Body/Shirt") as MeshInstance3D
-	if shirt != null:
-		var shirt_material := shirt.material_override as ShaderMaterial
-		if shirt_material != null:
-			shirt_material.set_shader_parameter("albedo_color", shirt_color)
+	_apply_character_preset(decoded.get("skin", {}))
+
+	# Keep team identity clearly visible via team shoes
+	var shoe_mat := ShaderMaterial.new()
+	var toon := preload("res://shaders/toon.gdshader") as Shader
+	shoe_mat.shader = toon
+	shoe_mat.set_shader_parameter("albedo_color", shirt_color)
+	var left_shoe := _character.get_node_or_null("VisualRoot/Legs/LeftLeg/Shoe") as MeshInstance3D
+	var right_shoe := _character.get_node_or_null("VisualRoot/Legs/RightLeg/Shoe") as MeshInstance3D
+	if left_shoe != null:
+		left_shoe.material_override = shoe_mat
+	if right_shoe != null:
+		right_shoe.material_override = shoe_mat
 
 	if _grid == null:
 		push_error("ArenaPlayer could not find the TerritoryGrid at %s." % grid_path)
@@ -82,20 +94,39 @@ func _ready() -> void:
 		push_error("ArenaPlayer could not find the MatchController at %s." % match_path)
 
 
+func _apply_character_preset(decoded_skin: Dictionary = {}) -> void:
+	if _character == null:
+		return
+	var skin: Dictionary = decoded_skin
+	if skin.is_empty():
+		if character_id.begins_with("skin:"):
+			skin = Wardrobe.deserialize(character_id.substr(5))
+		elif display_name.contains("#"):
+			skin = Wardrobe.decode_from_display_name(display_name).get("skin", Wardrobe.default_skin())
+		else:
+			match character_id:
+				"peach":
+					skin = {"color": "peach", "hat": "tiny_hat", "glasses": "none", "hair": "bald", "outfit": "classic"}
+				"sky":
+					skin = {"color": "sky", "hat": "none", "glasses": "round", "hair": "bald", "outfit": "classic"}
+				_:
+					skin = {"color": "mint", "hat": "feather", "glasses": "none", "hair": "bald", "outfit": "classic"}
 
-func _apply_character_preset() -> void:
-	var preset_color := Color(0.43, 0.88, 0.66)
-	var accessory_name := "Feather"
-	match character_id:
-		"peach":
-			preset_color = Color(1.0, 0.58, 0.37)
-			accessory_name = "TinyHat"
-		"sky":
-			preset_color = Color(0.38, 0.72, 1.0)
-			accessory_name = "TinyGlasses"
-	_character.call("set_body_color", preset_color)
-	for candidate in ["Feather", "TinyHat", "TinyGlasses"]:
-		_character.call("set_accessory_visible", candidate, candidate == accessory_name)
+	if _character.has_method("apply_wardrobe"):
+		_character.call("apply_wardrobe", skin)
+	else:
+		var preset_color := Color(0.43, 0.88, 0.66)
+		var accessory_name := "Feather"
+		match character_id:
+			"peach":
+				preset_color = Color(1.0, 0.58, 0.37)
+				accessory_name = "TinyHat"
+			"sky":
+				preset_color = Color(0.38, 0.72, 1.0)
+				accessory_name = "TinyGlasses"
+		_character.call("set_body_color", preset_color)
+		for candidate in ["Feather", "TinyHat", "TinyGlasses"]:
+			_character.call("set_accessory_visible", candidate, candidate == accessory_name)
 
 
 func _physics_process(delta: float) -> void:

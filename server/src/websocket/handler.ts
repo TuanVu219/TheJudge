@@ -143,8 +143,21 @@ export class WebSocketHandler {
 
   private handleCreateRoom(player: Player, msg: ClientMessage): void {
     if (player.currentRoomCode) {
-      player.send({ type: "ERROR", error_code: "ALREADY_IN_ROOM", message: "Leave current room before creating a new one." });
-      return;
+      const existing = this.roomManager.findRoomByCode(player.currentRoomCode);
+      if (existing) {
+        const { roomClosed } = existing.removePlayer(player.playerId);
+        if (roomClosed) {
+          existing.broadcast({
+            type: "ROOM_CLOSED",
+            room_code: existing.roomCode,
+            reason: "The room was closed.",
+          });
+          this.roomManager.closeRoom(existing.roomCode);
+        } else {
+          existing.broadcastRoomState();
+        }
+      }
+      player.currentRoomCode = null;
     }
 
     if (msg.display_name?.trim()) {
@@ -178,6 +191,24 @@ export class WebSocketHandler {
     if (!room) {
       player.send({ type: "ERROR", error_code: "ROOM_NOT_FOUND", message: "No room with that code exists." });
       return;
+    }
+
+    if (player.currentRoomCode && player.currentRoomCode !== room.roomCode) {
+      const oldRoom = this.roomManager.findRoomByCode(player.currentRoomCode);
+      if (oldRoom) {
+        const { roomClosed } = oldRoom.removePlayer(player.playerId);
+        if (roomClosed) {
+          oldRoom.broadcast({
+            type: "ROOM_CLOSED",
+            room_code: oldRoom.roomCode,
+            reason: "The room was closed.",
+          });
+          this.roomManager.closeRoom(oldRoom.roomCode);
+        } else {
+          oldRoom.broadcastRoomState();
+        }
+      }
+      player.currentRoomCode = null;
     }
 
     if (msg.display_name?.trim()) {

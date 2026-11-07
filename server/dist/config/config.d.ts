@@ -7,7 +7,7 @@ export declare const CONFIG: {
     VALID_MODES: readonly ["1v1", "2v2", "3v3"];
     MODE_CAPACITIES: Record<string, number>;
     MODE_GRID_SIZES: Record<string, number>;
-    VALID_CHARACTERS: readonly ["mint", "peach", "sky"];
+    VALID_CHARACTERS: readonly ["mint", "peach", "sky", "lemon", "berry", "lavender"];
     DEFAULT_CHARACTER_ID: string;
     TEAM_RED: number;
     TEAM_BLUE: number;

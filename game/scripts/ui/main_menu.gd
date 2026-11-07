@@ -9,6 +9,7 @@ const PAGE_SETTINGS := "SettingsPage"
 const PAGE_CREATE_ROOM := "CreateRoomPage"
 const PAGE_JOIN_ROOM := "JoinRoomPage"
 const ROOM_DETAILS_SCENE_PATH := "res://scenes/room/RoomDetails.tscn"
+const LOBBY_SCENE_PATH := "res://scenes/lobby/Lobby.tscn"
 const ROOM_MANAGER_SCRIPT = preload("res://scripts/network/room_manager.gd")
 const NetworkConfig = preload("res://scripts/network/network_config.gd")
 const WebMobileInput = preload("res://scripts/ui/web_mobile_input.gd")
@@ -346,8 +347,8 @@ func _on_join_room_pressed() -> void:
 			rm.call("set_server_url", desired_url)
 			_update_network_status_ui()
 
-	# If networking is disabled or room already exists in local memory, join locally (offline/test mode)
-	if not bool(rm.get("use_networking")) or rm.call("find_room_by_code", code) != null:
+	# If networking is disabled, join locally (offline/test mode)
+	if not bool(rm.get("use_networking")):
 		var result: Dictionary = rm.call(
 			"join_room",
 			code,
@@ -425,13 +426,13 @@ func _get_room_manager() -> Node:
 func _open_room_details() -> void:
 	var main_node := get_tree().root.get_node_or_null("Main")
 	if main_node != null and main_node.has_method("change_scene"):
-		main_node.call("change_scene", ROOM_DETAILS_SCENE_PATH)
+		main_node.call("change_scene", LOBBY_SCENE_PATH)
 		return
-	var room_details_scene := load(ROOM_DETAILS_SCENE_PATH) as PackedScene
-	if room_details_scene == null:
-		push_error("Room details scene could not be loaded.")
+	var lobby_scene := load(LOBBY_SCENE_PATH) as PackedScene
+	if lobby_scene == null:
+		push_error("Lobby scene could not be loaded.")
 		return
-	get_tree().change_scene_to_packed(room_details_scene)
+	get_tree().change_scene_to_packed(lobby_scene)
 
 
 func _on_back_to_home_pressed() -> void:
