@@ -1,0 +1,420 @@
+[gd_scene load_steps=27 format=3]
+
+[ext_resource type="Script" path="res://scripts/characters/player_character.gd" id="1_player_script"]
+[ext_resource type="Shader" path="res://shaders/toon.gdshader" id="2_toon"]
+[ext_resource type="Shader" path="res://shaders/outline.gdshader" id="3_outline"]
+
+[sub_resource type="CapsuleShape3D" id="Shape_Player"]
+radius = 0.43
+height = 1.58
+
+[sub_resource type="CapsuleMesh" id="Capsule_Bean"]
+radius = 0.5
+height = 1.52
+radial_segments = 24
+rings = 12
+
+[sub_resource type="CapsuleMesh" id="Capsule_Shirt"]
+radius = 0.56
+height = 1.02
+radial_segments = 24
+rings = 12
+
+[sub_resource type="SphereMesh" id="Sphere_Primitive"]
+radial_segments = 20
+rings = 12
+
+[sub_resource type="CapsuleMesh" id="Capsule_Limb"]
+radius = 0.5
+height = 1.2
+radial_segments = 16
+rings = 10
+
+[sub_resource type="TorusMesh" id="Torus_Smile"]
+inner_radius = 0.38
+outer_radius = 0.5
+rings = 24
+ring_segments = 12
+
+[sub_resource type="BoxMesh" id="Box_Tooth"]
+size = Vector3(1, 1, 0.25)
+
+[sub_resource type="ShaderMaterial" id="Mat_Bean"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(0.93, 0.38, 0.55, 1)
+shader_parameter/shadow_tint = Color(0.55, 0.61, 0.76, 1)
+shader_parameter/highlight_tint = Color(1, 0.97, 0.88, 1)
+shader_parameter/rim_color = Color(1, 0.84, 0.59, 1)
+shader_parameter/rim_strength = 0.1
+shader_parameter/specular_dot_strength = 0.1
+
+[sub_resource type="ShaderMaterial" id="Mat_Shirt"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(0.12, 0.64, 0.72, 1)
+shader_parameter/shadow_tint = Color(0.52, 0.61, 0.76, 1)
+shader_parameter/highlight_tint = Color(1, 0.97, 0.88, 1)
+shader_parameter/rim_color = Color(1, 0.84, 0.59, 1)
+shader_parameter/rim_strength = 0.1
+shader_parameter/specular_dot_strength = 0.1
+
+[sub_resource type="ShaderMaterial" id="Mat_Limb"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(1, 0.69, 0.43, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_Pants"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(0.3, 0.65, 0.91, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_Shoe"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(0.97, 0.31, 0.37, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_Eye"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(1, 0.99, 0.94, 1)
+shader_parameter/shadow_tint = Color(0.72, 0.76, 0.83, 1)
+shader_parameter/highlight_tint = Color(1, 1, 1, 1)
+shader_parameter/specular_dot_strength = 0.22
+
+[sub_resource type="ShaderMaterial" id="Mat_Pupil"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(0.11, 0.075, 0.09, 1)
+shader_parameter/shadow_tint = Color(0.45, 0.43, 0.49, 1)
+shader_parameter/highlight_tint = Color(0.9, 0.86, 0.77, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_Highlight"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(1, 1, 0.96, 1)
+shader_parameter/specular_dot_strength = 0.2
+
+[sub_resource type="ShaderMaterial" id="Mat_Dark"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(0.12, 0.07, 0.08, 1)
+shader_parameter/shadow_tint = Color(0.55, 0.55, 0.6, 1)
+shader_parameter/highlight_tint = Color(0.8, 0.76, 0.71, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_Nose"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(1, 0.36, 0.38, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_Accent"]
+shader = ExtResource("2_toon")
+shader_parameter/albedo_color = Color(1, 0.79, 0.23, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_Outline"]
+shader = ExtResource("3_outline")
+shader_parameter/outline_color = Color(0.227, 0.141, 0.094, 1)
+shader_parameter/outline_width = 0.035
+
+[sub_resource type="Animation" id="Animation_Idle"]
+resource_name = "idle"
+length = 1.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("VisualRoot:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {"times": PackedFloat32Array(0, 0.6, 1.2), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [Vector3(1, 1, 1), Vector3(1.06, 1.05, 1.06), Vector3(0.98, 0.97, 0.98)]}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("VisualRoot/Body:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {"times": PackedFloat32Array(0, 0.6, 1.2), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [Vector3(0, 0, -0.025), Vector3(0, 0, 0.07), Vector3(0, 0, -0.025)]}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("VisualRoot/Arms/LeftArm:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {"times": PackedFloat32Array(0, 0.6, 1.2), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [Vector3(0, 0, -0.13), Vector3(0, 0, -0.23), Vector3(0, 0, -0.13)]}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("VisualRoot/Arms/RightArm:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {"times": PackedFloat32Array(0, 0.6, 1.2), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [Vector3(0, 0, 0.18), Vector3(0, 0, 0.08), Vector3(0, 0, 0.18)]}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_Idle"]
+_data = {
+&"idle": SubResource("Animation_Idle")
+}
+
+[node name="PlayerCharacter" type="CharacterBody3D"]
+script = ExtResource("1_player_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.8, 0)
+shape = SubResource("Shape_Player")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Body" type="Node3D" parent="VisualRoot"]
+
+[node name="BeanOutline" type="MeshInstance3D" parent="VisualRoot/Body"]
+position = Vector3(0, 0.83, 0)
+mesh = SubResource("Capsule_Bean")
+material_override = SubResource("Mat_Outline")
+
+[node name="Bean" type="MeshInstance3D" parent="VisualRoot/Body"]
+position = Vector3(0, 0.83, 0)
+mesh = SubResource("Capsule_Bean")
+material_override = SubResource("Mat_Bean")
+
+[node name="ShirtOutline" type="MeshInstance3D" parent="VisualRoot/Body"]
+position = Vector3(0, 0.43, 0)
+mesh = SubResource("Capsule_Shirt")
+material_override = SubResource("Mat_Outline")
+
+[node name="Shirt" type="MeshInstance3D" parent="VisualRoot/Body"]
+position = Vector3(0, 0.43, 0)
+mesh = SubResource("Capsule_Shirt")
+material_override = SubResource("Mat_Shirt")
+
+[node name="Face" type="Node3D" parent="VisualRoot/Body"]
+
+[node name="LeftEye" type="Node3D" parent="VisualRoot/Body/Face"]
+position = Vector3(-0.155, 1.19, 0.42)
+
+[node name="White" type="MeshInstance3D" parent="VisualRoot/Body/Face/LeftEye"]
+scale = Vector3(0.31, 0.30, 0.18)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Eye")
+
+[node name="Pupil" type="MeshInstance3D" parent="VisualRoot/Body/Face/LeftEye"]
+position = Vector3(0.025, -0.005, 0.105)
+scale = Vector3(0.14, 0.15, 0.11)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Pupil")
+
+[node name="PupilGlint" type="MeshInstance3D" parent="VisualRoot/Body/Face/LeftEye/Pupil"]
+position = Vector3(-0.025, 0.035, 0.055)
+scale = Vector3(0.045, 0.045, 0.045)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Highlight")
+
+[node name="RightEye" type="Node3D" parent="VisualRoot/Body/Face"]
+position = Vector3(0.16, 1.21, 0.43)
+
+[node name="White" type="MeshInstance3D" parent="VisualRoot/Body/Face/RightEye"]
+scale = Vector3(0.29, 0.29, 0.18)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Eye")
+
+[node name="Pupil" type="MeshInstance3D" parent="VisualRoot/Body/Face/RightEye"]
+position = Vector3(-0.025, 0.01, 0.105)
+scale = Vector3(0.13, 0.145, 0.105)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Pupil")
+
+[node name="PupilGlint" type="MeshInstance3D" parent="VisualRoot/Body/Face/RightEye/Pupil"]
+position = Vector3(0.022, 0.04, 0.052)
+scale = Vector3(0.04, 0.04, 0.04)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Highlight")
+
+[node name="LeftEyebrow" type="MeshInstance3D" parent="VisualRoot/Body/Face"]
+position = Vector3(-0.16, 1.43, 0.43)
+rotation_degrees = Vector3(0, 0, 78)
+scale = Vector3(0.075, 0.23, 0.075)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Dark")
+
+[node name="RightEyebrow" type="MeshInstance3D" parent="VisualRoot/Body/Face"]
+position = Vector3(0.17, 1.45, 0.43)
+rotation_degrees = Vector3(0, 0, -82)
+scale = Vector3(0.07, 0.21, 0.07)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Dark")
+
+[node name="Nose" type="MeshInstance3D" parent="VisualRoot/Body/Face"]
+position = Vector3(0, 1.04, 0.51)
+scale = Vector3(0.17, 0.12, 0.13)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Nose")
+
+[node name="Mouth" type="Node3D" parent="VisualRoot/Body/Face"]
+position = Vector3(0, 0.86, 0.48)
+
+[node name="GoofySmile" type="MeshInstance3D" parent="VisualRoot/Body/Face/Mouth"]
+scale = Vector3(0.5, 0.23, 0.08)
+mesh = SubResource("Torus_Smile")
+material_override = SubResource("Mat_Dark")
+
+[node name="OneTooth" type="MeshInstance3D" parent="VisualRoot/Body/Face/Mouth"]
+position = Vector3(0, -0.065, 0.045)
+scale = Vector3(0.09, 0.085, 0.05)
+mesh = SubResource("Box_Tooth")
+material_override = SubResource("Mat_Eye")
+
+[node name="Arms" type="Node3D" parent="VisualRoot"]
+
+[node name="LeftArm" type="Node3D" parent="VisualRoot/Arms"]
+position = Vector3(-0.41, 0.91, 0)
+rotation_degrees = Vector3(0, 0, -12)
+
+[node name="Noodle" type="MeshInstance3D" parent="VisualRoot/Arms/LeftArm"]
+position = Vector3(-0.015, -0.08, 0)
+scale = Vector3(0.23, 0.24, 0.22)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Limb")
+
+[node name="HandOutline" type="MeshInstance3D" parent="VisualRoot/Arms/LeftArm"]
+position = Vector3(-0.11, -0.24, 0.05)
+scale = Vector3(0.245, 0.235, 0.24)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Outline")
+
+[node name="Hand" type="MeshInstance3D" parent="VisualRoot/Arms/LeftArm"]
+position = Vector3(-0.11, -0.24, 0.05)
+scale = Vector3(0.23, 0.22, 0.225)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Limb")
+
+[node name="RightArm" type="Node3D" parent="VisualRoot/Arms"]
+position = Vector3(0.41, 0.91, 0)
+rotation_degrees = Vector3(0, 0, 14)
+
+[node name="Noodle" type="MeshInstance3D" parent="VisualRoot/Arms/RightArm"]
+position = Vector3(0.015, -0.09, 0)
+scale = Vector3(0.23, 0.24, 0.22)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Limb")
+
+[node name="HandOutline" type="MeshInstance3D" parent="VisualRoot/Arms/RightArm"]
+position = Vector3(0.11, -0.25, 0.05)
+scale = Vector3(0.255, 0.245, 0.25)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Outline")
+
+[node name="Hand" type="MeshInstance3D" parent="VisualRoot/Arms/RightArm"]
+position = Vector3(0.11, -0.25, 0.05)
+scale = Vector3(0.24, 0.23, 0.235)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Limb")
+
+[node name="Legs" type="Node3D" parent="VisualRoot"]
+
+[node name="LeftLeg" type="Node3D" parent="VisualRoot/Legs"]
+position = Vector3(-0.22, 0.23, 0)
+rotation_degrees = Vector3(0, 0, -3)
+
+[node name="Noodle" type="MeshInstance3D" parent="VisualRoot/Legs/LeftLeg"]
+position = Vector3(0, -0.05, 0)
+scale = Vector3(0.24, 0.34, 0.22)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Pants")
+
+[node name="ShoeOutline" type="MeshInstance3D" parent="VisualRoot/Legs/LeftLeg"]
+position = Vector3(-0.015, -0.13, 0.16)
+scale = Vector3(0.36, 0.205, 0.45)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Outline")
+
+[node name="Shoe" type="MeshInstance3D" parent="VisualRoot/Legs/LeftLeg"]
+position = Vector3(-0.015, -0.13, 0.16)
+scale = Vector3(0.34, 0.18, 0.43)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Shoe")
+
+[node name="RightLeg" type="Node3D" parent="VisualRoot/Legs"]
+position = Vector3(0.22, 0.23, 0)
+rotation_degrees = Vector3(0, 0, 3)
+
+[node name="Noodle" type="MeshInstance3D" parent="VisualRoot/Legs/RightLeg"]
+position = Vector3(0, -0.05, 0)
+scale = Vector3(0.24, 0.34, 0.22)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Pants")
+
+[node name="ShoeOutline" type="MeshInstance3D" parent="VisualRoot/Legs/RightLeg"]
+position = Vector3(0.015, -0.13, 0.16)
+scale = Vector3(0.36, 0.205, 0.45)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Outline")
+
+[node name="Shoe" type="MeshInstance3D" parent="VisualRoot/Legs/RightLeg"]
+position = Vector3(0.015, -0.13, 0.16)
+scale = Vector3(0.34, 0.18, 0.43)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Shoe")
+
+[node name="Accessories" type="Node3D" parent="VisualRoot"]
+
+[node name="TinyHat" type="Node3D" parent="VisualRoot/Accessories"]
+position = Vector3(0.18, 1.48, -0.01)
+
+[node name="HatBrim" type="MeshInstance3D" parent="VisualRoot/Accessories/TinyHat"]
+position = Vector3(0, -0.015, 0)
+scale = Vector3(0.24, 0.075, 0.2)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Accent")
+
+[node name="HatTop" type="MeshInstance3D" parent="VisualRoot/Accessories/TinyHat"]
+position = Vector3(0, 0.045, -0.005)
+scale = Vector3(0.17, 0.12, 0.16)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Accent")
+
+[node name="PomPom" type="MeshInstance3D" parent="VisualRoot/Accessories/TinyHat"]
+position = Vector3(0.015, 0.13, 0)
+scale = Vector3(0.075, 0.075, 0.075)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Eye")
+
+[node name="Feather" type="Node3D" parent="VisualRoot/Accessories"]
+visible = false
+position = Vector3(-0.23, 1.46, 0)
+
+[node name="FeatherStem" type="MeshInstance3D" parent="VisualRoot/Accessories/Feather"]
+rotation_degrees = Vector3(0, 0, -24)
+scale = Vector3(0.08, 0.3, 0.07)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Nose")
+
+[node name="FeatherTip" type="MeshInstance3D" parent="VisualRoot/Accessories/Feather"]
+position = Vector3(-0.09, 0.22, 0)
+scale = Vector3(0.095, 0.13, 0.07)
+mesh = SubResource("Sphere_Primitive")
+material_override = SubResource("Mat_Accent")
+
+[node name="TinyGlasses" type="Node3D" parent="VisualRoot/Accessories"]
+visible = false
+
+[node name="LeftLensFrame" type="MeshInstance3D" parent="VisualRoot/Accessories/TinyGlasses"]
+position = Vector3(-0.155, 1.19, 0.53)
+scale = Vector3(0.17, 0.17, 0.055)
+mesh = SubResource("Torus_Smile")
+material_override = SubResource("Mat_Accent")
+
+[node name="RightLensFrame" type="MeshInstance3D" parent="VisualRoot/Accessories/TinyGlasses"]
+position = Vector3(0.16, 1.21, 0.54)
+scale = Vector3(0.16, 0.16, 0.055)
+mesh = SubResource("Torus_Smile")
+material_override = SubResource("Mat_Accent")
+
+[node name="GlassesBridge" type="MeshInstance3D" parent="VisualRoot/Accessories/TinyGlasses"]
+position = Vector3(0, 1.2, 0.54)
+scale = Vector3(0.12, 0.035, 0.035)
+mesh = SubResource("Capsule_Limb")
+material_override = SubResource("Mat_Accent")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+root_node = NodePath("..")
+autoplay = "idle"
+libraries = {
+&"": SubResource("AnimationLibrary_Idle")
+}
+
+[node name="DisplayName" type="Label3D" parent="."]
+position = Vector3(0, 1.92, 0)
+billboard = 1
+text = "Wobble"
+font_size = 36
+pixel_size = 0.008
+outline_size = 8
+modulate = Color(1, 0.98, 0.89, 1)

@@ -1,0 +1,553 @@
+[gd_scene format=3 uid="uid://c8kltjs6yimd"]
+
+[ext_resource type="PackedScene" path="res://scenes/arena/TerritoryTile.tscn" id="2_tile"]
+[ext_resource type="Script" path="res://scripts/gameplay/territory_grid.gd" id="3_grid_script"]
+[ext_resource type="Script" path="res://scripts/gameplay/territory_match.gd" id="4_match_script"]
+[ext_resource type="Script" path="res://scripts/ui/virtual_joystick.gd" id="5_joystick_script"]
+
+[sub_resource type="StandardMaterial3D" id="ArenaFloorMaterial"]
+albedo_color = Color(0.67, 0.85, 0.67, 1)
+roughness = 0.92
+
+[sub_resource type="BoxMesh" id="ArenaFloorMesh"]
+size = Vector3(11.5, 0.25, 11.5)
+
+[sub_resource type="BoxShape3D" id="ArenaFloorShape"]
+size = Vector3(11.5, 0.25, 11.5)
+
+[sub_resource type="StandardMaterial3D" id="GoldMaterial"]
+albedo_color = Color(1, 0.73, 0.2, 1)
+roughness = 0.65
+
+[sub_resource type="BoxMesh" id="RailLongMesh"]
+size = Vector3(9.15, 0.78, 0.18)
+
+[sub_resource type="BoxShape3D" id="RailLongShape"]
+size = Vector3(9.15, 0.78, 0.18)
+
+[sub_resource type="BoxMesh" id="RailShortMesh"]
+size = Vector3(0.18, 0.78, 9.15)
+
+[sub_resource type="BoxShape3D" id="RailShortShape"]
+size = Vector3(0.18, 0.78, 9.15)
+
+[sub_resource type="CylinderMesh" id="CornerPostMesh"]
+top_radius = 0.24
+bottom_radius = 0.34
+height = 1.1
+radial_segments = 16
+
+[sub_resource type="SphereMesh" id="CornerPostCapMesh"]
+radial_segments = 16
+rings = 8
+
+[sub_resource type="StandardMaterial3D" id="RedBannerMaterial"]
+albedo_color = Color(0.91, 0.19, 0.27, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BannerMesh"]
+size = Vector3(1.35, 0.8, 0.12)
+
+[sub_resource type="StandardMaterial3D" id="BlueBannerMaterial"]
+albedo_color = Color(0.12, 0.4, 0.92, 1)
+roughness = 0.8
+
+[sub_resource type="Environment" id="ArenaEnvironment"]
+background_mode = 1
+background_color = Color(0.78, 0.88, 0.98, 1)
+ambient_light_source = 1
+ambient_light_color = Color(1, 0.95, 0.83, 1)
+ambient_light_energy = 1.15
+
+[sub_resource type="StyleBoxFlat" id="HudPanelStyle"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.075, 0.11, 0.2, 0.9)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[node name="TerritoryArena" type="Node3D" unique_id=976074212]
+script = ExtResource("4_match_script")
+
+[node name="TileGrid" type="Node3D" parent="." unique_id=286731272]
+script = ExtResource("3_grid_script")
+
+[node name="Tile_0_0" parent="TileGrid" unique_id=158239567 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, -3.675)
+
+[node name="Tile_0_1" parent="TileGrid" unique_id=17052514 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, -3.675)
+
+[node name="Tile_0_2" parent="TileGrid" unique_id=826091083 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, -3.675)
+
+[node name="Tile_0_3" parent="TileGrid" unique_id=1163036948 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, -3.675)
+
+[node name="Tile_0_4" parent="TileGrid" unique_id=1893577141 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, -3.675)
+
+[node name="Tile_0_5" parent="TileGrid" unique_id=1238459799 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, -3.675)
+
+[node name="Tile_0_6" parent="TileGrid" unique_id=1530865442 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, -3.675)
+
+[node name="Tile_0_7" parent="TileGrid" unique_id=306146075 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, -3.675)
+
+[node name="Tile_1_0" parent="TileGrid" unique_id=2022172478 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, -2.625)
+
+[node name="Tile_1_1" parent="TileGrid" unique_id=836379102 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, -2.625)
+
+[node name="Tile_1_2" parent="TileGrid" unique_id=1188858050 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, -2.625)
+
+[node name="Tile_1_3" parent="TileGrid" unique_id=1247531499 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, -2.625)
+
+[node name="Tile_1_4" parent="TileGrid" unique_id=1411123565 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, -2.625)
+
+[node name="Tile_1_5" parent="TileGrid" unique_id=662082933 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, -2.625)
+
+[node name="Tile_1_6" parent="TileGrid" unique_id=1977268259 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, -2.625)
+
+[node name="Tile_1_7" parent="TileGrid" unique_id=671473217 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, -2.625)
+
+[node name="Tile_2_0" parent="TileGrid" unique_id=1515476369 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, -1.575)
+
+[node name="Tile_2_1" parent="TileGrid" unique_id=1940112595 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, -1.575)
+
+[node name="Tile_2_2" parent="TileGrid" unique_id=1985525465 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, -1.575)
+
+[node name="Tile_2_3" parent="TileGrid" unique_id=313434826 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, -1.575)
+
+[node name="Tile_2_4" parent="TileGrid" unique_id=1858231017 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, -1.575)
+
+[node name="Tile_2_5" parent="TileGrid" unique_id=1085217049 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, -1.575)
+
+[node name="Tile_2_6" parent="TileGrid" unique_id=872680311 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, -1.575)
+
+[node name="Tile_2_7" parent="TileGrid" unique_id=174488996 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, -1.575)
+
+[node name="Tile_3_0" parent="TileGrid" unique_id=725345716 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, -0.525)
+
+[node name="Tile_3_1" parent="TileGrid" unique_id=944178383 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, -0.525)
+
+[node name="Tile_3_2" parent="TileGrid" unique_id=2027940642 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, -0.525)
+
+[node name="Tile_3_3" parent="TileGrid" unique_id=846424138 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, -0.525)
+
+[node name="Tile_3_4" parent="TileGrid" unique_id=1625061642 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, -0.525)
+
+[node name="Tile_3_5" parent="TileGrid" unique_id=1813999564 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, -0.525)
+
+[node name="Tile_3_6" parent="TileGrid" unique_id=2084562010 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, -0.525)
+
+[node name="Tile_3_7" parent="TileGrid" unique_id=560491748 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, -0.525)
+
+[node name="Tile_4_0" parent="TileGrid" unique_id=1952546856 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, 0.525)
+
+[node name="Tile_4_1" parent="TileGrid" unique_id=220370509 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, 0.525)
+
+[node name="Tile_4_2" parent="TileGrid" unique_id=313530834 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, 0.525)
+
+[node name="Tile_4_3" parent="TileGrid" unique_id=40139656 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, 0.525)
+
+[node name="Tile_4_4" parent="TileGrid" unique_id=299609252 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, 0.525)
+
+[node name="Tile_4_5" parent="TileGrid" unique_id=1541130596 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, 0.525)
+
+[node name="Tile_4_6" parent="TileGrid" unique_id=1904242362 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, 0.525)
+
+[node name="Tile_4_7" parent="TileGrid" unique_id=864721040 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, 0.525)
+
+[node name="Tile_5_0" parent="TileGrid" unique_id=656274525 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, 1.575)
+
+[node name="Tile_5_1" parent="TileGrid" unique_id=1924251614 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, 1.575)
+
+[node name="Tile_5_2" parent="TileGrid" unique_id=413362599 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, 1.575)
+
+[node name="Tile_5_3" parent="TileGrid" unique_id=770127591 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, 1.575)
+
+[node name="Tile_5_4" parent="TileGrid" unique_id=1468047863 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, 1.575)
+
+[node name="Tile_5_5" parent="TileGrid" unique_id=1957202643 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, 1.575)
+
+[node name="Tile_5_6" parent="TileGrid" unique_id=1582524624 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, 1.575)
+
+[node name="Tile_5_7" parent="TileGrid" unique_id=2054195498 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, 1.575)
+
+[node name="Tile_6_0" parent="TileGrid" unique_id=1916119446 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, 2.625)
+
+[node name="Tile_6_1" parent="TileGrid" unique_id=341649994 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, 2.625)
+
+[node name="Tile_6_2" parent="TileGrid" unique_id=1925301237 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, 2.625)
+
+[node name="Tile_6_3" parent="TileGrid" unique_id=1006054818 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, 2.625)
+
+[node name="Tile_6_4" parent="TileGrid" unique_id=750675026 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, 2.625)
+
+[node name="Tile_6_5" parent="TileGrid" unique_id=122717557 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, 2.625)
+
+[node name="Tile_6_6" parent="TileGrid" unique_id=154650782 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, 2.625)
+
+[node name="Tile_6_7" parent="TileGrid" unique_id=1361738422 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, 2.625)
+
+[node name="Tile_7_0" parent="TileGrid" unique_id=2111004602 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.675, 0, 3.675)
+
+[node name="Tile_7_1" parent="TileGrid" unique_id=1281593367 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.625, 0, 3.675)
+
+[node name="Tile_7_2" parent="TileGrid" unique_id=1294154100 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.575, 0, 3.675)
+
+[node name="Tile_7_3" parent="TileGrid" unique_id=1367728487 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.525, 0, 3.675)
+
+[node name="Tile_7_4" parent="TileGrid" unique_id=959496857 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.525, 0, 3.675)
+
+[node name="Tile_7_5" parent="TileGrid" unique_id=641964769 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.575, 0, 3.675)
+
+[node name="Tile_7_6" parent="TileGrid" unique_id=855046076 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.625, 0, 3.675)
+
+[node name="Tile_7_7" parent="TileGrid" unique_id=755648897 instance=ExtResource("2_tile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.675, 0, 3.675)
+
+[node name="ArenaFloor" type="StaticBody3D" parent="." unique_id=1571408672]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.085, 0)
+
+[node name="FloorMesh" type="MeshInstance3D" parent="ArenaFloor" unique_id=1645424257]
+material_override = SubResource("ArenaFloorMaterial")
+mesh = SubResource("ArenaFloorMesh")
+
+[node name="FloorCollision" type="CollisionShape3D" parent="ArenaFloor" unique_id=204581533]
+shape = SubResource("ArenaFloorShape")
+
+[node name="Boundary" type="Node3D" parent="." unique_id=539217227]
+
+[node name="NorthRail" type="StaticBody3D" parent="Boundary" unique_id=49617536]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.39, -4.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="Boundary/NorthRail" unique_id=81414719]
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("RailLongMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="Boundary/NorthRail" unique_id=845097340]
+shape = SubResource("RailLongShape")
+
+[node name="SouthRail" type="StaticBody3D" parent="Boundary" unique_id=1699348112]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.39, 4.55)
+
+[node name="Mesh" type="MeshInstance3D" parent="Boundary/SouthRail" unique_id=165871212]
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("RailLongMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="Boundary/SouthRail" unique_id=943722475]
+shape = SubResource("RailLongShape")
+
+[node name="WestRail" type="StaticBody3D" parent="Boundary" unique_id=2028894771]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0.39, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Boundary/WestRail" unique_id=1989413897]
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("RailShortMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="Boundary/WestRail" unique_id=2054173166]
+shape = SubResource("RailShortShape")
+
+[node name="EastRail" type="StaticBody3D" parent="Boundary" unique_id=402259146]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0.39, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Boundary/EastRail" unique_id=1046705508]
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("RailShortMesh")
+
+[node name="Collision" type="CollisionShape3D" parent="Boundary/EastRail" unique_id=1440032339]
+shape = SubResource("RailShortShape")
+
+[node name="CornerPosts" type="Node3D" parent="." unique_id=54997636]
+
+[node name="NorthWestPost" type="MeshInstance3D" parent="CornerPosts" unique_id=886480973]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0.55, -4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostMesh")
+
+[node name="NorthWestCap" type="MeshInstance3D" parent="CornerPosts" unique_id=947376476]
+transform = Transform3D(0.32, 0, 0, 0, 0.2, 0, 0, 0, 0.32, -4.55, 1.15, -4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostCapMesh")
+
+[node name="NorthEastPost" type="MeshInstance3D" parent="CornerPosts" unique_id=773511053]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0.55, -4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostMesh")
+
+[node name="NorthEastCap" type="MeshInstance3D" parent="CornerPosts" unique_id=1675140834]
+transform = Transform3D(0.32, 0, 0, 0, 0.2, 0, 0, 0, 0.32, 4.55, 1.15, -4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostCapMesh")
+
+[node name="SouthWestPost" type="MeshInstance3D" parent="CornerPosts" unique_id=331887572]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 0.55, 4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostMesh")
+
+[node name="SouthWestCap" type="MeshInstance3D" parent="CornerPosts" unique_id=1469446223]
+transform = Transform3D(0.32, 0, 0, 0, 0.2, 0, 0, 0, 0.32, -4.55, 1.15, 4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostCapMesh")
+
+[node name="SouthEastPost" type="MeshInstance3D" parent="CornerPosts" unique_id=1644580462]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 0.55, 4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostMesh")
+
+[node name="SouthEastCap" type="MeshInstance3D" parent="CornerPosts" unique_id=677641890]
+transform = Transform3D(0.32, 0, 0, 0, 0.2, 0, 0, 0, 0.32, 4.55, 1.15, 4.55)
+material_override = SubResource("GoldMaterial")
+mesh = SubResource("CornerPostCapMesh")
+
+[node name="TeamBanners" type="Node3D" parent="." unique_id=166560572]
+
+[node name="RedBanner" type="MeshInstance3D" parent="TeamBanners" unique_id=946161699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.25, 1.55, -5.02)
+material_override = SubResource("RedBannerMaterial")
+mesh = SubResource("BannerMesh")
+
+[node name="RedBannerLabel" type="Label3D" parent="TeamBanners" unique_id=1072258108]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.25, 1.55, -4.94)
+pixel_size = 0.012
+text = "RED TEAM"
+font_size = 48
+outline_size = 8
+
+[node name="BlueBanner" type="MeshInstance3D" parent="TeamBanners" unique_id=1920407066]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 1.55, -5.02)
+material_override = SubResource("BlueBannerMaterial")
+mesh = SubResource("BannerMesh")
+
+[node name="BlueBannerLabel" type="Label3D" parent="TeamBanners" unique_id=975546561]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 1.55, -4.94)
+pixel_size = 0.012
+text = "BLUE TEAM"
+font_size = 48
+outline_size = 8
+
+[node name="Players" type="Node3D" parent="." unique_id=151741142]
+
+[node name="Environment" type="WorldEnvironment" parent="." unique_id=947917046]
+environment = SubResource("ArenaEnvironment")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="." unique_id=1426645618]
+transform = Transform3D(0.9135454, 0.30226424, -0.2721599, 0, 0.66913056, 0.74314487, 0.40673664, -0.6788966, 0.61128116, 0, 0, 0)
+light_color = Color(1, 0.93, 0.82, 1)
+light_energy = 1.25
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1127841912]
+transform = Transform3D(1, 0, 0, 0, 0.7193398, 0.6946584, 0, -0.6946584, 0.7193398, 0, 9.5, 9.8)
+current = true
+fov = 44.0
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1224979148]
+
+[node name="Overlay" type="Control" parent="HUD" unique_id=336755710]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ScorePanel" type="Panel" parent="HUD/Overlay" unique_id=422971940]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 600.0
+offset_bottom = 108.0
+theme_override_styles/panel = SubResource("HudPanelStyle")
+
+[node name="RedScore" type="Label" parent="HUD/Overlay/ScorePanel" unique_id=1012213346]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 17.0
+offset_right = 183.0
+offset_bottom = 71.0
+theme_override_colors/font_color = Color(1, 0.55, 0.57, 1)
+theme_override_font_sizes/font_size = 25
+text = "RED   00"
+vertical_alignment = 1
+
+[node name="Clock" type="Label" parent="HUD/Overlay/ScorePanel" unique_id=622651159]
+layout_mode = 0
+offset_left = 210.0
+offset_top = 15.0
+offset_right = 365.0
+offset_bottom = 73.0
+theme_override_colors/font_color = Color(1, 0.94, 0.73, 1)
+theme_override_font_sizes/font_size = 32
+text = "01:15"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BlueScore" type="Label" parent="HUD/Overlay/ScorePanel" unique_id=763625830]
+layout_mode = 0
+offset_left = 390.0
+offset_top = 17.0
+offset_right = 558.0
+offset_bottom = 71.0
+theme_override_colors/font_color = Color(0.55, 0.76, 1, 1)
+theme_override_font_sizes/font_size = 25
+text = "00   BLUE"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ModeLabel" type="Label" parent="HUD/Overlay/ScorePanel" unique_id=1938502842]
+layout_mode = 0
+offset_left = 210.0
+offset_top = 64.0
+offset_right = 365.0
+offset_bottom = 86.0
+theme_override_colors/font_color = Color(1, 0.78, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "TERRITORY MATCH"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="HUD/Overlay/ScorePanel" unique_id=1938502843]
+layout_mode = 0
+offset_left = 200.0
+offset_top = 4.0
+offset_right = 375.0
+offset_bottom = 22.0
+theme_override_colors/font_color = Color(0.68, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 12
+text = "MATCH ACTIVE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HelpLabel" type="Label" parent="HUD/Overlay" unique_id=1600894734]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 119.0
+offset_right = 530.0
+offset_bottom = 154.0
+theme_override_colors/font_color = Color(0.13, 0.19, 0.29, 1)
+theme_override_font_sizes/font_size = 18
+text = "WASD / JOYSTICK TO MOVE  •  CROSS TILES TO CLAIM"
+
+[node name="VirtualJoystick" type="Control" parent="HUD/Overlay" unique_id=2081947261]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -180.0
+offset_right = 192.0
+offset_bottom = -20.0
+grow_vertical = 0
+script = ExtResource("5_joystick_script")
+
+[node name="ResultPanel" type="Panel" parent="HUD/Overlay" unique_id=626799540]
+visible = false
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -180.0
+offset_right = 280.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("HudPanelStyle")
+
+[node name="ResultLabel" type="Label" parent="HUD/Overlay/ResultPanel" unique_id=1361827401]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 18.0
+offset_right = 540.0
+offset_bottom = 70.0
+theme_override_colors/font_color = Color(1, 0.95, 0.81, 1)
+theme_override_font_sizes/font_size = 32
+text = "RED TEAM WINS!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultDetails" type="Label" parent="HUD/Overlay/ResultPanel" unique_id=1849204918]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 75.0
+offset_right = 535.0
+offset_bottom = 265.0
+theme_override_colors/font_color = Color(0.9, 0.94, 0.94, 1)
+theme_override_font_sizes/font_size = 18
+text = "RED: 00  •  BLUE: 00"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="RestartButton" type="Button" parent="HUD/Overlay/ResultPanel" unique_id=316372491]
+layout_mode = 0
+offset_left = 170.0
+offset_top = 285.0
+offset_right = 390.0
+offset_bottom = 345.0
+theme_override_font_sizes/font_size = 22
+text = "PLAY AGAIN"

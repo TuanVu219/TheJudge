@@ -1,0 +1,129 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/match_manager.gd" id="1_match_manager"]
+
+[sub_resource type="StyleBoxFlat" id="TransitionStyle"]
+bg_color = Color(0.09, 0.18, 0.28, 0.94)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.96, 0.72, 0.28, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[sub_resource type="StyleBoxFlat" id="ResultStyle"]
+bg_color = Color(0.09, 0.18, 0.28, 0.98)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.96, 0.72, 0.28, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[node name="MatchFlow" type="Node"]
+script = ExtResource("1_match_manager")
+
+[node name="PhaseContainer" type="Node" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Overlay" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PhaseLabel" type="Label" parent="HUD/Overlay"]
+offset_left = 714.0
+offset_top = 25.0
+offset_right = 930.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(1, 0.94, 0.72, 1)
+theme_override_font_sizes/font_size = 19
+text = "QUIZ PHASE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TransitionPanel" type="Panel" parent="HUD/Overlay"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -290.0
+offset_top = -100.0
+offset_right = 290.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("TransitionStyle")
+
+[node name="TransitionLabel" type="Label" parent="HUD/Overlay/TransitionPanel"]
+offset_left = 30.0
+offset_top = 26.0
+offset_right = 550.0
+offset_bottom = 174.0
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_font_sizes/font_size = 32
+text = "QUIZ COMPLETE!\nARENA STARTS IN  3"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultPanel" type="Panel" parent="HUD/Overlay"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -405.0
+offset_top = -235.0
+offset_right = 405.0
+offset_bottom = 235.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = SubResource("ResultStyle")
+
+[node name="ResultTitle" type="Label" parent="HUD/Overlay/ResultPanel"]
+offset_left = 35.0
+offset_top = 27.0
+offset_right = 775.0
+offset_bottom = 94.0
+theme_override_colors/font_color = Color(1, 0.94, 0.73, 1)
+theme_override_font_sizes/font_size = 34
+text = "RED TEAM WINS!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultDetails" type="Label" parent="HUD/Overlay/ResultPanel"]
+offset_left = 46.0
+offset_top = 110.0
+offset_right = 764.0
+offset_bottom = 321.0
+theme_override_colors/font_color = Color(0.9, 0.95, 0.94, 1)
+theme_override_font_sizes/font_size = 22
+text = "RED TILES: 00     •     BLUE TILES: 00\nQUALIFIED: RED 0     •     BLUE 0\nQUIZ: 60 sec     •     ARENA: 75 sec"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="PlayAgainButton" type="Button" parent="HUD/Overlay/ResultPanel"]
+offset_left = 266.0
+offset_top = 367.0
+offset_right = 544.0
+offset_bottom = 425.0
+theme_override_font_sizes/font_size = 22
+text = "PLAY AGAIN"

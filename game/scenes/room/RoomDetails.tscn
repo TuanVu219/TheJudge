@@ -1,0 +1,200 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/room_details.gd" id="1_room_details"]
+
+[sub_resource type="StyleBoxFlat" id="RoomCardStyle"]
+bg_color = Color(0.99, 0.96, 0.87, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.12, 0.25, 0.36, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.12, 0.22, 0.31, 0.2)
+shadow_size = 18
+shadow_offset = Vector2(0, 8)
+content_margin_left = 30.0
+content_margin_top = 24.0
+content_margin_right = 30.0
+content_margin_bottom = 24.0
+
+[sub_resource type="StyleBoxFlat" id="CodeCardStyle"]
+bg_color = Color(0.12, 0.25, 0.36, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="ActionButtonStyle"]
+bg_color = Color(0.95, 0.35, 0.34, 1)
+corner_radius_top_left = 17
+corner_radius_top_right = 17
+corner_radius_bottom_right = 17
+corner_radius_bottom_left = 17
+content_margin_left = 16.0
+content_margin_top = 9.0
+content_margin_right = 16.0
+content_margin_bottom = 9.0
+
+[node name="RoomDetails" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_room_details")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.53, 0.81, 0.88, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = 24.0
+offset_right = -30.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Center" type="CenterContainer" parent="Margin"]
+layout_mode = 2
+
+[node name="RoomCard" type="PanelContainer" parent="Margin/Center"]
+custom_minimum_size = Vector2(620, 560)
+layout_mode = 2
+theme_override_styles/panel = SubResource("RoomCardStyle")
+
+[node name="Content" type="VBoxContainer" parent="Margin/Center/RoomCard"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Eyebrow" type="Label" parent="Margin/Center/RoomCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.35, 0.28, 1)
+theme_override_font_sizes/font_size = 15
+text = "ROOM IS READY"
+horizontal_alignment = 1
+
+[node name="RoomName" type="Label" parent="Margin/Center/RoomCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 33
+text = "Courtroom"
+horizontal_alignment = 1
+
+[node name="CodeCard" type="PanelContainer" parent="Margin/Center/RoomCard/Content"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("CodeCardStyle")
+
+[node name="CodeRow" type="HBoxContainer" parent="Margin/Center/RoomCard/Content/CodeCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="CodeColumn" type="VBoxContainer" parent="Margin/Center/RoomCard/Content/CodeCard/CodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CodeCaption" type="Label" parent="Margin/Center/RoomCard/Content/CodeCard/CodeRow/CodeColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 14
+text = "ROOM CODE"
+
+[node name="RoomCode" type="Label" parent="Margin/Center/RoomCard/Content/CodeCard/CodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.87, 0.42, 1)
+theme_override_font_sizes/font_size = 39
+text = "ABC234"
+horizontal_alignment = 1
+
+[node name="CopyButton" type="Button" parent="Margin/Center/RoomCard/Content/CodeCard/CodeRow"]
+custom_minimum_size = Vector2(112, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.91, 1)
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("ActionButtonStyle")
+text = "COPY CODE"
+
+[node name="RoomSummary" type="HBoxContainer" parent="Margin/Center/RoomCard/Content"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Visibility" type="Label" parent="Margin/Center/RoomCard/Content/RoomSummary"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.17, 0.43, 0.5, 1)
+theme_override_font_sizes/font_size = 16
+text = "PRIVATE ROOM"
+
+[node name="PlayerCount" type="Label" parent="Margin/Center/RoomCard/Content/RoomSummary"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 17
+text = "1 / 10 PLAYERS"
+horizontal_alignment = 2
+
+[node name="HostLabel" type="Label" parent="Margin/Center/RoomCard/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 17
+text = "HOST: You"
+
+[node name="PlayerScroll" type="ScrollContainer" parent="Margin/Center/RoomCard/Content"]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="PlayerList" type="VBoxContainer" parent="Margin/Center/RoomCard/Content/PlayerScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Message" type="Label" parent="Margin/Center/RoomCard/Content"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.4, 0.46, 1)
+theme_override_font_sizes/font_size = 14
+text = "Offline room: only this running application can see this room."
+autowrap_mode = 2
+horizontal_alignment = 1
+
+[node name="ActionRow" type="HBoxContainer" parent="Margin/Center/RoomCard/Content"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="EnterLobbyButton" type="Button" parent="Margin/Center/RoomCard/Content/ActionRow"]
+custom_minimum_size = Vector2(0, 50)
+size_flags_horizontal = 3
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.91, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("ActionButtonStyle")
+text = "ENTER LOBBY"
+
+[node name="LeaveButton" type="Button" parent="Margin/Center/RoomCard/Content/ActionRow"]
+custom_minimum_size = Vector2(0, 50)
+size_flags_horizontal = 3
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.91, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("ActionButtonStyle")
+text = "LEAVE ROOM"

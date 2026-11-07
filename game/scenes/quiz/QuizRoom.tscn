@@ -1,0 +1,351 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/quiz_room.gd" id="1_room_script"]
+[ext_resource type="Script" path="res://scripts/gameplay/quiz_session.gd" id="2_session_script"]
+
+[sub_resource type="StyleBoxFlat" id="HudPanelStyle"]
+bg_color = Color(0.09, 0.18, 0.28, 0.96)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="QuizCardStyle"]
+bg_color = Color(1, 0.97, 0.87, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.95, 0.69, 0.25, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+shadow_color = Color(0.11, 0.2, 0.27, 0.2)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="AnswerNormal"]
+bg_color = Color(0.83, 0.93, 0.94, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.66, 0.7, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 18.0
+content_margin_right = 18.0
+
+[sub_resource type="StyleBoxFlat" id="AnswerHover"]
+bg_color = Color(0.71, 0.88, 0.94, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.55, 0.73, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 18.0
+content_margin_right = 18.0
+
+[sub_resource type="StyleBoxFlat" id="AnswerPressed"]
+bg_color = Color(0.63, 0.82, 0.88, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.16, 0.46, 0.62, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 18.0
+content_margin_right = 18.0
+
+[sub_resource type="StyleBoxFlat" id="AnswerDisabled"]
+bg_color = Color(0.77, 0.79, 0.77, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65, 0.67, 0.64, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+content_margin_left = 18.0
+content_margin_right = 18.0
+
+[sub_resource type="StyleBoxFlat" id="ResultPanelStyle"]
+bg_color = Color(0.1, 0.2, 0.29, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.97, 0.72, 0.27, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+
+[node name="QuizRoom" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_room_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.72, 0.88, 0.94, 1)
+mouse_filter = 2
+
+[node name="QuizSession" type="Node" parent="."]
+script = ExtResource("2_session_script")
+
+[node name="Overlay" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Header" type="Panel" parent="Overlay"]
+offset_right = 1152.0
+offset_bottom = 78.0
+theme_override_styles/panel = SubResource("HudPanelStyle")
+
+[node name="Title" type="Label" parent="Overlay/Header"]
+offset_left = 34.0
+offset_top = 10.0
+offset_right = 760.0
+offset_bottom = 66.0
+theme_override_colors/font_color = Color(1, 0.94, 0.75, 1)
+theme_override_font_sizes/font_size = 31
+text = "THE JUDGE   •   QUICKFIRE QUIZ"
+vertical_alignment = 1
+
+[node name="TimerPanel" type="Panel" parent="Overlay"]
+offset_left = 951.0
+offset_top = 9.0
+offset_right = 1118.0
+offset_bottom = 69.0
+theme_override_styles/panel = SubResource("ResultPanelStyle")
+
+[node name="TimerLabel" type="Label" parent="Overlay/TimerPanel"]
+offset_left = 14.0
+offset_top = 4.0
+offset_right = 153.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(1, 0.95, 0.81, 1)
+theme_override_font_sizes/font_size = 31
+text = "01:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayerStatus" type="Label" parent="Overlay"]
+offset_left = 48.0
+offset_top = 92.0
+offset_right = 1104.0
+offset_bottom = 130.0
+theme_override_colors/font_color = Color(0.1, 0.24, 0.31, 1)
+theme_override_font_sizes/font_size = 20
+text = "PLAYER 1     ANSWERING     •     RIGHT 0     •     WRONG 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="QuizCard" type="Panel" parent="Overlay"]
+offset_left = 128.0
+offset_top = 143.0
+offset_right = 1024.0
+offset_bottom = 566.0
+theme_override_styles/panel = SubResource("QuizCardStyle")
+
+[node name="CategoryLabel" type="Label" parent="Overlay/QuizCard"]
+offset_left = 34.0
+offset_top = 21.0
+offset_right = 828.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.15, 0.46, 0.49, 1)
+theme_override_font_sizes/font_size = 19
+text = "CATEGORY   •   DIFFICULTY"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="QuestionLabel" type="Label" parent="Overlay/QuizCard"]
+offset_left = 48.0
+offset_top = 70.0
+offset_right = 848.0
+offset_bottom = 157.0
+theme_override_colors/font_color = Color(0.12, 0.18, 0.25, 1)
+theme_override_font_sizes/font_size = 27
+text = "Question text appears here."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="AnswerGrid" type="Control" parent="Overlay/QuizCard"]
+offset_left = 34.0
+offset_top = 169.0
+offset_right = 862.0
+offset_bottom = 347.0
+
+[node name="AnswerA" type="Button" parent="Overlay/QuizCard/AnswerGrid"]
+offset_right = 403.0
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.1, 0.22, 0.3, 1)
+theme_override_colors/font_hover_color = Color(0.08, 0.2, 0.28, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("AnswerNormal")
+theme_override_styles/hover = SubResource("AnswerHover")
+theme_override_styles/pressed = SubResource("AnswerPressed")
+theme_override_styles/disabled = SubResource("AnswerDisabled")
+text = "A     Answer A"
+alignment = 0
+
+[node name="AnswerB" type="Button" parent="Overlay/QuizCard/AnswerGrid"]
+offset_left = 421.0
+offset_right = 824.0
+offset_bottom = 78.0
+theme_override_colors/font_color = Color(0.1, 0.22, 0.3, 1)
+theme_override_colors/font_hover_color = Color(0.08, 0.2, 0.28, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("AnswerNormal")
+theme_override_styles/hover = SubResource("AnswerHover")
+theme_override_styles/pressed = SubResource("AnswerPressed")
+theme_override_styles/disabled = SubResource("AnswerDisabled")
+text = "B     Answer B"
+alignment = 0
+
+[node name="AnswerC" type="Button" parent="Overlay/QuizCard/AnswerGrid"]
+offset_top = 90.0
+offset_right = 403.0
+offset_bottom = 168.0
+theme_override_colors/font_color = Color(0.1, 0.22, 0.3, 1)
+theme_override_colors/font_hover_color = Color(0.08, 0.2, 0.28, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("AnswerNormal")
+theme_override_styles/hover = SubResource("AnswerHover")
+theme_override_styles/pressed = SubResource("AnswerPressed")
+theme_override_styles/disabled = SubResource("AnswerDisabled")
+text = "C     Answer C"
+alignment = 0
+
+[node name="AnswerD" type="Button" parent="Overlay/QuizCard/AnswerGrid"]
+offset_left = 421.0
+offset_top = 90.0
+offset_right = 824.0
+offset_bottom = 168.0
+theme_override_colors/font_color = Color(0.1, 0.22, 0.3, 1)
+theme_override_colors/font_hover_color = Color(0.08, 0.2, 0.28, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("AnswerNormal")
+theme_override_styles/hover = SubResource("AnswerHover")
+theme_override_styles/pressed = SubResource("AnswerPressed")
+theme_override_styles/disabled = SubResource("AnswerDisabled")
+text = "D     Answer D"
+alignment = 0
+
+[node name="FeedbackLabel" type="Label" parent="Overlay/QuizCard"]
+offset_left = 32.0
+offset_top = 354.0
+offset_right = 832.0
+offset_bottom = 396.0
+theme_override_colors/font_color = Color(0.15, 0.35, 0.38, 1)
+theme_override_font_sizes/font_size = 18
+text = "Pick the right answer to qualify!"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="CooldownLabel" type="Label" parent="Overlay/QuizCard"]
+offset_left = 32.0
+offset_top = 396.0
+offset_right = 832.0
+offset_bottom = 418.0
+theme_override_colors/font_color = Color(0.75, 0.18, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = ""
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HelpLabel" type="Label" parent="Overlay"]
+offset_left = 128.0
+offset_top = 583.0
+offset_right = 1024.0
+offset_bottom = 624.0
+theme_override_colors/font_color = Color(0.12, 0.25, 0.32, 1)
+theme_override_font_sizes/font_size = 17
+text = "Answer correctly to qualify. A wrong answer means a 10 second timeout!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultPanel" type="Panel" parent="Overlay"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -330.0
+offset_top = -205.0
+offset_right = 330.0
+offset_bottom = 205.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("ResultPanelStyle")
+
+[node name="ResultTitle" type="Label" parent="Overlay/ResultPanel"]
+offset_left = 30.0
+offset_top = 22.0
+offset_right = 630.0
+offset_bottom = 75.0
+theme_override_colors/font_color = Color(1, 0.93, 0.7, 1)
+theme_override_font_sizes/font_size = 31
+text = "QUIZ RESULTS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultSummary" type="Label" parent="Overlay/ResultPanel"]
+offset_left = 54.0
+offset_top = 92.0
+offset_right = 606.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.95, 0.97, 0.94, 1)
+theme_override_font_sizes/font_size = 21
+text = "QUALIFIED: 0\nNOT QUALIFIED: 0\nCORRECT: 0     WRONG: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayerResults" type="Label" parent="Overlay/ResultPanel"]
+offset_left = 42.0
+offset_top = 232.0
+offset_right = 618.0
+offset_bottom = 317.0
+theme_override_colors/font_color = Color(0.78, 0.89, 0.92, 1)
+theme_override_font_sizes/font_size = 17
+text = "player_1 — ANSWERING • 0 right / 0 wrong"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="RestartButton" type="Button" parent="Overlay/ResultPanel"]
+offset_left = 192.0
+offset_top = 336.0
+offset_right = 468.0
+offset_bottom = 386.0
+theme_override_font_sizes/font_size = 20
+text = "PLAY AGAIN"

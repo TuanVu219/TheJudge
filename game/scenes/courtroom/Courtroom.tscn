@@ -1,0 +1,1663 @@
+[gd_scene format=3 uid="uid://ctk21qq7dc4r2"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Floor"]
+albedo_color = Color(0.22, 0.12, 0.06, 1)
+roughness = 0.88
+
+[sub_resource type="BoxMesh" id="Box_Unit"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_WoodLight"]
+albedo_color = Color(1, 0.82, 0.58, 1)
+roughness = 0.84
+
+[sub_resource type="StandardMaterial3D" id="Mat_Cream"]
+albedo_color = Color(1, 0.9, 0.72, 1)
+roughness = 0.92
+
+[sub_resource type="StandardMaterial3D" id="Mat_Mint"]
+albedo_color = Color(0.38, 0.82, 0.68, 1)
+roughness = 0.82
+
+[sub_resource type="StandardMaterial3D" id="Mat_Coral"]
+albedo_color = Color(0.96, 0.3, 0.32, 1)
+roughness = 0.78
+
+[sub_resource type="StandardMaterial3D" id="Mat_Sky"]
+albedo_color = Color(0.35, 0.72, 0.95, 1)
+roughness = 0.78
+
+[sub_resource type="CylinderMesh" id="Cylinder_Unit"]
+height = 1.0
+radial_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="Mat_Yellow"]
+albedo_color = Color(1, 0.82, 0.22, 1)
+roughness = 0.7
+
+[sub_resource type="SphereMesh" id="Sphere_Unit"]
+radial_segments = 12
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_Peach"]
+albedo_color = Color(1, 0.58, 0.34, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_Wood"]
+albedo_color = Color(0.52, 0.29, 0.15, 1)
+roughness = 0.82
+
+[sub_resource type="StandardMaterial3D" id="Mat_Gold"]
+albedo_color = Color(1, 0.72, 0.16, 1)
+metallic = 0.12
+roughness = 0.62
+
+[sub_resource type="Environment" id="Environment_Cheerful"]
+background_mode = 1
+background_color = Color(0.84, 0.79, 0.96, 1)
+ambient_light_source = 1
+ambient_light_color = Color(1, 0.95, 0.84, 1)
+ambient_light_energy = 1.5
+
+[sub_resource type="StandardMaterial3D" id="Mat_Outline"]
+albedo_color = Color(0.24, 0.12, 0.07, 1)
+roughness = 0.9
+shading_mode = 0
+cull_mode = 1
+
+[sub_resource type="StandardMaterial3D" id="Mat_WallMint"]
+albedo_color = Color(0.37, 0.72, 0.6, 1)
+roughness = 0.85
+shading_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="Mat_WallSky"]
+albedo_color = Color(0.36, 0.65, 0.87, 1)
+roughness = 0.85
+shading_mode = 0
+
+[sub_resource type="StandardMaterial3D" id="Mat_WallCream"]
+albedo_color = Color(0.98, 0.91, 0.74, 1)
+roughness = 0.9
+shading_mode = 0
+
+[sub_resource type="CapsuleMesh" id="Capsule_Unit"]
+radius = 0.5
+height = 1.2
+radial_segments = 12
+rings = 6
+
+[sub_resource type="TorusMesh" id="Torus_Unit"]
+inner_radius = 0.42
+outer_radius = 0.5
+rings = 16
+ring_segments = 8
+
+[sub_resource type="CylinderMesh" id="Cone_Unit"]
+top_radius = 0.0
+bottom_radius = 0.5
+height = 1.0
+radial_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="Mat_WoodMedium"]
+albedo_color = Color(0.94, 0.68, 0.4, 1)
+roughness = 0.84
+
+[node name="Courtroom" type="Node3D" unique_id=389872906]
+
+[node name="Room" type="Node3D" parent="." unique_id=974641014]
+[node name="JudgeArea" type="Node3D" parent="."]
+
+[node name="Rug" type="Node3D" parent="."]
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="BrightWoodFloor" type="MeshInstance3D" parent="Room" unique_id=2130586929]
+material_override = SubResource("Mat_Floor")
+mesh = SubResource("Box_Unit")
+
+scale = Vector3(20, 0.4, 16)
+position = Vector3(0, -0.2, 0)
+[node name="FloorPlanks" type="Node3D" parent="Room" unique_id=707458730]
+
+[node name="Plank01" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=345769344]
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Box_Unit")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, -7)
+[node name="Plank02" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=2055623259]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_WoodMedium")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, -5)
+[node name="Plank03" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=479963693]
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Box_Unit")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, -3)
+[node name="Plank04" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=65947935]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_WoodMedium")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, -1)
+[node name="Plank05" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=1494015197]
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Box_Unit")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, 1)
+[node name="Plank06" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=613504757]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_WoodMedium")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, 3)
+[node name="Plank07" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=45027334]
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Box_Unit")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, 5)
+[node name="Plank08" type="MeshInstance3D" parent="Room/FloorPlanks" unique_id=1483512019]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_WoodMedium")
+scale = Vector3(19.8, 0.03, 1.96)
+position = Vector3(0, 0.012, 7)
+[node name="RearCreamWall" type="MeshInstance3D" parent="Room" unique_id=558579476]
+material_override = SubResource("Mat_WallCream")
+mesh = SubResource("Box_Unit")
+scale = Vector3(20, 7, 0.4)
+position = Vector3(0, 3.5, -7.8)
+[node name="LeftCreamWall" type="MeshInstance3D" parent="Room" unique_id=572950964]
+material_override = SubResource("Mat_WallMint")
+mesh = SubResource("Box_Unit")
+scale = Vector3(0.4, 7, 16)
+position = Vector3(-9.8, 3.5, 0)
+[node name="RightCreamWall" type="MeshInstance3D" parent="Room" unique_id=393597187]
+material_override = SubResource("Mat_WallSky")
+mesh = SubResource("Box_Unit")
+scale = Vector3(0.4, 7, 16)
+position = Vector3(9.8, 3.5, 0)
+[node name="RearMintWainscot" type="MeshInstance3D" parent="Room" unique_id=1844476600]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(19.6, 1.2, 0.12)
+position = Vector3(0, 0.6, -7.54)
+[node name="RearCoralStripe" type="MeshInstance3D" parent="Room" unique_id=680549118]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(19.4, 0.12, 0.1)
+position = Vector3(0, 1.25, -7.53)
+[node name="LeftSkyWainscot" type="MeshInstance3D" parent="Room" unique_id=675300063]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(0.12, 1.2, 16)
+position = Vector3(-9.54, 0.6, 0)
+[node name="RightSkyWainscot" type="MeshInstance3D" parent="Room" unique_id=1730879835]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(0.12, 1.2, 16)
+position = Vector3(9.54, 0.6, 0)
+[node name="RoundMintColumnLeft" type="MeshInstance3D" parent="Room" unique_id=1064533345]
+transform = Transform3D(1.2, 0, 0, 0, 7.4, 0, 0, 0, 1.2, -8.55, 3.9, -6.55)
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Cylinder_Unit")
+rotation_degrees = Vector3(0, 0, 0)
+position = Vector3(-8.45, 3.9, -6.35)
+[node name="RoundMintColumnRight" type="MeshInstance3D" parent="Room" unique_id=2073723084]
+transform = Transform3D(1.2, 0, 0, 0, 7.4, 0, 0, 0, 1.2, 8.55, 3.9, -6.55)
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Cylinder_Unit")
+rotation_degrees = Vector3(0, 0, 0)
+position = Vector3(8.45, 3.9, -6.35)
+[node name="ColumnCapLeft" type="MeshInstance3D" parent="Room" unique_id=963805523]
+transform = Transform3D(1.55, 0, 0, 0, 0.38, 0, 0, 0, 1.55, -8.55, 7.55, -6.55)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+[node name="ColumnCapRight" type="MeshInstance3D" parent="Room" unique_id=1879131792]
+transform = Transform3D(1.55, 0, 0, 0, 0.38, 0, 0, 0, 1.55, 8.55, 7.55, -6.55)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+[node name="LeftWindowGlass" type="MeshInstance3D" parent="Room" unique_id=1491897860]
+material_override = SubResource("Mat_Sky")
+position = Vector3(-9.54, 4.25, -2.25)
+scale = Vector3(3.2, 0.08, 3.2)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Cylinder_Unit")
+[node name="RightWindowGlass" type="MeshInstance3D" parent="Room" unique_id=1874039957]
+material_override = SubResource("Mat_Sky")
+position = Vector3(9.54, 4.25, -2.25)
+scale = Vector3(3.2, 0.08, 3.2)
+rotation_degrees = Vector3(0, 0, -90)
+mesh = SubResource("Cylinder_Unit")
+[node name="ColorfulWallPanels" type="Node3D" parent="Room" unique_id=1547393268]
+
+[node name="PanelLeft" type="MeshInstance3D" parent="Room/ColorfulWallPanels" unique_id=1982256169]
+transform = Transform3D(2.1, 0, 0, 0, 3.1, 0, 0, 0, 0.12, -6.1, 4.8, -7.43)
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Box_Unit")
+
+[node name="PanelRight" type="MeshInstance3D" parent="Room/ColorfulWallPanels" unique_id=1271709576]
+transform = Transform3D(2.1, 0, 0, 0, 3.1, 0, 0, 0, 0.12, 6.1, 4.8, -7.43)
+material_override = SubResource("Mat_Sky")
+mesh = SubResource("Box_Unit")
+
+[node name="PanelCenterLeft" type="MeshInstance3D" parent="Room/ColorfulWallPanels" unique_id=169035666]
+transform = Transform3D(0.18, 0, 0, 0, 3.5, 0, 0, 0, 0.16, -4.2, 4.8, -7.43)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Cylinder_Unit")
+
+[node name="PanelCenterRight" type="MeshInstance3D" parent="Room/ColorfulWallPanels" unique_id=139482998]
+transform = Transform3D(0.18, 0, 0, 0, 3.5, 0, 0, 0, 0.16, 4.2, 4.8, -7.43)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Cylinder_Unit")
+
+
+[node name="JudgeDais" type="MeshInstance3D" parent="JudgeArea" unique_id=265795812]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(9.2, 0.4, 3.6)
+position = Vector3(0, 0.2, -5.7)
+[node name="JudgeDaisFrontTrim" type="MeshInstance3D" parent="JudgeArea" unique_id=1015269019]
+transform = Transform3D(7.1, 0, 0, 0, 0.2, 0, 0, 0, 0.18, 0, 0.33, -3.86)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Box_Unit")
+
+[node name="JudgeBenchBody" type="MeshInstance3D" parent="JudgeArea" unique_id=202874247]
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Box_Unit")
+position = Vector3(0, 1.3, -5.2)
+scale = Vector3(8.2, 2.08, 2.47)
+[node name="JudgeBenchFrontPanel" type="MeshInstance3D" parent="JudgeArea" unique_id=162391881]
+material_override = SubResource("Mat_Wood")
+mesh = SubResource("Box_Unit")
+position = Vector3(0, 1.6, -4.38)
+scale = Vector3(7.2, 1.625, 0.3)
+[node name="JudgeBenchBigTop" type="MeshInstance3D" parent="JudgeArea" unique_id=1930707133]
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Box_Unit")
+position = Vector3(0, 2.2, -4.62)
+scale = Vector3(8.5, 0.4, 3.05)
+[node name="BenchCornerLeft" type="MeshInstance3D" parent="JudgeArea" unique_id=486143395]
+transform = Transform3D(0.55, 0, 0, 0, 0.4, 0, 0, 0, 0.55, -3.25, 1.71, -4.62)
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.78, 0.52, 0.72)
+position = Vector3(-4, 1.76, -4.62)
+[node name="BenchCornerRight" type="MeshInstance3D" parent="JudgeArea" unique_id=775463608]
+transform = Transform3D(0.55, 0, 0, 0, 0.4, 0, 0, 0, 0.55, 3.25, 1.71, -4.62)
+material_override = SubResource("Mat_WoodLight")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.78, 0.52, 0.72)
+position = Vector3(4, 1.76, -4.62)
+[node name="BenchGoldStripe" type="MeshInstance3D" parent="JudgeArea" unique_id=447303229]
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Box_Unit")
+
+position = Vector3(0, 1.9, -4.26)
+[node name="JudgeChairPost" type="MeshInstance3D" parent="JudgeArea" unique_id=2110271298]
+transform = Transform3D(0.34, 0, 0, 0, 0.75, 0, 0, 0, 0.34, 0, 0.7, -6.65)
+material_override = SubResource("Mat_Gold")
+mesh = SubResource("Cylinder_Unit")
+
+[node name="GavelHandle" type="MeshInstance3D" parent="JudgeArea" unique_id=1195512608]
+transform = Transform3D(0.20353153, -0.9538547, 0, 0.12718062, 1.5264865, 0, 0, 0, 0.24, -3.9, 1.83, -3.7)
+material_override = SubResource("Mat_Wood")
+mesh = SubResource("Cylinder_Unit")
+scale = Vector3(0.35, 2.8, 0.35)
+position = Vector3(-3.95, 3.3, -3.7)
+[node name="GavelButton" type="MeshInstance3D" parent="JudgeArea" unique_id=905409925]
+transform = Transform3D(0.65, 0, 0, 0, 0.2, 0, 0, 0, 0.65, -3.9, 1.7, -3.7)
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Cylinder_Unit")
+
+[node name="ProsecutionDesk" type="Node3D" parent="." unique_id=1736710867]
+
+[node name="ProsecutorDeskFront" type="MeshInstance3D" parent="ProsecutionDesk" unique_id=1444388348]
+transform = Transform3D(3, 0, 0, 0, 1.05, 0, 0, 0, 0.3, -4.25, 0.67, -1.7)
+material_override = SubResource("Mat_Sky")
+mesh = SubResource("Box_Unit")
+scale = Vector3(4.2, 1.3, 0.38)
+position = Vector3(-4.25, 0.72, -1.7)
+[node name="ProsecutorDeskTop" type="MeshInstance3D" parent="ProsecutionDesk" unique_id=413630762]
+transform = Transform3D(3.7, 0, 0, 0, 0.25, 0, 0, 0, 2, -4.25, 1.28, -1.9)
+material_override = SubResource("Mat_Sky")
+mesh = SubResource("Box_Unit")
+scale = Vector3(5, 0.35, 2.45)
+position = Vector3(-4.25, 1.35, -1.9)
+[node name="ProsecutorDeskOrbLeft" type="MeshInstance3D" parent="ProsecutionDesk" unique_id=848956549]
+transform = Transform3D(0.48, 0, 0, 0, 0.38, 0, 0, 0, 0.5, -5.95, 1.28, -1.9)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.65, 0.5, 0.7)
+position = Vector3(-6.5, 1.35, -1.9)
+[node name="ProsecutorDeskOrbRight" type="MeshInstance3D" parent="ProsecutionDesk" unique_id=1532770793]
+transform = Transform3D(0.48, 0, 0, 0, 0.38, 0, 0, 0, 0.5, -2.55, 1.28, -1.9)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.65, 0.5, 0.7)
+position = Vector3(-2, 1.35, -1.9)
+[node name="DefenseDesk" type="Node3D" parent="." unique_id=817361559]
+
+[node name="DefenseDeskFront" type="MeshInstance3D" parent="DefenseDesk" unique_id=479699958]
+transform = Transform3D(3, 0, 0, 0, 1.05, 0, 0, 0, 0.3, 4.25, 0.67, -1.7)
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Box_Unit")
+scale = Vector3(4.2, 1.3, 0.38)
+position = Vector3(4.25, 0.72, -1.7)
+[node name="DefenseDeskTop" type="MeshInstance3D" parent="DefenseDesk" unique_id=1324485932]
+transform = Transform3D(3.7, 0, 0, 0, 0.25, 0, 0, 0, 2, 4.25, 1.28, -1.9)
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Box_Unit")
+scale = Vector3(5, 0.35, 2.45)
+position = Vector3(4.25, 1.35, -1.9)
+[node name="DefenseDeskOrbLeft" type="MeshInstance3D" parent="DefenseDesk" unique_id=1523027634]
+transform = Transform3D(0.48, 0, 0, 0, 0.38, 0, 0, 0, 0.5, 2.55, 1.28, -1.9)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.65, 0.5, 0.7)
+position = Vector3(2, 1.35, -1.9)
+[node name="DefenseDeskOrbRight" type="MeshInstance3D" parent="DefenseDesk" unique_id=947223933]
+transform = Transform3D(0.48, 0, 0, 0, 0.38, 0, 0, 0, 0.5, 5.95, 1.28, -1.9)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.65, 0.5, 0.7)
+position = Vector3(6.5, 1.35, -1.9)
+[node name="ProsecutorChairSeat" type="MeshInstance3D" parent="ProsecutionDesk" unique_id=531902744]
+transform = Transform3D(1.35, 0, 0, 0, 0.4, 0, 0, 0, 1.15, -4.25, 0.72, -0.3)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+[node name="ProsecutorChairBack" type="MeshInstance3D" parent="ProsecutionDesk" unique_id=478129100]
+transform = Transform3D(1.35, 0, 0, 0, 0.95, 0, 0, 0, 0.4, -4.25, 1.22, 0.08)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+[node name="DefenseChairSeat" type="MeshInstance3D" parent="DefenseDesk" unique_id=1589877846]
+transform = Transform3D(1.35, 0, 0, 0, 0.4, 0, 0, 0, 1.15, 4.25, 0.72, -0.3)
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Sphere_Unit")
+
+[node name="DefenseChairBack" type="MeshInstance3D" parent="DefenseDesk" unique_id=576221460]
+transform = Transform3D(1.35, 0, 0, 0, 0.95, 0, 0, 0, 0.4, 4.25, 1.22, 0.08)
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Sphere_Unit")
+
+[node name="WitnessStand" type="Node3D" parent="." unique_id=1281774060]
+
+[node name="WitnessPodiumBody" type="MeshInstance3D" parent="WitnessStand" unique_id=1184401222]
+transform = Transform3D(1.35, 0, 0, 0, 1.3, 0, 0, 0, 1.2, -6.65, 0.65, -4)
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Cylinder_Unit")
+position = Vector3(-6.65, 0.8, -4)
+scale = Vector3(1.9, 1.5, 1.7)
+rotation_degrees = Vector3(0, 0, 3)
+[node name="WitnessPodiumTop" type="MeshInstance3D" parent="WitnessStand" unique_id=111648275]
+transform = Transform3D(1.85, 0, 0, 0, 0.22, 0, 0, 0, 1.65, -6.65, 1.36, -4)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(2.3, 0.32, 2)
+position = Vector3(-6.65, 1.55, -4)
+[node name="WitnessMicrophoneStem" type="MeshInstance3D" parent="WitnessStand" unique_id=1304626768]
+transform = Transform3D(0.1271592, 0.17672496, 0, -0.02570565, 0.7907327, -0.040172208, -0.008352272, 0.2569246, 0.12363735, -6.65, 1.8, -4.4)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Cylinder_Unit")
+scale = Vector3(0.2, 1.2, 0.2)
+position = Vector3(-6.65, 2, -4.4)
+[node name="WitnessMicrophoneHead" type="MeshInstance3D" parent="WitnessStand" unique_id=54542608]
+transform = Transform3D(0.46, 0, 0, 0, 0.34, 0, 0, 0, 0.38, -6.48, 2.19, -4.47)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.72, 0.56, 0.62)
+position = Vector3(-6.45, 2.6, -4.47)
+[node name="WitnessSignBoard" type="MeshInstance3D" parent="WitnessStand" unique_id=949062837]
+transform = Transform3D(1.4, 0, 0, 0, 0.6, 0, 0, 0, 0.14, -6.65, 2.35, -4)
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Box_Unit")
+scale = Vector3(3.5, 0.95, 0.2)
+position = Vector3(-6.65, 3, -4)
+[node name="WitnessSignText" type="Label3D" parent="WitnessStand" unique_id=344623232]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.65, 2.34, -3.91)
+text = "TELL THE TRUTH*"
+outline_size = 8
+position = Vector3(-6.65, 2.98, -3.87)
+pixel_size = 0.006
+font_size = 60
+[node name="DefendantSpot" type="MeshInstance3D" parent="Rug" unique_id=1633994092]
+transform = Transform3D(2.2, 0, 0, 0, 0.12, 0, 0, 0, 2.2, 0, 0.06, 0.6)
+material_override = SubResource("Mat_Sky")
+mesh = SubResource("Cylinder_Unit")
+
+[node name="DefendantSpotCenter" type="MeshInstance3D" parent="Rug" unique_id=1652823688]
+transform = Transform3D(1.1, 0, 0, 0, 0.1, 0, 0, 0, 1.1, 0, 0.15, 0.6)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+[node name="Audience" type="Node3D" parent="." unique_id=1149852806]
+
+[node name="LeftBenchMint" type="MeshInstance3D" parent="Audience" unique_id=1672626383]
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Box_Unit")
+
+position = Vector3(-7, 0.42, 2)
+scale = Vector3(5.4, 0.45, 1.3)
+[node name="LeftBenchPeach" type="MeshInstance3D" parent="Audience" unique_id=1873770798]
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Box_Unit")
+
+position = Vector3(-7, 0.42, 3.55)
+scale = Vector3(5.4, 0.45, 1.3)
+[node name="RightBenchYellow" type="MeshInstance3D" parent="Audience" unique_id=246782850]
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Box_Unit")
+
+position = Vector3(7, 0.42, 2)
+scale = Vector3(5.4, 0.45, 1.3)
+[node name="RightBenchCoral" type="MeshInstance3D" parent="Audience" unique_id=1085833304]
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Box_Unit")
+
+position = Vector3(7, 0.42, 3.55)
+scale = Vector3(5.4, 0.45, 1.3)
+[node name="LeftBenchMintEndFront" type="MeshInstance3D" parent="Audience" unique_id=1645874295]
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(-9.3, 0.82, 2)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="LeftBenchMintEndBack" type="MeshInstance3D" parent="Audience" unique_id=1913120420]
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(-4.5, 0.82, 2)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="LeftBenchPeachEndFront" type="MeshInstance3D" parent="Audience" unique_id=1533328243]
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(-9.3, 0.82, 3.55)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="LeftBenchPeachEndBack" type="MeshInstance3D" parent="Audience" unique_id=1193816465]
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(-4.5, 0.82, 3.55)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="RightBenchYellowEndFront" type="MeshInstance3D" parent="Audience" unique_id=1616041530]
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(4.5, 0.82, 2)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="RightBenchYellowEndBack" type="MeshInstance3D" parent="Audience" unique_id=1955790121]
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(9.3, 0.82, 2)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="RightBenchCoralEndFront" type="MeshInstance3D" parent="Audience" unique_id=1469459395]
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(4.5, 0.82, 3.55)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="RightBenchCoralEndBack" type="MeshInstance3D" parent="Audience" unique_id=746614194]
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+
+position = Vector3(9.3, 0.82, 3.55)
+scale = Vector3(0.78, 0.78, 0.78)
+[node name="Decorations" type="Node3D" parent="." unique_id=1869947842]
+
+[node name="JusticeEmblemOuter" type="MeshInstance3D" parent="Decorations" unique_id=201381223]
+transform = Transform3D(2.65, 0, 0, 0, 2.35, 0, 0, 0, 0.32, 0, 5.4, -7.23)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(3.5, 3.1, 0.4)
+[node name="JusticeEmblemInner" type="MeshInstance3D" parent="Decorations" unique_id=380749707]
+transform = Transform3D(2.28, 0, 0, 0, 2, 0, 0, 0, 0.34, 0, 5.4, -7.02)
+material_override = SubResource("Mat_Sky")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(3, 2.65, 0.4)
+[node name="ScalesPost" type="MeshInstance3D" parent="Decorations" unique_id=58289472]
+transform = Transform3D(0.3, 0, 0, 0, 1.55, 0, 0, 0, 0.28, 0, 5.3, -6.78)
+material_override = SubResource("Mat_Gold")
+mesh = SubResource("Cylinder_Unit")
+scale = Vector3(0.42, 2.15, 0.42)
+[node name="ScalesBeam" type="MeshInstance3D" parent="Decorations" unique_id=329540715]
+transform = Transform3D(0.029248638, -3.722048, 0, 0.23821107, 0.45700997, 0, 0, 0, 0.25, 0, 5.95, -6.78)
+material_override = SubResource("Mat_Gold")
+mesh = SubResource("Cylinder_Unit")
+scale = Vector3(0.34, 4.4, 0.34)
+[node name="ScalePanLeftChain" type="MeshInstance3D" parent="Decorations" unique_id=1909374056]
+transform = Transform3D(0.11, 0, 0, 0, 1, 0, 0, 0, 0.11, -1.22, 5.38, -6.78)
+material_override = SubResource("Mat_Gold")
+mesh = SubResource("Cylinder_Unit")
+scale = Vector3(0.15, 1.15, 0.15)
+position = Vector3(-1.42, 5.35, -6.78)
+[node name="ScalePanRightChain" type="MeshInstance3D" parent="Decorations" unique_id=1754410172]
+transform = Transform3D(0.11, 0, 0, 0, 0.78, 0, 0, 0, 0.11, 1.22, 5.52, -6.78)
+material_override = SubResource("Mat_Gold")
+mesh = SubResource("Cylinder_Unit")
+scale = Vector3(0.15, 1, 0.15)
+position = Vector3(1.42, 5.5, -6.78)
+[node name="ScalePanLeft" type="MeshInstance3D" parent="Decorations" unique_id=2062390454]
+transform = Transform3D(0.92, 0, 0, 0, 0.32, 0, 0, 0, 0.86, -1.22, 4.86, -6.78)
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Sphere_Unit")
+
+[node name="ScalePanRight" type="MeshInstance3D" parent="Decorations" unique_id=1209326836]
+transform = Transform3D(0.92, 0, 0, 0, 0.32, 0, 0, 0, 0.86, 1.22, 4.99, -6.78)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+
+[node name="ScalesTopBall" type="MeshInstance3D" parent="Decorations" unique_id=1984115232]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 6.85, -6.78)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+scale = Vector3(0.65, 0.65, 0.65)
+[node name="RearPictureFrameLeft" type="MeshInstance3D" parent="Decorations" unique_id=1194654623]
+transform = Transform3D(1.55, 0, 0, 0, 1.6, 0, 0, 0, 0.18, -7, 5.4, -7.4)
+material_override = SubResource("Mat_Peach")
+mesh = SubResource("Box_Unit")
+
+[node name="RearPictureFaceLeft" type="MeshInstance3D" parent="Decorations" unique_id=2062493624]
+transform = Transform3D(1.28, 0, 0, 0, 1.32, 0, 0, 0, 0.16, -7, 5.4, -7.28)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+[node name="RearPictureFrameRight" type="MeshInstance3D" parent="Decorations" unique_id=715985355]
+transform = Transform3D(1.55, 0, 0, 0, 1.6, 0, 0, 0, 0.18, 7, 5.4, -7.4)
+material_override = SubResource("Mat_Mint")
+mesh = SubResource("Box_Unit")
+
+[node name="RearPictureFaceRight" type="MeshInstance3D" parent="Decorations" unique_id=745744592]
+transform = Transform3D(1.28, 0, 0, 0, 1.32, 0, 0, 0, 0.16, 7, 5.4, -7.28)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+
+[node name="PictureSmileyLeft" type="MeshInstance3D" parent="Decorations" unique_id=2088316196]
+transform = Transform3D(0.55, 0, 0, 0, 0.55, 0, 0, 0, 0.15, -7, 5.4, -7.12)
+material_override = SubResource("Mat_Coral")
+mesh = SubResource("Sphere_Unit")
+
+[node name="PictureSmileyRight" type="MeshInstance3D" parent="Decorations" unique_id=1224668957]
+transform = Transform3D(0.55, 0, 0, 0, 0.55, 0, 0, 0, 0.15, 7, 5.4, -7.12)
+material_override = SubResource("Mat_Yellow")
+mesh = SubResource("Sphere_Unit")
+
+[node name="FunnyCourtSign" type="Label3D" parent="Decorations" unique_id=831200321]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, -7.1)
+pixel_size = 0.003
+modulate = Color(1, 0.82, 0.22, 1)
+text = "COURT OF SILLY JUSTICE"
+font_size = 60
+outline_size = 8
+
+[node name="Lighting" type="Node3D" parent="Environment" unique_id=1172174930]
+
+[node name="SunnyKeyLight" type="DirectionalLight3D" parent="Environment/Lighting" unique_id=665718870]
+transform = Transform3D(0.9063079, 0.3140666, -0.2827868, 1.441507e-08, 0.6691306, 0.7431449, 0.42261836, -0.673518, 0.6064382, 0, 0, 0)
+light_color = Color(1, 0.91, 0.76, 1)
+light_energy = 0.6
+shadow_enabled = false
+
+[node name="SoftFillLeft" type="OmniLight3D" parent="Environment/Lighting" unique_id=922467731]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 6, 1)
+position = Vector3(-8, 6.5, 0.5)
+light_energy = 1.7
+light_color = Color(1, 0.96, 0.88, 1)
+omni_range = 24.0
+shadow_enabled = false
+[node name="SoftFillRight" type="OmniLight3D" parent="Environment/Lighting" unique_id=1629811761]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 5, -3)
+position = Vector3(8, 6.5, 0.5)
+light_energy = 1.7
+light_color = Color(1, 0.96, 0.88, 1)
+omni_range = 24.0
+shadow_enabled = false
+[node name="World" type="WorldEnvironment" parent="Environment" unique_id=130763758]
+environment = SubResource("Environment_Cheerful")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1090661199]
+current = true
+position = Vector3(0, 12.1, 18.8)
+fov = 45.0
+rotation_degrees = Vector3(-29, 0, 0)
+[node name="BackCrownPeach" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+
+scale = Vector3(19.8, 0.28, 0.36)
+position = Vector3(0, 7.08, -7.6)
+[node name="BackCrownYellowStripe" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Yellow")
+
+scale = Vector3(19.6, 0.12, 0.2)
+position = Vector3(0, 7.38, -7.58)
+[node name="LeftCrownPeach" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+
+scale = Vector3(0.3, 0.14, 16)
+position = Vector3(-9.65, 7.08, 0)
+[node name="RightCrownPeach" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+
+scale = Vector3(0.3, 0.14, 16)
+position = Vector3(9.65, 7.08, 0)
+[node name="ColumnLeftFootRing" type="MeshInstance3D" parent="Room"]
+rotation_degrees = Vector3(90, 0, 0)
+mesh = SubResource("Torus_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(1.7, 0.3, 1.7)
+position = Vector3(-8.45, 0.48, -6.35)
+[node name="ColumnRightFootRing" type="MeshInstance3D" parent="Room"]
+rotation_degrees = Vector3(90, 0, 0)
+mesh = SubResource("Torus_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(1.7, 0.3, 1.7)
+position = Vector3(8.45, 0.48, -6.35)
+[node name="ColumnLeftCapitalRing" type="MeshInstance3D" parent="Room"]
+rotation_degrees = Vector3(90, 0, 0)
+scale = Vector3(1.75, 0.3, 1.75)
+mesh = SubResource("Torus_Unit")
+material_override = SubResource("Mat_Yellow")
+position = Vector3(-8.45, 7.45, -6.35)
+[node name="ColumnRightCapitalRing" type="MeshInstance3D" parent="Room"]
+rotation_degrees = Vector3(90, 0, 0)
+scale = Vector3(1.75, 0.3, 1.75)
+mesh = SubResource("Torus_Unit")
+material_override = SubResource("Mat_Yellow")
+position = Vector3(8.45, 7.45, -6.35)
+[node name="LeftWindowArchedFrame" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Torus_Unit")
+position = Vector3(-9.54, 4.25, -2.25)
+scale = Vector3(3.55, 3.55, 0.18)
+material_override = SubResource("Mat_Yellow")
+rotation_degrees = Vector3(0, 90, 0)
+[node name="RightWindowArchedFrame" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Torus_Unit")
+position = Vector3(9.54, 4.25, -2.25)
+scale = Vector3(3.55, 3.55, 0.18)
+material_override = SubResource("Mat_Coral")
+rotation_degrees = Vector3(0, 90, 0)
+[node name="LeftCurtainNear" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Coral")
+
+position = Vector3(-9.54, 4.25, -4.05)
+scale = Vector3(0.38, 2.5, 0.38)
+rotation_degrees = Vector3(0, 0, 0)
+[node name="LeftCurtainFar" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Coral")
+
+position = Vector3(-9.54, 4.25, -0.45)
+scale = Vector3(0.38, 2.5, 0.38)
+rotation_degrees = Vector3(0, 0, 0)
+[node name="RightCurtainNear" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Mint")
+
+position = Vector3(9.54, 4.25, -4.05)
+scale = Vector3(0.38, 2.5, 0.38)
+rotation_degrees = Vector3(0, 0, 0)
+[node name="RightCurtainFar" type="MeshInstance3D" parent="Room"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Mint")
+
+position = Vector3(9.54, 4.25, -0.45)
+scale = Vector3(0.38, 2.5, 0.38)
+rotation_degrees = Vector3(0, 0, 0)
+[node name="JudgeDeskTopOutline" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Outline")
+position = Vector3(0, 2.2, -4.62)
+scale = Vector3(8.8, 0.5, 3.05)
+[node name="JudgeDeskFrontOutline" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Outline")
+position = Vector3(0, 1.6, -4.38)
+scale = Vector3(7.45, 1.65, 0.4)
+[node name="JudgeDeskEmblemOuter" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Gold")
+scale = Vector3(1.6, 1.25, 0.22)
+position = Vector3(0, 1.66, -4.19)
+[node name="JudgeDeskEmblemInner" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(1.15, 0.92, 0.18)
+position = Vector3(0, 1.66, -4.08)
+[node name="JudgeDeskEmblemLetter" type="Label3D" parent="JudgeArea"]
+pixel_size = 0.004
+outline_size = 7
+text = "J"
+horizontal_alignment = 1
+font_size = 100
+position = Vector3(0, 1.46, -3.94)
+[node name="JudgeGavelCapsuleHead" type="MeshInstance3D" parent="JudgeArea"]
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Gold")
+scale = Vector3(2.45, 1.05, 1.05)
+position = Vector3(-4.45, 4.45, -3.7)
+[node name="JudgeGavelComicOutline" type="MeshInstance3D" parent="JudgeArea"]
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Outline")
+scale = Vector3(2.6, 1.18, 1.18)
+position = Vector3(-4.45, 4.45, -3.7)
+[node name="JudgeGavelSoundBlock" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(1.05, 0.28, 1.05)
+position = Vector3(-3.95, 1.82, -3.6)
+[node name="JudgeGavelSoundBlockTop" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(0.92, 0.26, 0.92)
+position = Vector3(-3.95, 2, -3.6)
+[node name="ProsecutionDeskTopOutline" type="MeshInstance3D" parent="ProsecutionDesk"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Outline")
+scale = Vector3(5.2, 0.5, 2.65)
+position = Vector3(-4.25, 1.35, -1.9)
+[node name="ProsecutionBadge" type="MeshInstance3D" parent="ProsecutionDesk"]
+position = Vector3(-4.25, 0.68, -1.5)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+scale = Vector3(1.1, 0.95, 0.22)
+[node name="ProsecutionBadgeLetter" type="Label3D" parent="ProsecutionDesk"]
+position = Vector3(-4.25, 0.52, -1.39)
+pixel_size = 0.004
+outline_size = 7
+text = "P"
+horizontal_alignment = 1
+font_size = 72
+[node name="ProsecutionOversizedPencil" type="MeshInstance3D" parent="ProsecutionDesk"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Yellow")
+position = Vector3(-5.7, 1.72, -1.92)
+scale = Vector3(0.18, 0.95, 0.18)
+rotation_degrees = Vector3(0, 0, -18)
+[node name="ProsecutionPencilTip" type="MeshInstance3D" parent="ProsecutionDesk"]
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Peach")
+position = Vector3(-6.0, 2.62, -1.92)
+scale = Vector3(0.18, 0.28, 0.18)
+rotation_degrees = Vector3(0, 0, 162)
+[node name="ProsecutionPaper1" type="MeshInstance3D" parent="ProsecutionDesk"]
+position = Vector3(-3.05, 1.47, -2.25)
+rotation_degrees = Vector3(0, 0, -4)
+scale = Vector3(0.9, 0.08, 0.72)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Cream")
+
+[node name="ProsecutionPaper2" type="MeshInstance3D" parent="ProsecutionDesk"]
+position = Vector3(-3.05, 1.55, -2.25)
+rotation_degrees = Vector3(0, 0, 3)
+scale = Vector3(0.82, 0.08, 0.66)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="ProsecutionBellDome" type="MeshInstance3D" parent="ProsecutionDesk"]
+position = Vector3(-3.05, 1.68, -1.35)
+scale = Vector3(0.34, 0.28, 0.34)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="ProsecutionBellBase" type="MeshInstance3D" parent="ProsecutionDesk"]
+position = Vector3(-3.05, 1.54, -1.35)
+scale = Vector3(0.38, 0.14, 0.38)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Gold")
+
+[node name="ProsecutionStressBall" type="MeshInstance3D" parent="ProsecutionDesk"]
+position = Vector3(-4.75, 1.55, -2.05)
+scale = Vector3(0.46, 0.46, 0.46)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Mint")
+
+[node name="DefenseDeskTopOutline" type="MeshInstance3D" parent="DefenseDesk"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Outline")
+scale = Vector3(5.2, 0.5, 2.65)
+position = Vector3(4.25, 1.35, -1.9)
+[node name="DefenseBadge" type="MeshInstance3D" parent="DefenseDesk"]
+position = Vector3(4.25, 0.68, -1.5)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Mint")
+scale = Vector3(1.1, 0.95, 0.22)
+[node name="DefenseBadgeLetter" type="Label3D" parent="DefenseDesk"]
+position = Vector3(4.25, 0.52, -1.39)
+pixel_size = 0.004
+outline_size = 7
+text = "D"
+horizontal_alignment = 1
+font_size = 72
+[node name="DefenseOversizedPencil" type="MeshInstance3D" parent="DefenseDesk"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Coral")
+position = Vector3(5.7, 1.72, -1.92)
+scale = Vector3(0.18, 0.95, 0.18)
+rotation_degrees = Vector3(0, 0, 18)
+[node name="DefensePencilTip" type="MeshInstance3D" parent="DefenseDesk"]
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Yellow")
+position = Vector3(6.0, 2.62, -1.92)
+scale = Vector3(0.18, 0.28, 0.18)
+rotation_degrees = Vector3(0, 0, 18)
+[node name="DefensePaper1" type="MeshInstance3D" parent="DefenseDesk"]
+position = Vector3(3.05, 1.47, -2.25)
+rotation_degrees = Vector3(0, 0, 4)
+scale = Vector3(0.9, 0.08, 0.72)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Cream")
+
+[node name="DefensePaper2" type="MeshInstance3D" parent="DefenseDesk"]
+position = Vector3(3.05, 1.55, -2.25)
+rotation_degrees = Vector3(0, 0, -3)
+scale = Vector3(0.82, 0.08, 0.66)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Mint")
+
+[node name="DefenseBellDome" type="MeshInstance3D" parent="DefenseDesk"]
+position = Vector3(3.05, 1.68, -1.35)
+scale = Vector3(0.34, 0.28, 0.34)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="DefenseBellBase" type="MeshInstance3D" parent="DefenseDesk"]
+position = Vector3(3.05, 1.54, -1.35)
+scale = Vector3(0.38, 0.14, 0.38)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Gold")
+
+[node name="DefenseStressBall" type="MeshInstance3D" parent="DefenseDesk"]
+position = Vector3(4.75, 1.55, -2.05)
+scale = Vector3(0.46, 0.46, 0.46)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="WitnessSpotlightCircle" type="MeshInstance3D" parent="WitnessStand"]
+position = Vector3(-6.65, 0.035, -4.0)
+scale = Vector3(2.2, 0.07, 2.2)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="WitnessSpotlightInner" type="MeshInstance3D" parent="WitnessStand"]
+position = Vector3(-6.65, 0.075, -4.0)
+scale = Vector3(1.6, 0.04, 1.6)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="WitnessTruthAsterisk" type="MeshInstance3D" parent="WitnessStand"]
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(0.16, 0.16, 0.12)
+position = Vector3(-4.95, 3, -3.86)
+[node name="RugOuter" type="MeshInstance3D" parent="Rug"]
+position = Vector3(0, 0.035, 1.05)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(8.7, 0.12, 7.8)
+[node name="RugSkyRing" type="MeshInstance3D" parent="Rug"]
+position = Vector3(0, 0.105, 1.05)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Sky")
+scale = Vector3(8, 0.1, 7.1)
+[node name="RugMintCenter" type="MeshInstance3D" parent="Rug"]
+position = Vector3(0, 0.16, 1.05)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Mint")
+scale = Vector3(6.1, 0.09, 5.4)
+[node name="RugPeachCenterDot" type="MeshInstance3D" parent="Rug"]
+position = Vector3(0, 0.205, 1.05)
+scale = Vector3(1.0, 0.08, 1.0)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="AudienceThirdBenchLeft" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Sky")
+
+position = Vector3(-7, 0.42, 5.8)
+scale = Vector3(5.4, 0.45, 1.3)
+[node name="AudienceThirdBenchRight" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Coral")
+
+position = Vector3(7, 0.42, 5.8)
+scale = Vector3(5.4, 0.45, 1.3)
+[node name="BenchFrontLeftLegFront" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(-9.25, 0.28, 1.55)
+[node name="BenchFrontLeftLegBack" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(-4.75, 0.28, 1.55)
+[node name="BenchFrontRightLegFront" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(4.75, 0.28, 1.55)
+[node name="BenchFrontRightLegBack" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(9.25, 0.28, 1.55)
+[node name="BenchBackLeftLegFront" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(-9.25, 0.28, 3.1)
+[node name="BenchBackLeftLegBack" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(-4.75, 0.28, 3.1)
+[node name="BenchBackRightLegFront" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(4.75, 0.28, 3.1)
+[node name="BenchBackRightLegBack" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(9.25, 0.28, 3.1)
+[node name="BenchThirdLeftLegFront" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(-9.25, 0.28, 5.35)
+[node name="BenchThirdLeftLegBack" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(-4.75, 0.28, 5.35)
+[node name="BenchThirdRightLegFront" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(4.75, 0.28, 5.35)
+[node name="BenchThirdRightLegBack" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+
+scale = Vector3(0.28, 0.32, 0.28)
+position = Vector3(9.25, 0.28, 5.35)
+[node name="BenchFrontMintPuffyBack" type="MeshInstance3D" parent="Audience"]
+material_override = SubResource("Mat_Mint")
+
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+scale = Vector3(1.1, 4.4, 0.85)
+position = Vector3(-7, 1.42, 2.62)
+[node name="BenchFrontYellowPuffyBack" type="MeshInstance3D" parent="Audience"]
+material_override = SubResource("Mat_Yellow")
+
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+scale = Vector3(1.1, 4.4, 0.85)
+position = Vector3(7, 1.42, 2.62)
+[node name="BenchBackPeachPuffyBack" type="MeshInstance3D" parent="Audience"]
+material_override = SubResource("Mat_Peach")
+
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+scale = Vector3(1.1, 4.4, 0.85)
+position = Vector3(-7, 1.42, 4.17)
+[node name="BenchBackCoralPuffyBack" type="MeshInstance3D" parent="Audience"]
+material_override = SubResource("Mat_Coral")
+
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+scale = Vector3(1.1, 4.4, 0.85)
+position = Vector3(7, 1.42, 4.17)
+[node name="BenchThirdSkyPuffyBack" type="MeshInstance3D" parent="Audience"]
+material_override = SubResource("Mat_Sky")
+
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+scale = Vector3(1.1, 4.4, 0.85)
+position = Vector3(-7, 1.42, 6.42)
+[node name="BenchThirdCoralPuffyBack" type="MeshInstance3D" parent="Audience"]
+material_override = SubResource("Mat_Coral")
+
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+scale = Vector3(1.1, 4.4, 0.85)
+position = Vector3(7, 1.42, 6.42)
+[node name="FunnyProps" type="Node3D" parent="Decorations"]
+
+[node name="RubberDuckBody" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.1, 0.75, 0.2)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(1.65, 1.2, 1.5)
+[node name="RubberDuckHead" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.55, 1.32, 0.12)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(0.95, 1.05, 0.95)
+[node name="RubberDuckBeak" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.88, 1.25, 0.05)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(0.6, 0.34, 0.42)
+[node name="RubberDuckEyeLeft" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.67, 1.53, -0.22)
+scale = Vector3(0.18, 0.18, 0.12)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Cream")
+
+[node name="RubberDuckEyeRight" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.82, 1.53, -0.22)
+scale = Vector3(0.18, 0.18, 0.12)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Wood")
+
+[node name="SillyPlantPot" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.45, 0.52, -1.65)
+scale = Vector3(1, 0.9, 1)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="SillyPlantBush" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.45, 1.55, -1.65)
+scale = Vector3(1.8, 1.7, 1.6)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Mint")
+
+[node name="SillyPlantLeafLeft" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(7.8, 2, -1.4)
+scale = Vector3(0.9, 0.75, 0.8)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="SillyPlantLeafRight" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(9, 2.05, -1.8)
+scale = Vector3(0.85, 0.8, 0.8)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="WallPencilBody" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Yellow")
+position = Vector3(-9.12, 1.55, 0.2)
+scale = Vector3(0.22, 1.45, 0.22)
+rotation_degrees = Vector3(0, 0, -18)
+[node name="WallPencilTip" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Peach")
+position = Vector3(-9.6, 2.95, 0.2)
+scale = Vector3(0.24, 0.4, 0.24)
+rotation_degrees = Vector3(0, 0, 162)
+[node name="CookieJarBody" type="MeshInstance3D" parent="JudgeArea"]
+position = Vector3(2.15, 2.15, -4.65)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Cream")
+scale = Vector3(1.05, 1.05, 1.05)
+[node name="CookieJarLid" type="MeshInstance3D" parent="JudgeArea"]
+position = Vector3(2.15, 2.62, -4.65)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+scale = Vector3(1.15, 0.3, 1.15)
+[node name="CookieOne" type="MeshInstance3D" parent="JudgeArea"]
+position = Vector3(1.85, 2.18, -4.22)
+scale = Vector3(0.22, 0.16, 0.12)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="CookieTwo" type="MeshInstance3D" parent="JudgeArea"]
+position = Vector3(2.1, 2.26, -4.22)
+scale = Vector3(0.22, 0.16, 0.12)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="CookieThree" type="MeshInstance3D" parent="JudgeArea"]
+position = Vector3(2.34, 2.18, -4.22)
+scale = Vector3(0.22, 0.16, 0.12)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BalloonMint" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8, 5.85, 5.8)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Mint")
+scale = Vector3(0.95, 1.25, 0.9)
+[node name="BalloonPeach" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.65, 5.62, 5.75)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(0.9, 1.15, 0.85)
+[node name="BalloonSky" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(7.55, 5.55, 5.72)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Sky")
+scale = Vector3(0.9, 1.15, 0.85)
+[node name="BalloonStringMint" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8, 4.95, 5.8)
+scale = Vector3(0.035, 1.5, 0.035)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Cream")
+
+[node name="BalloonStringPeach" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.65, 4.92, 5.75)
+scale = Vector3(0.035, 1.4, 0.035)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Cream")
+
+[node name="BalloonStringSky" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(7.55, 4.9, 5.72)
+scale = Vector3(0.035, 1.4, 0.035)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Cream")
+
+[node name="TrophyBase" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Coral")
+scale = Vector3(1.1, 0.26, 1.1)
+position = Vector3(-7.1, 0.13, -2.4)
+[node name="TrophyStem" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Gold")
+scale = Vector3(0.55, 1, 0.55)
+position = Vector3(-7.1, 0.62, -2.4)
+[node name="TrophyCup" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(-7.1, 1.45, -2.4)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(1.35, 1.1, 0.95)
+[node name="FunnyClockRim" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-8.2, 5.05, -7.2)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+scale = Vector3(2.1, 2.1, 0.35)
+[node name="FunnyClockFace" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-8.2, 5.05, -7)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Cream")
+scale = Vector3(1.8, 1.8, 0.32)
+[node name="FunnyClockHandShort" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-8, 5.25, -6.79)
+rotation_degrees = Vector3(0, 0, 30)
+scale = Vector3(0.12, 0.62, 0.08)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="FunnyClockHandLong" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-8.38, 5, -6.78)
+rotation_degrees = Vector3(0, 0, -70)
+scale = Vector3(0.1, 0.86, 0.08)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="FunnyClockText" type="Label3D" parent="Decorations"]
+position = Vector3(-8.2, 4.5, -6.75)
+pixel_size = 0.004
+font_size = 22
+outline_size = 5
+text = "OOPS!"
+horizontal_alignment = 1
+modulate = Color(0.96, 0.3, 0.32, 1)
+
+[node name="BananaSignBoard" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(7.35, 3.15, -7.12)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(4.2, 1.0, 0.18)
+[node name="BananaSignText" type="Label3D" parent="Decorations"]
+position = Vector3(7.35, 3, -6.99)
+outline_size = 5
+text = "NO SLIPPING IN COURT!"
+horizontal_alignment = 1
+modulate = Color(0.96, 0.3, 0.32, 1)
+font_size = 24
+pixel_size = 0.012
+[node name="BananaPeelLeft" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(6.95, 0.14, 1.1)
+rotation_degrees = Vector3(0, 0, 62)
+scale = Vector3(0.28, 0.95, 0.2)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="BananaPeelRight" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(7.48, 0.14, 1.1)
+rotation_degrees = Vector3(0, 0, -62)
+scale = Vector3(0.28, 0.95, 0.2)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="BuntingFlag1" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-8.2, 7.15, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="BuntingFlag2" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-6.3, 7.05, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="BuntingFlag3" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-4.4, 6.95, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Mint")
+
+[node name="BuntingFlag4" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-2.5, 6.9, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="BuntingFlag5" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-0.6, 6.88, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="BuntingFlag6" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(1.3, 6.9, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="BuntingFlag7" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(3.2, 6.95, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="BuntingFlag8" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(5.1, 7.05, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Mint")
+
+[node name="BuntingFlag9" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(7, 7.15, -7.25)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.8, 0.75, 0.2)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="JusticeEmblemOutline" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(0, 5.4, -7.23)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Outline")
+scale = Vector3(3.75, 3.35, 0.52)
+[node name="JusticeStarLeft" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-2.25, 6.25, -6.78)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.48, 0.55, 0.3)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="JusticeStarRight" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(2.25, 6, -6.78)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.48, 0.55, 0.3)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="JusticeStarLowerLeft" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(-2.35, 4.62, -6.78)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.42, 0.48, 0.28)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="JusticeStarLowerRight" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(2.35, 4.72, -6.78)
+rotation_degrees = Vector3(0, 0, 180)
+scale = Vector3(0.42, 0.48, 0.28)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Mint")
+
+[node name="SoftFillCenterBack" type="OmniLight3D" parent="Environment/Lighting"]
+
+position = Vector3(0, 7, -4)
+light_energy = 1.25
+light_color = Color(1, 0.96, 0.9, 1)
+omni_range = 24.0
+shadow_enabled = false
+[node name="WitnessWarmSpot" type="SpotLight3D" parent="Environment/Lighting"]
+position = Vector3(-6.65, 5.5, -4)
+rotation_degrees = Vector3(-90, 0, 0)
+light_color = Color(1, 0.86, 0.53, 1)
+light_energy = 1.3
+spot_range = 7.0
+spot_angle = 38.0
+shadow_enabled = false
+[node name="BuntingGarland" type="MeshInstance3D" parent="Decorations"]
+position = Vector3(0, 7.42, -7.22)
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.12, 8.6, 0.12)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="PopcornBucket" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-8.65, 0.95, 4.7)
+scale = Vector3(0.65, 0.9, 0.65)
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="PopcornPuffOne" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-8.75, 1.42, 4.7)
+scale = Vector3(0.35, 0.32, 0.35)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Cream")
+
+[node name="PopcornPuffTwo" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-8.45, 1.38, 4.58)
+scale = Vector3(0.32, 0.33, 0.32)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="FoamFingerPalm" type="MeshInstance3D" parent="Audience"]
+position = Vector3(8.3, 1.35, 4.55)
+rotation_degrees = Vector3(0, 0, -8)
+scale = Vector3(0.42, 1.2, 0.35)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="FoamFingerIndex" type="MeshInstance3D" parent="Audience"]
+position = Vector3(8.46, 2.2, 4.55)
+scale = Vector3(0.34, 0.8, 0.3)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="FoamFingerThumb" type="MeshInstance3D" parent="Audience"]
+position = Vector3(8.02, 1.55, 4.55)
+rotation_degrees = Vector3(0, 0, 45)
+scale = Vector3(0.32, 0.7, 0.3)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="JusticePennant" type="MeshInstance3D" parent="Decorations"]
+mesh = SubResource("Cone_Unit")
+material_override = SubResource("Mat_Coral")
+
+position = Vector3(0, 2.8, -7.28)
+scale = Vector3(1.1, 0.55, 0.12)
+rotation_degrees = Vector3(0, 0, 0)
+[node name="JusticePennantText" type="Label3D" parent="Decorations"]
+position = Vector3(9.08, 3.18, 2.94)
+rotation_degrees = Vector3(0, 0, 0)
+pixel_size = 0.0035
+font_size = 28
+outline_size = 5
+text = "I LOVE JUSTICE"
+horizontal_alignment = 1
+modulate = Color(1, 0.82, 0.22, 1)
+
+[node name="PottedBushOutline" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.45, 1.55, -1.65)
+scale = Vector3(1.92, 1.82, 1.72)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Outline")
+
+[node name="DuckOutline" type="MeshInstance3D" parent="Decorations/FunnyProps"]
+position = Vector3(8.1, 0.75, 0.2)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Outline")
+scale = Vector3(1.78, 1.32, 1.62)
+[node name="JudgeSecondStep" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(8.4, 0.36, 2.9)
+position = Vector3(0, 0.56, -5.6)
+[node name="JudgeSecondStepNosing" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Yellow")
+scale = Vector3(8.3, 0.12, 0.16)
+position = Vector3(0, 0.78, -4.15)
+[node name="JudgeDeskFatLegLeft" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+scale = Vector3(0.72, 1.4, 0.72)
+position = Vector3(-3.6, 0.82, -4.95)
+[node name="JudgeDeskFatLegRight" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Wood")
+scale = Vector3(0.72, 1.4, 0.72)
+position = Vector3(3.6, 0.82, -4.95)
+[node name="JudgeChairPuffySeat" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Coral")
+scale = Vector3(2.0, 0.66, 1.65)
+position = Vector3(0, 1.6, -6.55)
+[node name="JudgeChairPuffyBack" type="MeshInstance3D" parent="JudgeArea"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Coral")
+scale = Vector3(2.2, 2, 0.65)
+position = Vector3(0, 2.6, -6.95)
+[node name="ScalePanLeftPuffy" type="MeshInstance3D" parent="Decorations"]
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Peach")
+scale = Vector3(1.35, 0.48, 1.15)
+position = Vector3(-1.42, 4.78, -6.78)
+[node name="ScalePanRightPuffy" type="MeshInstance3D" parent="Decorations"]
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+scale = Vector3(1.35, 0.48, 1.15)
+position = Vector3(1.42, 4.95, -6.78)
+
+[node name="JudgeBenchRoundedCap" type="MeshInstance3D" parent="JudgeArea"]
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+position = Vector3(0, 2.2, -4.62)
+scale = Vector3(0.58, 7.5, 2.5)
+[node name="ProsecutionRoundedTop" type="MeshInstance3D" parent="ProsecutionDesk"]
+position = Vector3(-4.25, 1.35, -1.9)
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.48, 4.05, 2.25)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="DefenseRoundedTop" type="MeshInstance3D" parent="DefenseDesk"]
+position = Vector3(4.25, 1.35, -1.9)
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.48, 4.05, 2.25)
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Peach")
+
+[node name="BenchFrontMintRoundedSeat" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Mint")
+
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.95, 4.5, 0.72)
+position = Vector3(-7, 0.7, 2)
+[node name="BenchFrontYellowRoundedSeat" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Yellow")
+
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.95, 4.5, 0.72)
+position = Vector3(7, 0.7, 2)
+[node name="BenchBackPeachRoundedSeat" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Peach")
+
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.95, 4.5, 0.72)
+position = Vector3(-7, 0.7, 3.55)
+[node name="BenchBackCoralRoundedSeat" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Coral")
+
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.95, 4.5, 0.72)
+position = Vector3(7, 0.7, 3.55)
+[node name="BenchThirdSkyRoundedSeat" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Sky")
+
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.95, 4.5, 0.72)
+position = Vector3(-7, 0.7, 5.8)
+[node name="BenchThirdCoralRoundedSeat" type="MeshInstance3D" parent="Audience"]
+mesh = SubResource("Capsule_Unit")
+material_override = SubResource("Mat_Coral")
+
+rotation_degrees = Vector3(0, 0, 90)
+scale = Vector3(0.95, 4.5, 0.72)
+position = Vector3(7, 0.7, 5.8)
+[node name="WitnessSignPostLeft" type="MeshInstance3D" parent="WitnessStand"]
+position = Vector3(-7.55, 2.32, -4.02)
+scale = Vector3(0.18, 1.1, 0.18)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="WitnessSignPostRight" type="MeshInstance3D" parent="WitnessStand"]
+position = Vector3(-5.75, 2.32, -4.02)
+scale = Vector3(0.18, 1.1, 0.18)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_Yellow")
+[node name="BenchFourLeg_0_N2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-9.25, 0.28, 2.45)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_0_2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-4.75, 0.28, 2.45)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_1_N2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(4.75, 0.28, 2.45)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_1_2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(9.25, 0.28, 2.45)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_2_N2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-9.25, 0.28, 4)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_2_2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-4.75, 0.28, 4)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_3_N2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(4.75, 0.28, 4)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_3_2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(9.25, 0.28, 4)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_4_N2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-9.25, 0.28, 6.25)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_4_2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-4.75, 0.28, 6.25)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_5_N2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(4.75, 0.28, 6.25)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+
+[node name="BenchFourLeg_5_2.25" type="MeshInstance3D" parent="Audience"]
+position = Vector3(9.25, 0.28, 6.25)
+scale = Vector3(0.28, 0.32, 0.28)
+mesh = SubResource("Cylinder_Unit")
+material_override = SubResource("Mat_WoodLight")
+[node name="LeftWindowCrossVertical" type="MeshInstance3D" parent="Room"]
+position = Vector3(-9.54, 4.25, -2.25)
+scale = Vector3(0.07, 1.55, 0.08)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Yellow")
+[node name="LeftWindowCrossHorizontal" type="MeshInstance3D" parent="Room"]
+position = Vector3(-9.54, 4.25, -2.25)
+scale = Vector3(0.07, 0.08, 1.55)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Yellow")
+
+[node name="RightWindowCrossVertical" type="MeshInstance3D" parent="Room"]
+position = Vector3(9.54, 4.25, -2.25)
+scale = Vector3(0.07, 1.55, 0.08)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Coral")
+[node name="RightWindowCrossHorizontal" type="MeshInstance3D" parent="Room"]
+position = Vector3(9.54, 4.25, -2.25)
+scale = Vector3(0.07, 0.08, 1.55)
+mesh = SubResource("Box_Unit")
+material_override = SubResource("Mat_Coral")
+[node name="BenchThirdArm_N7_N2.5" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-9.5, 0.82, 5.8)
+scale = Vector3(0.78, 0.78, 0.78)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="BenchThirdArm_N7_2.5" type="MeshInstance3D" parent="Audience"]
+position = Vector3(-4.5, 0.82, 5.8)
+scale = Vector3(0.78, 0.78, 0.78)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Sky")
+
+[node name="BenchThirdArm_7_N2.5" type="MeshInstance3D" parent="Audience"]
+position = Vector3(4.5, 0.82, 5.8)
+scale = Vector3(0.78, 0.78, 0.78)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+
+[node name="BenchThirdArm_7_2.5" type="MeshInstance3D" parent="Audience"]
+position = Vector3(9.5, 0.82, 5.8)
+scale = Vector3(0.78, 0.78, 0.78)
+mesh = SubResource("Sphere_Unit")
+material_override = SubResource("Mat_Coral")
+

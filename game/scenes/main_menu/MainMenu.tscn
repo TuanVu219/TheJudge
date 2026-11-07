@@ -1,0 +1,648 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_menu"]
+[ext_resource type="PackedScene" path="res://scenes/characters/CharacterPreview.tscn" id="2_preview"]
+
+[sub_resource type="StyleBoxFlat" id="MenuCardStyle"]
+bg_color = Color(0.99, 0.96, 0.87, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.12, 0.25, 0.36, 1)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0.12, 0.22, 0.31, 0.2)
+shadow_size = 16
+shadow_offset = Vector2(0, 8)
+content_margin_left = 30.0
+content_margin_top = 27.0
+content_margin_right = 30.0
+content_margin_bottom = 26.0
+
+[sub_resource type="StyleBoxFlat" id="PrimaryNormal"]
+bg_color = Color(0.95, 0.35, 0.34, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 9.0
+content_margin_right = 18.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="PrimaryHover"]
+bg_color = Color(1, 0.51, 0.38, 1)
+border_width_bottom = 4
+border_color = Color(0.76, 0.26, 0.28, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 9.0
+content_margin_right = 18.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="PrimaryPressed"]
+bg_color = Color(0.82, 0.27, 0.29, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 9.0
+content_margin_right = 18.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="SecondaryNormal"]
+bg_color = Color(0.36, 0.75, 0.76, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 9.0
+content_margin_right = 18.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="SecondaryHover"]
+bg_color = Color(0.48, 0.84, 0.79, 1)
+border_width_bottom = 4
+border_color = Color(0.2, 0.56, 0.59, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 18.0
+content_margin_top = 9.0
+content_margin_right = 18.0
+content_margin_bottom = 9.0
+
+[sub_resource type="StyleBoxFlat" id="SubtleNormal"]
+bg_color = Color(0.88, 0.91, 0.88, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_menu")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.53, 0.81, 0.88, 1)
+
+[node name="SunshineBlob" type="Panel" parent="."]
+offset_left = -68.0
+offset_top = -62.0
+offset_right = 174.0
+offset_bottom = 180.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("PrimaryNormal")
+
+[node name="PeachBlob" type="Panel" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -124.0
+offset_top = -138.0
+offset_right = 104.0
+offset_bottom = 90.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SecondaryNormal")
+
+[node name="Layout" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 42.0
+offset_top = 28.0
+offset_right = -42.0
+offset_bottom = -28.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="Columns" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="MenuCard" type="PanelContainer" parent="Layout/Columns"]
+custom_minimum_size = Vector2(455, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("MenuCardStyle")
+
+[node name="MenuContent" type="VBoxContainer" parent="Layout/Columns/MenuCard"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BrandChip" type="Label" parent="Layout/Columns/MenuCard/MenuContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.35, 0.28, 1)
+theme_override_font_sizes/font_size = 15
+text = "THE COURT IS NOW IN SESSION"
+
+[node name="Title" type="Label" parent="Layout/Columns/MenuCard/MenuContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 55
+text = "THE JUDGE"
+
+[node name="Subtitle" type="Label" parent="Layout/Columns/MenuCard/MenuContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.4, 0.46, 1)
+theme_override_font_sizes/font_size = 18
+text = "QUIZ FAST. CLAIM THE COURT."
+
+[node name="AccentRule" type="ColorRect" parent="Layout/Columns/MenuCard/MenuContent"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.96, 0.68, 0.25, 1)
+
+[node name="HomePage" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Welcome" type="Label" parent="Layout/Columns/MenuCard/MenuContent/HomePage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 22
+text = "Ready to make your case?"
+
+[node name="PlayButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/HomePage"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.91, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("PrimaryNormal")
+theme_override_styles/hover = SubResource("PrimaryHover")
+theme_override_styles/pressed = SubResource("PrimaryPressed")
+text = "PLAY"
+
+[node name="HowToPlayButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/HomePage"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.23, 0.32, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("SecondaryNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "HOW TO PLAY"
+
+[node name="SettingsButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/HomePage"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("SubtleNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "SETTINGS"
+
+[node name="QuitButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/HomePage"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("SubtleNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "QUIT GAME"
+
+[node name="ModePage" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Heading" type="Label" parent="Layout/Columns/MenuCard/MenuContent/ModePage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 28
+text = "PICK YOUR NEXT MOVE"
+
+[node name="Description" type="Label" parent="Layout/Columns/MenuCard/MenuContent/ModePage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.4, 0.46, 1)
+theme_override_font_sizes/font_size = 16
+text = "Choose how your courtroom party begins."
+autowrap_mode = 2
+
+[node name="CreateRoomButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/ModePage"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.91, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("PrimaryNormal")
+theme_override_styles/hover = SubResource("PrimaryHover")
+theme_override_styles/pressed = SubResource("PrimaryPressed")
+text = "CREATE ROOM"
+
+[node name="JoinRoomButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/ModePage"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.23, 0.32, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("SecondaryNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "JOIN ROOM"
+
+[node name="BackButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/ModePage"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("SubtleNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "BACK"
+
+[node name="CreateRoomPage" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Heading" type="Label" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 27
+text = "CREATE A ROOM"
+
+[node name="PlayerNameLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 15
+text = "YOUR NAME"
+
+[node name="PlayerNameInput" type="LineEdit" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+placeholder_text = "Enter your name"
+max_length = 20
+
+[node name="RoomNameLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 15
+text = "ROOM NAME (OPTIONAL)"
+
+[node name="RoomNameInput" type="LineEdit" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+placeholder_text = "The Courtroom"
+max_length = 32
+
+[node name="MaxPlayersLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 15
+text = "MAXIMUM PLAYERS"
+
+[node name="MaxPlayersOption" type="OptionButton" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("SubtleNormal")
+item_count = 5
+selected = 4
+popup/item_0/text = "2 players"
+popup/item_0/id = 2
+popup/item_1/text = "4 players"
+popup/item_1/id = 4
+popup/item_2/text = "6 players"
+popup/item_2/id = 6
+popup/item_3/text = "8 players"
+popup/item_3/id = 8
+popup/item_4/text = "10 players"
+popup/item_4/id = 10
+
+[node name="VisibilityLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 15
+text = "ROOM VISIBILITY"
+
+[node name="VisibilityOption" type="OptionButton" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("SubtleNormal")
+item_count = 2
+selected = 1
+popup/item_0/text = "Public"
+popup/item_0/id = 0
+popup/item_1/text = "Private"
+popup/item_1/id = 1
+
+[node name="CreateError" type="Label" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.28, 0.25, 1)
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="CreateButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.98, 0.91, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("PrimaryNormal")
+theme_override_styles/hover = SubResource("PrimaryHover")
+theme_override_styles/pressed = SubResource("PrimaryPressed")
+text = "CREATE ROOM"
+
+[node name="BackButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/CreateRoomPage"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("SubtleNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "BACK"
+
+[node name="JoinRoomPage" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Heading" type="Label" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 27
+text = "JOIN A ROOM"
+
+[node name="PlayerNameLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 15
+text = "YOUR NAME"
+
+[node name="PlayerNameInput" type="LineEdit" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+placeholder_text = "Enter your name"
+max_length = 20
+
+[node name="Description" type="Label" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.4, 0.46, 1)
+theme_override_font_sizes/font_size = 15
+text = "Enter a six-character room code."
+autowrap_mode = 2
+
+[node name="RoomCodeInput" type="LineEdit" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 27
+placeholder_text = "ABC234"
+max_length = 6
+alignment = 1
+
+[node name="ServerLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 13
+text = "SERVER ADDRESS"
+
+[node name="ServerInput" type="LineEdit" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+placeholder_text = "ws://127.0.0.1:8080"
+
+[node name="ServerHelper" type="Label" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.48, 0.53, 1)
+theme_override_font_sizes/font_size = 12
+text = "Multiplayer server address (WSS in browser, WS on local)."
+autowrap_mode = 2
+
+[node name="OfflineLimit" type="Label" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.43, 0.48, 1)
+theme_override_font_sizes/font_size = 14
+text = "Offline prototype: only rooms created in this running app are visible. This app has one local player profile, which cannot join its own hosted room."
+autowrap_mode = 2
+
+[node name="JoinError" type="Label" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.28, 0.25, 1)
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="JoinButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.08, 0.23, 0.32, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("SecondaryNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "JOIN ROOM"
+
+[node name="BackButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/JoinRoomPage"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("SubtleNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "BACK"
+
+[node name="HowToPlayPage" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="Heading" type="Label" parent="Layout/Columns/MenuCard/MenuContent/HowToPlayPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 30
+text = "HOW TO PLAY"
+
+[node name="Instructions" type="Label" parent="Layout/Columns/MenuCard/MenuContent/HowToPlayPage"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 18
+text = "1. Answer quiz questions.\n\n2. A correct answer qualifies you for the Arena.\n\n3. Claim floor tiles for your team.\n\n4. Steal tiles from the opposing team.\n\n5. The team with the most tiles wins!"
+autowrap_mode = 2
+
+[node name="BackButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/HowToPlayPage"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("SubtleNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "BACK"
+
+[node name="SettingsPage" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Heading" type="Label" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 30
+text = "SETTINGS"
+
+[node name="MasterRow" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="MasterLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/MasterRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 16
+text = "MASTER VOLUME"
+
+[node name="MasterSlider" type="HSlider" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/MasterRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="MusicRow" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="MusicLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/MusicRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 16
+text = "MUSIC VOLUME"
+
+[node name="MusicSlider" type="HSlider" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/MusicRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="SfxRow" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="SfxLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/SfxRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 16
+text = "SOUND EFFECTS VOLUME"
+
+[node name="SfxSlider" type="HSlider" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/SfxRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="ServerRow" type="VBoxContainer" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="ServerLabel" type="Label" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/ServerRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 15
+text = "SERVER ADDRESS (FOR MOBILE & LAN)"
+
+[node name="ServerInput" type="LineEdit" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage/ServerRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+placeholder_text = "ws://192.168.1.xxx:8080"
+
+[node name="FullscreenToggle" type="CheckButton" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.17, 0.31, 0.39, 1)
+theme_override_font_sizes/font_size = 17
+text = "FULLSCREEN"
+
+[node name="BackButton" type="Button" parent="Layout/Columns/MenuCard/MenuContent/SettingsPage"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("SubtleNormal")
+theme_override_styles/hover = SubResource("SecondaryHover")
+text = "BACK"
+
+[node name="PreviewCard" type="PanelContainer" parent="Layout/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("MenuCardStyle")
+
+[node name="PreviewContent" type="VBoxContainer" parent="Layout/Columns/PreviewCard"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PreviewTitle" type="Label" parent="Layout/Columns/PreviewCard/PreviewContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.25, 0.36, 1)
+theme_override_font_sizes/font_size = 21
+text = "MEET THE COURT"
+horizontal_alignment = 1
+
+[node name="PreviewCaption" type="Label" parent="Layout/Columns/PreviewCard/PreviewContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.4, 0.46, 1)
+theme_override_font_sizes/font_size = 15
+text = "Three beans. One very silly trial."
+horizontal_alignment = 1
+
+[node name="PreviewFrame" type="PanelContainer" parent="Layout/Columns/PreviewCard/PreviewContent"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("SubtleNormal")
+
+[node name="PreviewViewport" type="SubViewportContainer" parent="Layout/Columns/PreviewCard/PreviewContent/PreviewFrame"]
+custom_minimum_size = Vector2(0, 440)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+mouse_filter = 2
+
+[node name="SubViewport" type="SubViewport" parent="Layout/Columns/PreviewCard/PreviewContent/PreviewFrame/PreviewViewport"]
+handle_input_locally = false
+size = Vector2i(560, 500)
+render_target_update_mode = 4
+
+[node name="CharacterPreview" parent="Layout/Columns/PreviewCard/PreviewContent/PreviewFrame/PreviewViewport/SubViewport" instance=ExtResource("2_preview")]

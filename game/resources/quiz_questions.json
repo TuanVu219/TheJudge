@@ -1,0 +1,362 @@
+[
+  {
+    "id": "math_001",
+    "category": "Mathematics",
+    "difficulty": "Easy",
+    "prompt": "What is 7 + 5?",
+    "options": ["10", "11", "12", "13"],
+    "correct_index": 2,
+    "explanation": "Seven plus five equals twelve."
+  },
+  {
+    "id": "math_002",
+    "category": "Mathematics",
+    "difficulty": "Easy",
+    "prompt": "What is 9 × 3?",
+    "options": ["18", "21", "27", "30"],
+    "correct_index": 2,
+    "explanation": "Nine groups of three make twenty-seven."
+  },
+  {
+    "id": "math_003",
+    "category": "Mathematics",
+    "difficulty": "Easy",
+    "prompt": "What is half of 18?",
+    "options": ["6", "8", "9", "12"],
+    "correct_index": 2,
+    "explanation": "Eighteen split into two equal parts is nine."
+  },
+  {
+    "id": "math_004",
+    "category": "Mathematics",
+    "difficulty": "Easy",
+    "prompt": "What is 20 − 6?",
+    "options": ["12", "14", "16", "26"],
+    "correct_index": 1,
+    "explanation": "Twenty minus six equals fourteen."
+  },
+  {
+    "id": "math_005",
+    "category": "Mathematics",
+    "difficulty": "Easy",
+    "prompt": "How many sides does a triangle have?",
+    "options": ["2", "3", "4", "5"],
+    "correct_index": 1,
+    "explanation": "A triangle has three straight sides."
+  },
+  {
+    "id": "math_006",
+    "category": "Mathematics",
+    "difficulty": "Easy",
+    "prompt": "What is 4 × 4?",
+    "options": ["8", "12", "16", "20"],
+    "correct_index": 2,
+    "explanation": "Four times four equals sixteen."
+  },
+  {
+    "id": "math_007",
+    "category": "Mathematics",
+    "difficulty": "Medium",
+    "prompt": "What is 30% of 50?",
+    "options": ["10", "15", "20", "25"],
+    "correct_index": 1,
+    "explanation": "Thirty percent of fifty is fifteen."
+  },
+  {
+    "id": "math_008",
+    "category": "Mathematics",
+    "difficulty": "Medium",
+    "prompt": "A box has 4 rows of 6 apples. How many apples are there?",
+    "options": ["10", "20", "24", "28"],
+    "correct_index": 2,
+    "explanation": "Four rows with six apples each gives 4 × 6 = 24."
+  },
+  {
+    "id": "math_009",
+    "category": "Mathematics",
+    "difficulty": "Medium",
+    "prompt": "What is 100 ÷ 4?",
+    "options": ["20", "25", "40", "50"],
+    "correct_index": 1,
+    "explanation": "One hundred divided into four equal groups is twenty-five."
+  },
+  {
+    "id": "math_010",
+    "category": "Mathematics",
+    "difficulty": "Medium",
+    "prompt": "What is the perimeter of a square with 5 cm sides?",
+    "options": ["10 cm", "15 cm", "20 cm", "25 cm"],
+    "correct_index": 2,
+    "explanation": "A square has four equal sides, so 4 × 5 cm = 20 cm."
+  },
+  {
+    "id": "general_001",
+    "category": "General Knowledge",
+    "difficulty": "Easy",
+    "prompt": "Which planet do we live on?",
+    "options": ["Mars", "Earth", "Venus", "Jupiter"],
+    "correct_index": 1,
+    "explanation": "Earth is the planet where people live."
+  },
+  {
+    "id": "general_002",
+    "category": "General Knowledge",
+    "difficulty": "Easy",
+    "prompt": "What is the largest ocean on Earth?",
+    "options": ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+    "correct_index": 3,
+    "explanation": "The Pacific Ocean is the largest ocean."
+  },
+  {
+    "id": "general_003",
+    "category": "General Knowledge",
+    "difficulty": "Easy",
+    "prompt": "Which animal is known for its black and white stripes?",
+    "options": ["Zebra", "Tiger", "Giraffe", "Elephant"],
+    "correct_index": 0,
+    "explanation": "A zebra is famous for its black and white stripes."
+  },
+  {
+    "id": "general_004",
+    "category": "General Knowledge",
+    "difficulty": "Easy",
+    "prompt": "What do bees make from flower nectar?",
+    "options": ["Milk", "Honey", "Bread", "Cheese"],
+    "correct_index": 1,
+    "explanation": "Bees use nectar to make honey."
+  },
+  {
+    "id": "general_005",
+    "category": "General Knowledge",
+    "difficulty": "Easy",
+    "prompt": "How many days are in a standard week?",
+    "options": ["5", "6", "7", "8"],
+    "correct_index": 2,
+    "explanation": "A standard week has seven days."
+  },
+  {
+    "id": "general_006",
+    "category": "General Knowledge",
+    "difficulty": "Easy",
+    "prompt": "Which gas do people need to breathe?",
+    "options": ["Oxygen", "Helium", "Carbon dioxide", "Neon"],
+    "correct_index": 0,
+    "explanation": "People need oxygen from the air to live."
+  },
+  {
+    "id": "general_007",
+    "category": "General Knowledge",
+    "difficulty": "Medium",
+    "prompt": "What is the capital city of Japan?",
+    "options": ["Seoul", "Tokyo", "Beijing", "Bangkok"],
+    "correct_index": 1,
+    "explanation": "Tokyo is the capital of Japan."
+  },
+  {
+    "id": "general_008",
+    "category": "General Knowledge",
+    "difficulty": "Medium",
+    "prompt": "Which part of a plant usually takes in water from the soil?",
+    "options": ["Flower", "Leaf", "Root", "Fruit"],
+    "correct_index": 2,
+    "explanation": "Roots take in water and minerals from the soil."
+  },
+  {
+    "id": "general_009",
+    "category": "General Knowledge",
+    "difficulty": "Medium",
+    "prompt": "Which metal is liquid at room temperature?",
+    "options": ["Iron", "Copper", "Mercury", "Silver"],
+    "correct_index": 2,
+    "explanation": "Mercury is a metal that is liquid at room temperature."
+  },
+  {
+    "id": "general_010",
+    "category": "General Knowledge",
+    "difficulty": "Medium",
+    "prompt": "Which instrument has black and white keys?",
+    "options": ["Piano", "Drum", "Flute", "Trumpet"],
+    "correct_index": 0,
+    "explanation": "A piano is played using black and white keys."
+  },
+  {
+    "id": "logic_001",
+    "category": "Logic",
+    "difficulty": "Easy",
+    "prompt": "What number comes next: 2, 4, 6, 8, ...?",
+    "options": ["9", "10", "11", "12"],
+    "correct_index": 1,
+    "explanation": "The pattern adds two each time, so the next number is ten."
+  },
+  {
+    "id": "logic_002",
+    "category": "Logic",
+    "difficulty": "Easy",
+    "prompt": "All cats are animals. Luna is a cat. What is Luna?",
+    "options": ["A plant", "An animal", "A toy", "A bird"],
+    "correct_index": 1,
+    "explanation": "If every cat is an animal and Luna is a cat, Luna is an animal."
+  },
+  {
+    "id": "logic_003",
+    "category": "Logic",
+    "difficulty": "Easy",
+    "prompt": "Which item does not belong: apple, pear, carrot, peach?",
+    "options": ["Apple", "Pear", "Carrot", "Peach"],
+    "correct_index": 2,
+    "explanation": "Carrot is a vegetable; the other three are fruits."
+  },
+  {
+    "id": "logic_004",
+    "category": "Logic",
+    "difficulty": "Easy",
+    "prompt": "Mia is taller than Leo. Leo is taller than Sam. Who is shortest?",
+    "options": ["Mia", "Leo", "Sam", "They are equal"],
+    "correct_index": 2,
+    "explanation": "Sam is shorter than Leo, who is shorter than Mia."
+  },
+  {
+    "id": "logic_005",
+    "category": "Logic",
+    "difficulty": "Easy",
+    "prompt": "What letter comes next: A, C, E, G, ...?",
+    "options": ["H", "I", "J", "K"],
+    "correct_index": 1,
+    "explanation": "The pattern skips one letter each time: A, C, E, G, I."
+  },
+  {
+    "id": "logic_006",
+    "category": "Logic",
+    "difficulty": "Medium",
+    "prompt": "A bus has 4 red seats and 3 blue seats. How many seats are there?",
+    "options": ["1", "7", "12", "43"],
+    "correct_index": 1,
+    "explanation": "There are 4 + 3 = 7 seats."
+  },
+  {
+    "id": "logic_007",
+    "category": "Logic",
+    "difficulty": "Medium",
+    "prompt": "If today is Monday, what day will it be in three days?",
+    "options": ["Tuesday", "Wednesday", "Thursday", "Friday"],
+    "correct_index": 2,
+    "explanation": "Tuesday is one day later, Wednesday is two, and Thursday is three."
+  },
+  {
+    "id": "logic_008",
+    "category": "Logic",
+    "difficulty": "Medium",
+    "prompt": "A clock shows 3:00. What time is it one hour later?",
+    "options": ["2:00", "3:30", "4:00", "5:00"],
+    "correct_index": 2,
+    "explanation": "One hour after 3:00 is 4:00."
+  },
+  {
+    "id": "logic_009",
+    "category": "Logic",
+    "difficulty": "Medium",
+    "prompt": "Every blue box is heavy. This box is blue. What can you conclude?",
+    "options": ["It is heavy", "It is empty", "It is red", "It is small"],
+    "correct_index": 0,
+    "explanation": "The rule says every blue box is heavy, so this blue box is heavy."
+  },
+  {
+    "id": "logic_010",
+    "category": "Logic",
+    "difficulty": "Medium",
+    "prompt": "A line has 5 people. Ava is first and Ben is last. How many are between them?",
+    "options": ["2", "3", "4", "5"],
+    "correct_index": 1,
+    "explanation": "The second, third, and fourth people are between first and last."
+  },
+  {
+    "id": "trick_001",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "How many months have at least 28 days?",
+    "options": ["1", "2", "6", "12"],
+    "correct_index": 3,
+    "explanation": "Every month has at least 28 days."
+  },
+  {
+    "id": "trick_002",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "What gets wetter while it dries you?",
+    "options": ["A towel", "The sun", "A fan", "A comb"],
+    "correct_index": 0,
+    "explanation": "A towel gets wet as it dries something else."
+  },
+  {
+    "id": "trick_003",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "Which is heavier: 1 kg of feathers or 1 kg of bricks?",
+    "options": ["Feathers", "Bricks", "They weigh the same", "It cannot be known"],
+    "correct_index": 2,
+    "explanation": "Both amounts have a mass of one kilogram."
+  },
+  {
+    "id": "trick_004",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "A rooster sits on a roof. Which side does its egg roll down?",
+    "options": ["The left side", "The right side", "Neither side", "Both sides"],
+    "correct_index": 2,
+    "explanation": "Roosters do not lay eggs."
+  },
+  {
+    "id": "trick_005",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "You take two apples from a basket with three apples. How many do you have?",
+    "options": ["1", "2", "3", "5"],
+    "correct_index": 1,
+    "explanation": "You took two apples, so you have two apples."
+  },
+  {
+    "id": "trick_006",
+    "category": "Trick Questions",
+    "difficulty": "Medium",
+    "prompt": "Before Mount Everest was discovered, what was the highest mountain?",
+    "options": ["K2", "Mount Everest", "Kilimanjaro", "No mountain"],
+    "correct_index": 1,
+    "explanation": "Mount Everest was still the highest mountain before people discovered it."
+  },
+  {
+    "id": "trick_007",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "What has hands but cannot clap?",
+    "options": ["A clock", "A monkey", "A dancer", "A glove"],
+    "correct_index": 0,
+    "explanation": "A clock has hands that show the time."
+  },
+  {
+    "id": "trick_008",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "What word is always spelled incorrectly in the dictionary?",
+    "options": ["Dictionary", "Incorrectly", "Wrong", "Misspelled"],
+    "correct_index": 1,
+    "explanation": "The word “incorrectly” is spelled I-N-C-O-R-R-E-C-T-L-Y."
+  },
+  {
+    "id": "trick_009",
+    "category": "Trick Questions",
+    "difficulty": "Easy",
+    "prompt": "What has a neck but no head?",
+    "options": ["A bottle", "A person", "A bird", "A shirt button"],
+    "correct_index": 0,
+    "explanation": "A bottle has a narrow neck but no head."
+  },
+  {
+    "id": "trick_010",
+    "category": "Trick Questions",
+    "difficulty": "Medium",
+    "prompt": "An electric train moves east. The wind blows west. Where does its smoke go?",
+    "options": ["East", "West", "Up", "It has no smoke"],
+    "correct_index": 3,
+    "explanation": "An electric train does not make smoke from a fuel engine."
+  }
+]
