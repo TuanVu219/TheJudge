@@ -5,14 +5,14 @@ class_name TouchJoystick
 
 signal visibility_changed_mode(visible: bool)
 
-@export var base_radius: float = 55.0
-@export var knob_radius: float = 26.0
-@export var clamp_radius: float = 50.0
-@export var deadzone: float = 8.0
+@export var base_radius: float = 85.0
+@export var knob_radius: float = 40.0
+@export var clamp_radius: float = 75.0
+@export var deadzone: float = 10.0
 
-@export var base_color: Color = Color(0.10, 0.18, 0.28, 0.45)
-@export var base_border_color: Color = Color(1.0, 1.0, 1.0, 0.40)
-@export var knob_color: Color = Color(0.96, 0.72, 0.28, 0.85)
+@export var base_color: Color = Color(0.10, 0.18, 0.28, 0.55)
+@export var base_border_color: Color = Color(1.0, 1.0, 1.0, 0.55)
+@export var knob_color: Color = Color(0.96, 0.72, 0.28, 0.90)
 @export var knob_border_color: Color = Color(1.0, 1.0, 1.0, 0.95)
 
 var output_vector: Vector2 = Vector2.ZERO
@@ -27,6 +27,32 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_update_center()
 	resized.connect(_update_center)
+	var vp_size := get_viewport().get_visible_rect().size
+	update_responsive_layout(vp_size.x < vp_size.y)
+
+
+func update_responsive_layout(is_portrait: bool) -> void:
+	if is_portrait:
+		base_radius = 95.0
+		knob_radius = 45.0
+		clamp_radius = 82.0
+		deadzone = 12.0
+		custom_minimum_size = Vector2(250, 250)
+		offset_left = 36.0
+		offset_bottom = -90.0
+		offset_right = 286.0
+		offset_top = -340.0
+	else:
+		base_radius = 70.0
+		knob_radius = 34.0
+		clamp_radius = 62.0
+		deadzone = 10.0
+		custom_minimum_size = Vector2(190, 190)
+		offset_left = 32.0
+		offset_bottom = -30.0
+		offset_right = 222.0
+		offset_top = -220.0
+	_update_center()
 
 
 func _update_center() -> void:

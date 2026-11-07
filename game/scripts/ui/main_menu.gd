@@ -38,6 +38,10 @@ const LOCAL_DISPLAY_NAME := "You"
 @onready var sfx_slider: HSlider = $Layout/Columns/MenuCard/MenuContent/SettingsPage/SfxRow/SfxSlider
 @onready var settings_server_input: LineEdit = $Layout/Columns/MenuCard/MenuContent/SettingsPage/ServerRow/ServerInput if has_node("Layout/Columns/MenuCard/MenuContent/SettingsPage/ServerRow/ServerInput") else null
 @onready var fullscreen_toggle: CheckButton = $Layout/Columns/MenuCard/MenuContent/SettingsPage/FullscreenToggle
+@onready var layout_margin: MarginContainer = $Layout
+@onready var columns_container: HBoxContainer = $Layout/Columns
+@onready var menu_card: PanelContainer = $Layout/Columns/MenuCard
+@onready var preview_card: PanelContainer = $Layout/Columns/PreviewCard if has_node("Layout/Columns/PreviewCard") else null
 
 var _bus_indices: Dictionary = {}
 
@@ -52,7 +56,37 @@ func _ready() -> void:
 	_init_player_names()
 	_setup_mobile_inputs()
 	_hook_network_events()
+	get_viewport().size_changed.connect(_update_responsive_layout)
+	_update_responsive_layout()
 	_show_page(PAGE_HOME, false)
+
+
+func _update_responsive_layout() -> void:
+	var vp_size := get_viewport().get_visible_rect().size
+	var is_portrait := vp_size.x < vp_size.y or vp_size.x < 768.0
+
+	if preview_card != null:
+		preview_card.visible = not is_portrait
+
+	if menu_card != null:
+		if is_portrait:
+			menu_card.custom_minimum_size = Vector2(0, 0)
+			menu_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			menu_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			if layout_margin != null:
+				layout_margin.offset_left = 18.0
+				layout_margin.offset_right = -18.0
+				layout_margin.offset_top = 16.0
+				layout_margin.offset_bottom = -24.0
+		else:
+			menu_card.custom_minimum_size = Vector2(455, 0)
+			menu_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			menu_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			if layout_margin != null:
+				layout_margin.offset_left = 64.0
+				layout_margin.offset_right = -64.0
+				layout_margin.offset_top = 28.0
+				layout_margin.offset_bottom = -28.0
 
 
 func _setup_mobile_inputs() -> void:
@@ -86,12 +120,12 @@ func _update_network_status_ui() -> void:
 		return
 
 	if rm != null and rm.has_method("is_online") and rm.call("is_online"):
-		offline_limit_label.text = "Online: Connected to server (%s). Enter a 6-character room code to join." % str(rm.get("server_url"))
+		offline_limit_label.text = "Online: Connected to server. Enter a 6-character room code to join."
 	else:
 		if NetworkConfig.is_web():
-			offline_limit_label.text = "Offline: Not connected to multiplayer server (%s)." % (str(rm.get("server_url")) if rm != null else "")
+			offline_limit_label.text = "Connecting to multiplayer server..."
 		else:
-			offline_limit_label.text = "Offline prototype: only rooms created in this running app are visible. Connect to local server for cross-device play."
+			offline_limit_label.text = "Offline prototype: only rooms created in this running app are visible."
 
 
 func _init_player_names() -> void:

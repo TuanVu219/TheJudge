@@ -68,11 +68,13 @@ var _controllers_by_player_id: Dictionary = {}
 func _ready() -> void:
 	territory_grid.connect("scores_changed", _on_scores_changed)
 	restart_button.pressed.connect(_on_restart_pressed)
+	get_viewport().size_changed.connect(_update_camera_for_viewport)
 
 	_initialize_from_room_if_available()
 	_apply_game_mode_settings()
 	_setup_arena_dimensions(grid_size)
 	territory_grid.call("build_grid", grid_size, grid_size)
+	_update_camera_for_viewport()
 
 	if _spawn_qualified_players() == 0:
 		territory_grid.set("capture_enabled", false)
@@ -230,10 +232,46 @@ func _setup_arena_dimensions(size: int) -> void:
 	if blue_banner != null: blue_banner.position = Vector3(banner_x, 1.55, banner_z)
 	if blue_banner_label != null: blue_banner_label.position = Vector3(banner_x, 1.55, banner_z + 0.08)
 
-	if camera != null:
-		var cam_dist := float(size) * tile_spacing * 1.22
+	_update_camera_for_viewport()
+
+
+func _update_camera_for_viewport() -> void:
+	if camera == null:
+		return
+	var vp_size := get_viewport().get_visible_rect().size
+	var aspect := vp_size.x / maxf(vp_size.y, 1.0)
+	var is_portrait := aspect < 1.0
+	var size := grid_size if grid_size > 0 else 6
+	var spacing: float = float(territory_grid.get("tile_spacing")) if territory_grid != null else 1.05
+	var grid_extent := float(size) * spacing
+
+	if is_portrait:
+		# Mobile portrait mode: Keep entire horizontal span of the arena visible
+		camera.keep_aspect = Camera3D.KEEP_WIDTH
+		camera.fov = 48.0
+		var aspect_factor := 0.92 / clampf(aspect, 0.38, 0.90)
+		var cam_dist := grid_extent * 1.35 * aspect_factor
+		camera.position = Vector3(0.0, cam_dist * 1.08, cam_dist * 0.96)
+		# Shift look_at slightly forward to keep arena centered in the upper portion
+		camera.look_at(Vector3(0.0, 0.0, -grid_extent * 0.16))
+	else:
+		# Desktop / Landscape mode
+		camera.keep_aspect = Camera3D.KEEP_HEIGHT
+		camera.fov = 44.0
+		var cam_dist := grid_extent * 1.22
 		camera.position = Vector3(0.0, cam_dist * 1.05, cam_dist * 1.08)
 		camera.look_at(Vector3(0.0, 0.0, 0.0))
+
+	var score_panel: Panel = get_node_or_null("HUD/Overlay/ScorePanel") as Panel
+	if score_panel != null:
+		score_panel.anchor_left = 0.5
+		score_panel.anchor_right = 0.5
+		var half_w := minf(vp_size.x * 0.46, 288.0)
+		score_panel.offset_left = -half_w
+		score_panel.offset_right = half_w
+
+	if virtual_joystick != null and virtual_joystick.has_method("update_responsive_layout"):
+		virtual_joystick.call("update_responsive_layout", is_portrait)
 
 
 func _resize_rail(rail: StaticBody3D, new_length: float, is_horizontal: bool) -> void:

@@ -6,6 +6,7 @@ const MAIN_MENU_SCENE_PATH := "res://scenes/main_menu/MainMenu.tscn"
 const MATCH_ENTRY_SCENE_PATH := "res://scenes/match/RoomMatchEntry.tscn"
 const ARENA_SCENE_PATH := "res://scenes/arena/TerritoryArena.tscn"
 const PLAYER_SCENE := preload("res://scenes/characters/PlayerCharacter.tscn")
+const WebMobileInput = preload("res://scripts/ui/web_mobile_input.gd")
 const TEAM_RED := 1
 const TEAM_BLUE := 2
 const PRESETS := [
@@ -43,6 +44,8 @@ func _ready() -> void:
 		if _manager.has_signal("room_closed"):
 			_manager.connect("room_closed", _on_room_closed)
 	_build_ui()
+	get_viewport().size_changed.connect(_update_responsive_layout)
+	_update_responsive_layout()
 	_refresh()
 
 
@@ -52,62 +55,140 @@ func _build_ui() -> void:
 	background.color = Color("#bde8f2")
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
+
+	var margin_c := MarginContainer.new()
+	margin_c.name = "MarginContainer"
+	margin_c.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin_c.add_theme_constant_override("margin_left", 20)
+	margin_c.add_theme_constant_override("margin_right", 20)
+	margin_c.add_theme_constant_override("margin_top", 16)
+	margin_c.add_theme_constant_override("margin_bottom", 20)
+	add_child(margin_c)
+
 	var page := VBoxContainer.new()
-	page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	page.add_theme_constant_override("separation", 14)
-	page.add_theme_constant_override("margin_left", 28)
-	page.add_theme_constant_override("margin_right", 28)
-	page.add_theme_constant_override("margin_top", 22)
-	page.add_theme_constant_override("margin_bottom", 20)
-	add_child(page)
+	page.name = "Page"
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_theme_constant_override("separation", 10)
+	margin_c.add_child(page)
 
-	var top := HBoxContainer.new()
-	top.add_theme_constant_override("separation", 12)
-	page.add_child(top)
-	var title := _label("THE JUDGE  •  PARTY LOBBY", 28, Color("#18364d"))
+	# Header Box (responsive VBox with Title row & Sub row)
+	var top_box := VBoxContainer.new()
+	top_box.name = "TopBox"
+	top_box.add_theme_constant_override("separation", 6)
+	page.add_child(top_box)
+
+	var title_row := HBoxContainer.new()
+	title_row.name = "TitleRow"
+	top_box.add_child(title_row)
+
+	var title := _label("THE JUDGE  •  PARTY LOBBY", 24, Color("#18364d"))
+	title.name = "TitleLabel"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top.add_child(title)
-	_copy_button = _button("ROOM ------  •  COPY", Color("#18364d"))
-	_copy_button.pressed.connect(_copy_room_code)
-	top.add_child(_copy_button)
-	_header = _label("0 / 0 PLAYERS  •  PRIVATE", 16, Color("#18364d"))
-	top.add_child(_header)
+	title_row.add_child(title)
 
+	var sub_row := HBoxContainer.new()
+	sub_row.name = "SubRow"
+	sub_row.add_theme_constant_override("separation", 10)
+	top_box.add_child(sub_row)
+
+	_copy_button = _button("ROOM ------  •  COPY", Color("#18364d"))
+	_copy_button.custom_minimum_size = Vector2(0, 40)
+	_copy_button.add_theme_font_size_override("font_size", 14)
+	_copy_button.pressed.connect(_copy_room_code)
+	sub_row.add_child(_copy_button)
+
+	_header = _label("0 / 0 PLAYERS  •  PRIVATE", 14, Color("#18364d"))
+	_header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sub_row.add_child(_header)
+
+	# Teams Container (Red & Blue panels)
 	var teams := HBoxContainer.new()
+	teams.name = "TeamsContainer"
+	teams.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	teams.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	teams.add_theme_constant_override("separation", 18)
+	teams.add_theme_constant_override("separation", 12)
 	page.add_child(teams)
 	_team_rows[TEAM_RED] = _make_team_panel(teams, TEAM_RED)
 	_team_rows[TEAM_BLUE] = _make_team_panel(teams, TEAM_BLUE)
 
-	_message = _label("Choose your side and character!", 16, Color("#18364d"))
+	_message = _label("Choose your side and character!", 15, Color("#18364d"))
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_message)
-	var footer := HBoxContainer.new()
+
+	# Footer (Responsive 2-row layout with big easy-to-tap buttons)
+	var footer := VBoxContainer.new()
+	footer.name = "Footer"
 	footer.alignment = BoxContainer.ALIGNMENT_CENTER
-	footer.add_theme_constant_override("separation", 14)
+	footer.add_theme_constant_override("separation", 8)
 	page.add_child(footer)
-	_customize_button = _button("CUSTOMIZE CHARACTER", Color("#f3a939"))
-	_customize_button.disabled = true
-	_customize_button.pressed.connect(_show_customizer)
-	footer.add_child(_customize_button)
+
+	var primary_row := HBoxContainer.new()
+	primary_row.name = "PrimaryRow"
+	primary_row.add_theme_constant_override("separation", 10)
+	footer.add_child(primary_row)
+
 	_ready_button = _button("READY UP", Color("#45a876"))
+	_ready_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_ready_button.custom_minimum_size = Vector2(0, 56)
+	_ready_button.add_theme_font_size_override("font_size", 18)
 	_ready_button.pressed.connect(_toggle_ready)
-	footer.add_child(_ready_button)
-	var leave := _button("LEAVE ROOM", Color("#e85f58"))
-	leave.pressed.connect(_leave_room)
-	footer.add_child(leave)
+	primary_row.add_child(_ready_button)
+
 	_start_button = _button("START MATCH", Color("#f3a939"))
+	_start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_start_button.custom_minimum_size = Vector2(0, 56)
+	_start_button.add_theme_font_size_override("font_size", 18)
 	_start_button.disabled = true
 	_start_button.visible = false
 	_start_button.pressed.connect(_start_match)
-	footer.add_child(_start_button)
-	_start_hint = _label("Waiting for room status…", 14, Color("#18364d"))
+	primary_row.add_child(_start_button)
+
+	var secondary_row := HBoxContainer.new()
+	secondary_row.name = "SecondaryRow"
+	secondary_row.add_theme_constant_override("separation", 10)
+	footer.add_child(secondary_row)
+
+	_customize_button = _button("CUSTOMIZE CHARACTER", Color("#f3a939"))
+	_customize_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_customize_button.custom_minimum_size = Vector2(0, 48)
+	_customize_button.add_theme_font_size_override("font_size", 15)
+	_customize_button.disabled = true
+	_customize_button.pressed.connect(_show_customizer)
+	secondary_row.add_child(_customize_button)
+
+	var leave := _button("LEAVE ROOM", Color("#e85f58"))
+	leave.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	leave.custom_minimum_size = Vector2(0, 48)
+	leave.add_theme_font_size_override("font_size", 15)
+	leave.pressed.connect(_leave_room)
+	secondary_row.add_child(leave)
+
+	_start_hint = _label("Waiting for room status…", 13, Color("#18364d"))
 	_start_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_start_hint.visible = false
 	page.add_child(_start_hint)
 
 	_build_customizer()
+
+
+func _update_responsive_layout() -> void:
+	var vp_size := get_viewport().get_visible_rect().size
+	var is_portrait := vp_size.x < vp_size.y or vp_size.x < 768.0
+
+	var margin_c := get_node_or_null("MarginContainer") as MarginContainer
+	if margin_c != null:
+		if is_portrait:
+			margin_c.add_theme_constant_override("margin_left", 14)
+			margin_c.add_theme_constant_override("margin_right", 14)
+			margin_c.add_theme_constant_override("margin_top", 12)
+			margin_c.add_theme_constant_override("margin_bottom", 24)
+		else:
+			margin_c.add_theme_constant_override("margin_left", 28)
+			margin_c.add_theme_constant_override("margin_right", 28)
+			margin_c.add_theme_constant_override("margin_top", 20)
+			margin_c.add_theme_constant_override("margin_bottom", 20)
 
 
 func _make_team_panel(parent: HBoxContainer, team_id: int) -> VBoxContainer:
@@ -203,6 +284,7 @@ func _build_customizer() -> void:
 	_custom_name_edit.placeholder_text = "Your Name"
 	_custom_name_edit.max_length = 20
 	_custom_name_edit.text_submitted.connect(func(_t: String) -> void: _apply_custom_name())
+	WebMobileInput.bind_line_edit(_custom_name_edit, "Nhập tên nhân vật / Enter player name:")
 	name_box.add_child(_custom_name_edit)
 	content.add_child(name_box)
 
@@ -341,11 +423,11 @@ func _make_player_row(player: Dictionary, team_id: int) -> Control:
 	row.add_theme_constant_override("separation", 10)
 	card.add_child(row)
 	var portrait_viewport := SubViewport.new()
-	portrait_viewport.size = Vector2i(110, 105)
+	portrait_viewport.size = Vector2i(75, 75)
 	portrait_viewport.own_world_3d = true
 	portrait_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	portrait_viewport.ready.connect(_setup_viewport_world_for_player.bind(portrait_viewport, player), CONNECT_ONE_SHOT)
-	row.add_child(_viewport_container(portrait_viewport, Vector2(100, 100)))
+	row.add_child(_viewport_container(portrait_viewport, Vector2(68, 68)))
 	var labels := VBoxContainer.new()
 	labels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	labels.alignment = BoxContainer.ALIGNMENT_CENTER
