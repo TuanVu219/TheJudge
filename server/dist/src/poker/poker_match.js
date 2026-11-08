@@ -1,13 +1,19 @@
 import { PokerDeck } from "./poker_deck.js";
 import { PokerBettingManager } from "./poker_betting.js";
+import { PokerShowdownManager } from "./poker_showdown.js";
+import { POKER_CONFIG } from "./poker_config.js";
 export class ForeheadPokerMatch {
     static TOTAL_ROUNDS = 10;
+    static PICK_COUNTDOWN_SECONDS = 15;
     round = 0;
+    phase = "IDLE";
     isMatchStarted = false;
     bettingManager = new PokerBettingManager();
     stateVersion = 0;
     playerSeatMap = new Map();
     roomCode = "";
+    matchHistory = [];
+    lastRoundResult = null;
     players = new Map();
     constructor(playerIds = [], seatAssignments, roomCode = "") {
         if (playerIds.length > 0) {
@@ -16,12 +22,13 @@ export class ForeheadPokerMatch {
     }
     /**
      * Initializes a new match for the given player IDs.
-     * Creates exactly 2 independent decks (Hand + Forehead) per player and shuffles each independently.
+     * Creates exactly 2 independent decks (Hand + Forehead) per player and shuffles each independently across 10 slots.
      */
     initMatch(playerIds, seatAssignments, roomCode = "") {
         this.players.clear();
         this.playerSeatMap.clear();
         this.round = 0;
+        this.phase = "IDLE";
         this.roomCode = roomCode;
         this.stateVersion = 1;
         this.bettingManager.initPlayers(playerIds);
@@ -37,29 +44,104 @@ export class ForeheadPokerMatch {
                 playerId: pid,
                 handDeck,
                 foreheadDeck,
+                pickedHandSlot: null,
+                pickedForeheadSlot: null,
+                isPickConfirmed: false,
             });
         }
         this.isMatchStarted = true;
     }
     /**
-     * Draws the next card from each player's independent Hand and Forehead decks.
-     * Advances the round count.
+     * Starts the 15-second Card Picking Phase for a new round.
      */
-    drawRound() {
+    startRoundPicking(roundNum) {
         if (!this.isMatchStarted) {
             return { success: false, round: this.round, error: "MATCH_NOT_STARTED" };
         }
         if (this.round >= ForeheadPokerMatch.TOTAL_ROUNDS || this.isExhausted()) {
             return { success: false, round: this.round, error: "DECKS_EXHAUSTED" };
         }
-        this.round++;
+        this.round = roundNum !== undefined ? roundNum : (this.round + 1);
+        this.phase = "PICKING";
         this.stateVersion++;
         for (const [, state] of this.players) {
-            state.handDeck.draw();
-            state.foreheadDeck.draw();
+            state.pickedHandSlot = null;
+            state.pickedForeheadSlot = null;
+            state.isPickConfirmed = false;
         }
+        return { success: true, round: this.round };
+    }
+    /**
+     * Records a player's choice of card slots for their Hand and Forehead decks.
+     * If a slot is not specified or null, it keeps previous pick or remains pending.
+     */
+    setPlayerPick(playerId, handSlot, foreheadSlot) {
+        const state = this.players.get(playerId);
+        if (!state) {
+            return { success: false, allConfirmed: false, error: "PLAYER_NOT_FOUND" };
+        }
+        if (this.phase !== "PICKING") {
+            return { success: false, allConfirmed: false, error: "NOT_IN_PICKING_PHASE" };
+        }
+        if (handSlot !== undefined && handSlot !== null) {
+            if (!state.handDeck.isSlotAvailable(handSlot)) {
+                return { success: false, allConfirmed: false, error: "HAND_SLOT_UNAVAILABLE" };
+            }
+            state.pickedHandSlot = handSlot;
+        }
+        if (foreheadSlot !== undefined && foreheadSlot !== null) {
+            if (!state.foreheadDeck.isSlotAvailable(foreheadSlot)) {
+                return { success: false, allConfirmed: false, error: "FOREHEAD_SLOT_UNAVAILABLE" };
+            }
+            state.pickedForeheadSlot = foreheadSlot;
+        }
+        if (state.pickedHandSlot !== null && state.pickedForeheadSlot !== null) {
+            state.isPickConfirmed = true;
+        }
+        const allConfirmed = this.areAllActivePicksConfirmed();
+        return { success: true, allConfirmed };
+    }
+    areAllActivePicksConfirmed() {
+        if (this.players.size === 0)
+            return false;
+        for (const [, state] of this.players) {
+            if (!state.isPickConfirmed) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * Finalizes the picking phase:
+     * Any slot not explicitly chosen by a player is automatically chosen at random from remaining slots.
+     * Draws the cards from the chosen slots, updates history, and transitions match into the BETTING phase.
+     */
+    finalizePicking() {
+        const playerPicks = {};
+        for (const [pid, state] of this.players) {
+            const hRes = state.handDeck.drawSlot(state.pickedHandSlot);
+            const fRes = state.foreheadDeck.drawSlot(state.pickedForeheadSlot);
+            playerPicks[pid] = {
+                handSlot: hRes.slot ?? 0,
+                foreheadSlot: fRes.slot ?? 0,
+                handCard: hRes.card ?? 1,
+                foreheadCard: fRes.card ?? 1,
+            };
+        }
+        this.phase = "BETTING";
+        this.stateVersion++;
         // Start betting phase and collect ante
         this.bettingManager.startRound(this.round);
+        return { round: this.round, playerPicks };
+    }
+    /**
+     * Legacy drawRound: starts picking phase and immediately finalizes with random/pending slots.
+     */
+    drawRound() {
+        const startRes = this.startRoundPicking();
+        if (!startRes.success)
+            return startRes;
+        this.finalizePicking();
         return { success: true, round: this.round };
     }
     /**
@@ -74,6 +156,7 @@ export class ForeheadPokerMatch {
             type: "POKER_PRIVATE_HAND",
             round: this.round,
             card: state.handDeck.currentCard,
+            slot: state.handDeck.currentSlot,
             history: state.handDeck.getUsedHistory(),
         };
     }
@@ -86,12 +169,12 @@ export class ForeheadPokerMatch {
             return null;
         const opponentCards = [];
         for (const [otherId, otherState] of this.players) {
-            // Exclude self strictly
             if (otherId === playerId)
                 continue;
             opponentCards.push({
                 player_id: otherId,
                 card: otherState.foreheadDeck.currentCard,
+                slot: otherState.foreheadDeck.currentSlot,
                 history: otherState.foreheadDeck.getUsedHistory(),
             });
         }
@@ -118,14 +201,49 @@ export class ForeheadPokerMatch {
      */
     resetMatch() {
         this.round = 0;
+        this.phase = "IDLE";
+        this.matchHistory = [];
+        this.lastRoundResult = null;
         this.stateVersion++;
         for (const [, state] of this.players) {
             state.handDeck.reset();
             state.foreheadDeck.reset();
             state.handDeck.shuffle();
             state.foreheadDeck.shuffle();
+            state.pickedHandSlot = null;
+            state.pickedForeheadSlot = null;
+            state.isPickConfirmed = false;
         }
         this.bettingManager.initPlayers(this.getPlayerIds());
+    }
+    /**
+     * Resolves showdown and pot distribution authoritatively for this round.
+     */
+    resolveShowdown() {
+        const res = PokerShowdownManager.resolveRoundResult(this.round, this.bettingManager, this.players, this.playerSeatMap, this.stateVersion);
+        this.lastRoundResult = res;
+        this.matchHistory.push(res);
+        this.phase = res.isMatchCompleted ? "ROUND_END" : "SHOWDOWN";
+        this.stateVersion++;
+        return res;
+    }
+    getOverallWinners() {
+        const finalBalances = {};
+        const chipsWon = {};
+        let maxBal = -1;
+        let winners = [];
+        for (const [pid, pBet] of this.bettingManager.players) {
+            finalBalances[pid] = pBet.balance;
+            chipsWon[pid] = pBet.balance - POKER_CONFIG.STARTING_CHIPS;
+            if (pBet.balance > maxBal) {
+                maxBal = pBet.balance;
+                winners = [pid];
+            }
+            else if (pBet.balance === maxBal) {
+                winners.push(pid);
+            }
+        }
+        return { winners, finalBalances, chipsWon };
     }
     processBettingAction(playerId, action, targetRaiseBet = 0) {
         const res = this.bettingManager.processAction(playerId, action, targetRaiseBet);

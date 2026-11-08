@@ -39,6 +39,7 @@ export declare class PokerBettingManager {
     lastActionAmount: number | null;
     mainPot: number;
     sidePots: SidePot[];
+    potLayers: SidePot[];
     totalPot: number;
     constructor(playerIds?: string[], startingChips?: number);
     initPlayers(playerIds: string[], startingChips?: number): void;

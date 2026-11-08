@@ -42,6 +42,8 @@ export type ServerMessageType =
   | "POKER_PICK_PHASE_START"
   | "POKER_PICK_CONFIRMED"
   | "POKER_PICK_PHASE_END"
+  | "POKER_ROUND_RESULT"
+  | "POKER_MATCH_COMPLETED"
   | "POKER_RECONNECT_RESPONSE";
 
 export interface RoomRecord {
@@ -160,5 +162,11 @@ export interface ServerMessage {
     is_round_complete: boolean;
     next_turn_player_id: string | null;
   };
+  // P6: Showdown & Round Result fields
+  round_result?: any;
+  overall_winners?: string[];
+  final_balances?: Record<string, number>;
+  chips_won?: Record<string, number>;
+  match_history?: any[];
 }
 

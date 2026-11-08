@@ -1,6 +1,6 @@
 import type { PlayerRecord } from "../players/player.js";
 export type ClientMessageType = "CONNECT_CLIENT" | "CREATE_ROOM" | "JOIN_ROOM" | "LEAVE_ROOM" | "UPDATE_TEAM" | "UPDATE_CHARACTER" | "UPDATE_NAME" | "TOGGLE_READY" | "START_MATCH" | "PLAYER_MOVE" | "CLAIM_TILE" | "REMATCH_REQUEST" | "PING" | "POKER_START_MATCH" | "POKER_DRAW_ROUND" | "POKER_RESET_MATCH" | "POKER_BETTING_ACTION" | "POKER_PICK_CARDS" | "POKER_RECONNECT";
-export type ServerMessageType = "CONNECTED" | "ROOM_STATE" | "MATCH_STARTED" | "ROOM_CLOSED" | "PLAYER_MOVED" | "TILE_CLAIMED" | "MATCH_RESET" | "ERROR" | "PONG" | "POKER_MATCH_INIT" | "POKER_PRIVATE_HAND" | "POKER_OPPONENT_FOREHEADS" | "POKER_ROUND_STATUS" | "POKER_MATCH_RESET" | "POKER_BETTING_STATE" | "POKER_ACTION_RESULT" | "POKER_BETTING_COMPLETED" | "POKER_PICK_PHASE_START" | "POKER_PICK_CONFIRMED" | "POKER_PICK_PHASE_END" | "POKER_RECONNECT_RESPONSE";
+export type ServerMessageType = "CONNECTED" | "ROOM_STATE" | "MATCH_STARTED" | "ROOM_CLOSED" | "PLAYER_MOVED" | "TILE_CLAIMED" | "MATCH_RESET" | "ERROR" | "PONG" | "POKER_MATCH_INIT" | "POKER_PRIVATE_HAND" | "POKER_OPPONENT_FOREHEADS" | "POKER_ROUND_STATUS" | "POKER_MATCH_RESET" | "POKER_BETTING_STATE" | "POKER_ACTION_RESULT" | "POKER_BETTING_COMPLETED" | "POKER_PICK_PHASE_START" | "POKER_PICK_CONFIRMED" | "POKER_PICK_PHASE_END" | "POKER_ROUND_RESULT" | "POKER_MATCH_COMPLETED" | "POKER_RECONNECT_RESPONSE";
 export interface RoomRecord {
     room_id: string;
     room_code: string;
@@ -125,4 +125,9 @@ export interface ServerMessage {
         is_round_complete: boolean;
         next_turn_player_id: string | null;
     };
+    round_result?: any;
+    overall_winners?: string[];
+    final_balances?: Record<string, number>;
+    chips_won?: Record<string, number>;
+    match_history?: any[];
 }

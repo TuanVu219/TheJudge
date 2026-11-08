@@ -22,6 +22,7 @@ export declare class WebSocketHandler {
     private handlePokerStartMatch;
     private handlePokerReconnect;
     private handlePokerDrawRound;
+    private handlePokerPickCards;
     private handlePokerBettingAction;
     private handlePokerResetMatch;
 }

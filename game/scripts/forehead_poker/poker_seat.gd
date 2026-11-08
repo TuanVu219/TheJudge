@@ -508,3 +508,46 @@ static func _format_number(n: int) -> String:
 		if count % 3 == 0 and i > 0 and s[i - 1] != "-":
 			result = "," + result
 	return result
+
+
+## Stage P6 Showdown Methods
+func reveal_showdown_result(
+	hand_val: int,
+	forehead_val: int,
+	score: int,
+	is_winner: bool,
+	chips_won: int,
+	updated_balance: int = -1
+) -> void:
+	if updated_balance >= 0:
+		update_balance(updated_balance)
+
+	if action_badge_label == null or not is_instance_valid(action_badge_label):
+		return
+
+	if is_winner:
+		if chips_won > 0:
+			action_badge_label.text = "🏆 WINNER (+%d) • Score: %d" % [chips_won, score]
+		else:
+			action_badge_label.text = "🏆 WINNER • Score: %d" % score
+		action_badge_label.modulate = Color(1.0, 0.84, 0.0, 1.0) # Bright Gold
+		action_badge_label.visible = true
+	else:
+		action_badge_label.text = "Score: %d (%d+%d)" % [score, hand_val, forehead_val]
+		action_badge_label.modulate = Color(0.85, 0.85, 0.85, 0.9)
+		action_badge_label.visible = true
+
+
+func reveal_uncontested_winner(chips_won: int, updated_balance: int = -1) -> void:
+	if updated_balance >= 0:
+		update_balance(updated_balance)
+
+	if action_badge_label != null and is_instance_valid(action_badge_label):
+		action_badge_label.text = "🏆 WINNER (+%d) [UNCONTESTED]" % chips_won
+		action_badge_label.modulate = Color(1.0, 0.84, 0.0, 1.0)
+		action_badge_label.visible = true
+
+
+func clear_showdown_result() -> void:
+	_refresh_persistent_status_badge()
+

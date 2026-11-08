@@ -90,6 +90,19 @@ var btn_all_in: Button
 var raise_slider: HSlider
 var raise_value_label: Label
 
+# Showdown Overlay Nodes (Stage P6)
+var showdown_panel: PanelContainer
+var showdown_title_label: Label
+var showdown_content_label: RichTextLabel
+var showdown_continue_btn: Button
+
+# Match Completed Modal Nodes (Stage P6)
+var match_completed_modal: PanelContainer
+var match_standings_label: RichTextLabel
+var match_play_again_btn: Button
+var match_close_btn: Button
+var player_names_map: Dictionary = {} # player_id -> display_name
+
 
 func _ready() -> void:
 	layer = 10
@@ -414,6 +427,8 @@ func _build_ui() -> void:
 
 	# ── CENTER: 15-SECOND 2-ROW CARD PICKER MODAL OVERLAY ───────────────────
 	_build_card_picker_ui(root)
+	_build_showdown_ui(root)
+	_build_match_completed_ui(root)
 
 	# Initial button states disabled until game begins
 	_set_betting_buttons_enabled(false)
@@ -1010,6 +1025,8 @@ func reset_hud() -> void:
 	used_hand_slots.clear()
 	used_forehead_slots.clear()
 	hide_card_picker()
+	hide_showdown_result()
+	hide_match_completed_modal()
 	_update_round_label()
 	waiting_label.visible = true
 	waiting_label.text = "READY"
@@ -1022,3 +1039,298 @@ func reset_hud() -> void:
 	_update_history_text()
 	_refresh_action_history_display()
 	_set_betting_buttons_enabled(false)
+
+
+# ── STAGE P6: SHOWDOWN & MATCH RESULTS UI BUILDERS ─────────────────────────
+
+func _build_showdown_ui(parent: Control) -> void:
+	showdown_panel = PanelContainer.new()
+	showdown_panel.name = "ShowdownPanel"
+	showdown_panel.set_anchors_preset(Control.PRESET_CENTER)
+	showdown_panel.size = Vector2(680, 420)
+	showdown_panel.position = Vector2(-340, -210)
+	showdown_panel.visible = false
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.05, 0.04, 0.96)
+	style.set_corner_radius_all(16)
+	style.set_border_width_all(3)
+	style.border_color = Color(0.95, 0.75, 0.25, 1.0)
+	style.shadow_color = Color(0, 0, 0, 0.8)
+	style.shadow_size = 28
+	style.shadow_offset = Vector2(0, 8)
+	style.content_margin_left = 20
+	style.content_margin_right = 20
+	style.content_margin_top = 16
+	style.content_margin_bottom = 16
+	showdown_panel.add_theme_stylebox_override("panel", style)
+	_bind_hover_events(showdown_panel)
+	parent.add_child(showdown_panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 10)
+	showdown_panel.add_child(vbox)
+
+	showdown_title_label = Label.new()
+	showdown_title_label.text = "🌟 KẾT QUẢ SHOWDOWN 🌟"
+	showdown_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	showdown_title_label.add_theme_font_size_override("font_size", 20)
+	showdown_title_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0, 1.0))
+	vbox.add_child(showdown_title_label)
+
+	showdown_content_label = RichTextLabel.new()
+	showdown_content_label.bbcode_enabled = true
+	showdown_content_label.fit_content = false
+	showdown_content_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	showdown_content_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(showdown_content_label)
+
+	var hbox_btns := HBoxContainer.new()
+	hbox_btns.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_child(hbox_btns)
+
+	showdown_continue_btn = Button.new()
+	showdown_continue_btn.text = "TIẾP TỤC / VÒNG TIẾP (CONTINUE) 🎲"
+	showdown_continue_btn.custom_minimum_size = Vector2(280, 42)
+	_style_button(showdown_continue_btn, Color(0.18, 0.58, 0.32, 1.0))
+	showdown_continue_btn.pressed.connect(_on_showdown_continue_clicked)
+	hbox_btns.add_child(showdown_continue_btn)
+
+
+func _build_match_completed_ui(parent: Control) -> void:
+	match_completed_modal = PanelContainer.new()
+	match_completed_modal.name = "MatchCompletedModal"
+	match_completed_modal.set_anchors_preset(Control.PRESET_CENTER)
+	match_completed_modal.size = Vector2(720, 460)
+	match_completed_modal.position = Vector2(-360, -230)
+	match_completed_modal.visible = false
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.04, 0.03, 0.98)
+	style.set_corner_radius_all(18)
+	style.set_border_width_all(3)
+	style.border_color = Color(1.0, 0.84, 0.0, 1.0)
+	style.shadow_color = Color(0, 0, 0, 0.85)
+	style.shadow_size = 32
+	style.shadow_offset = Vector2(0, 10)
+	style.content_margin_left = 24
+	style.content_margin_right = 24
+	style.content_margin_top = 20
+	style.content_margin_bottom = 20
+	match_completed_modal.add_theme_stylebox_override("panel", style)
+	_bind_hover_events(match_completed_modal)
+	parent.add_child(match_completed_modal)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	match_completed_modal.add_child(vbox)
+
+	var grand_title := Label.new()
+	grand_title.text = "🏆 KẾT THÚC TRẬN ĐẤU (10/10 VÒNG) 🏆"
+	grand_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	grand_title.add_theme_font_size_override("font_size", 22)
+	grand_title.add_theme_color_override("font_color", Color(1.0, 0.88, 0.20, 1.0))
+	vbox.add_child(grand_title)
+
+	var subtitle := Label.new()
+	subtitle.text = "BẢNG XẾP HẠNG TỔNG KẾT VÀ DANH HIỆU THẮNG CUỘC"
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.add_theme_font_size_override("font_size", 13)
+	subtitle.add_theme_color_override("font_color", Color(0.85, 0.80, 0.70, 0.85))
+	vbox.add_child(subtitle)
+
+	match_standings_label = RichTextLabel.new()
+	match_standings_label.bbcode_enabled = true
+	match_standings_label.fit_content = false
+	match_standings_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	match_standings_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(match_standings_label)
+
+	var hbox_actions := HBoxContainer.new()
+	hbox_actions.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox_actions.add_theme_constant_override("separation", 16)
+	vbox.add_child(hbox_actions)
+
+	match_play_again_btn = Button.new()
+	match_play_again_btn.text = "🔄 CHƠI LẠI (PLAY AGAIN)"
+	match_play_again_btn.custom_minimum_size = Vector2(220, 44)
+	_style_button(match_play_again_btn, Color(0.20, 0.60, 0.35, 1.0))
+	match_play_again_btn.pressed.connect(_on_play_again_clicked)
+	hbox_actions.add_child(match_play_again_btn)
+
+	match_close_btn = Button.new()
+	match_close_btn.text = "ĐÓNG (CLOSE)"
+	match_close_btn.custom_minimum_size = Vector2(140, 44)
+	_style_button(match_close_btn, Color(0.45, 0.40, 0.35, 1.0))
+	match_close_btn.pressed.connect(hide_match_completed_modal)
+	hbox_actions.add_child(match_close_btn)
+
+
+func _on_showdown_continue_clicked() -> void:
+	hide_showdown_result()
+	if current_round < total_rounds:
+		request_draw_round.emit()
+
+
+func _on_play_again_clicked() -> void:
+	hide_match_completed_modal()
+	hide_showdown_result()
+	request_reset_match.emit()
+
+
+func set_player_names_map(names: Dictionary) -> void:
+	player_names_map = names.duplicate()
+
+
+func _get_friendly_player_name(player_id: String) -> String:
+	if player_names_map.has(player_id):
+		return str(player_names_map[player_id])
+	if player_id == local_player_id:
+		return "Minty (You)"
+	return player_id
+
+
+## Stage P6: Displays Showdown results with full score calculation and pot payouts.
+func show_showdown_result(result: Dictionary) -> void:
+	var round_num := int(result.get("roundNumber", result.get("round_number", current_round)))
+	var is_uncontested := bool(result.get("isUncontested", result.get("is_uncontested", false)))
+	var final_pot := int(result.get("finalPot", result.get("final_pot", 0)))
+	var winner_ids: Array = result.get("winnerPlayerIds", result.get("winner_player_ids", []))
+	var winning_score := int(result.get("winningScore", result.get("winning_score", 0)))
+	var main_pot_dist: Dictionary = result.get("mainPotDistribution", result.get("main_pot_distribution", {}))
+	var side_pot_dists: Array = result.get("sidePotDistributions", result.get("side_pot_distributions", []))
+	var total_awarded: Dictionary = result.get("totalAwardedByPlayer", result.get("total_awarded_by_player", {}))
+	var revealed_cards: Dictionary = result.get("revealedCards", result.get("revealed_cards", {}))
+	var updated_balances: Dictionary = result.get("updatedBalances", result.get("updated_balances", {}))
+
+	# Update local balance if available
+	if updated_balances.has(local_player_id):
+		local_balance = int(updated_balances[local_player_id])
+		chips_label.text = "YOUR STACK: %d CHIPS" % local_balance
+
+	if is_uncontested:
+		showdown_title_label.text = "🏆 THẮNG KHÔNG ĐỐI THỦ • VÒNG %d" % round_num
+		showdown_title_label.add_theme_color_override("font_color", Color(1.0, 0.84, 0.0, 1.0))
+	else:
+		showdown_title_label.text = "🌟 KẾT QUẢ SHOWDOWN • VÒNG %d / %d 🌟" % [round_num, total_rounds]
+		showdown_title_label.add_theme_color_override("font_color", Color(0.35, 0.85, 1.0, 1.0))
+
+	var bb := ""
+
+	# Winner Highlight Banner
+	if winner_ids.size() == 1:
+		var w_name := _get_friendly_player_name(str(winner_ids[0]))
+		var w_chips := int(total_awarded.get(str(winner_ids[0]), final_pot))
+		bb += "[center][b][color=#FFD700][font_size=18]🎉 %s CHIẾN THẮNG (+%d CHIPS) 🎉[/font_size][/color][/b][/center]\n\n" % [w_name, w_chips]
+	elif winner_ids.size() > 1:
+		var tied_names: Array[String] = []
+		for wid in winner_ids:
+			tied_names.append(_get_friendly_player_name(str(wid)))
+		bb += "[center][b][color=#FFD700][font_size=18]🤝 HÒA! %s CHIA NHAU POT[/font_size][/color][/b][/center]\n\n" % [", ".join(tied_names)]
+
+	# Pot Distributions Breakdown
+	bb += "[b][color=#E2E8F0]CHI TIẾT TRẢ THƯỞNG POT:[/color][/b]\n"
+	var main_amt := int(main_pot_dist.get("potAmount", main_pot_dist.get("pot_amount", final_pot)))
+	var main_winners: Array = main_pot_dist.get("winningPlayerIds", main_pot_dist.get("winning_player_ids", winner_ids))
+	var main_winners_str: Array[String] = []
+	for wid in main_winners:
+		var share: int = int(main_pot_dist.get("payouts", {}).get(str(wid), 0))
+		main_winners_str.append("%s (+%d)" % [_get_friendly_player_name(str(wid)), share])
+	bb += "• [color=#ECC94B]Main Pot (%d chips):[/color] %s\n" % [main_amt, ", ".join(main_winners_str) if not main_winners_str.is_empty() else "N/A"]
+
+	for sp_idx in range(side_pot_dists.size()):
+		var sp: Dictionary = side_pot_dists[sp_idx]
+		var sp_amt := int(sp.get("potAmount", sp.get("pot_amount", 0)))
+		var sp_winners: Array = sp.get("winningPlayerIds", sp.get("winning_player_ids", []))
+		var sp_str: Array[String] = []
+		for wid in sp_winners:
+			var share: int = int(sp.get("payouts", {}).get(str(wid), 0))
+			sp_str.append("%s (+%d)" % [_get_friendly_player_name(str(wid)), share])
+		bb += "• [color=#ED8936]Side Pot #%d (%d chips):[/color] %s\n" % [sp_idx + 1, sp_amt, ", ".join(sp_str) if not sp_str.is_empty() else "N/A"]
+
+	bb += "\n"
+
+	# Card Reveals and Total Scores Table
+	if is_uncontested:
+		bb += "[color=#A0AEC0][i]Tất cả đối thủ khác đã Fold. Người chiến thắng không cần lật bài bí mật![/i][/color]\n"
+	else:
+		bb += "[b][color=#E2E8F0]BẢNG ĐIỂM SHOWDOWN (TAY + TRÁN = TỔNG):[/color][/b]\n"
+		for pid in revealed_cards.keys():
+			var card_info: Dictionary = revealed_cards[pid]
+			var h_val := int(card_info.get("hand", 0))
+			var f_val := int(card_info.get("forehead", 0))
+			var score_val := int(card_info.get("score", h_val + f_val))
+			var p_name := _get_friendly_player_name(pid)
+			var is_win: bool = winner_ids.has(pid)
+
+			if is_win:
+				bb += "⭐ [color=#FFD700][b]%s:[/b] Tay [color=#63B3ED]%d[/color] + Trán [color=#FEB2B2]%d[/color] = [b]TỔNG %d[/b] [CHIẾN THẮNG][/color]\n" % [p_name, h_val, f_val, score_val]
+			else:
+				bb += "• [color=#CBD5E0]%s: Tay %d + Trán %d = Tổng %d[/color]\n" % [p_name, h_val, f_val, score_val]
+
+	showdown_content_label.text = bb
+	showdown_panel.visible = true
+
+
+func hide_showdown_result() -> void:
+	if showdown_panel != null and is_instance_valid(showdown_panel):
+		showdown_panel.visible = false
+
+
+## Stage P6: Displays 10-round match completion final rankings and profit/loss report.
+func show_match_completed_modal(
+	overall_winners: Array,
+	final_balances: Dictionary,
+	chips_won: Dictionary,
+	match_history: Array = []
+) -> void:
+	hide_showdown_result()
+
+	# Sort all players by final balance descending
+	var sorted_pids: Array = final_balances.keys()
+	sorted_pids.sort_custom(func(a, b):
+		return int(final_balances.get(a, 0)) > int(final_balances.get(b, 0))
+	)
+
+	var bb := ""
+	if overall_winners.size() == 1:
+		var champ := _get_friendly_player_name(str(overall_winners[0]))
+		bb += "[center][font_size=18][color=#FFD700]👑 QUÁN QUÂN FOREHEAD POKER: [b]%s[/b] 👑[/color][/font_size][/center]\n\n" % champ
+	elif overall_winners.size() > 1:
+		var champs: Array[String] = []
+		for wid in overall_winners:
+			champs.append(_get_friendly_player_name(str(wid)))
+		bb += "[center][font_size=18][color=#FFD700]👑 ĐỒNG QUÁN QUÂN: [b]%s[/b] 👑[/color][/font_size][/center]\n\n" % [", ".join(champs)]
+
+	bb += "[b]BẢNG TỔNG KẾT SAU 10 VÒNG:[/b]\n"
+	bb += "------------------------------------------------------------------------------------\n"
+
+	for idx in range(sorted_pids.size()):
+		var pid: String = str(sorted_pids[idx])
+		var p_name := _get_friendly_player_name(pid)
+		var bal := int(final_balances.get(pid, 0))
+		var diff := int(chips_won.get(pid, bal - 100))
+		var medal := "🎖️"
+		if idx == 0: medal = "🥇"
+		elif idx == 1: medal = "🥈"
+		elif idx == 2: medal = "🥉"
+
+		var diff_str := "+%d" % diff if diff > 0 else str(diff)
+		var diff_color := "#48BB78" if diff > 0 else ("#F56565" if diff < 0 else "#A0AEC0")
+
+		if overall_winners.has(pid):
+			bb += "%s [color=#FFD700][b]Hạng %d: %s[/b] — Stack: [b]%d chips[/b] (Lãi/Lỗ: [color=%s][b]%s[/b][/color])[/color]\n" % [medal, idx + 1, p_name, bal, diff_color, diff_str]
+		else:
+			bb += "%s [color=#E2E8F0]Hạng %d: %s — Stack: %d chips (Lãi/Lỗ: [color=%s]%s[/color])[/color]\n" % [medal, idx + 1, p_name, bal, diff_color, diff_str]
+
+	bb += "------------------------------------------------------------------------------------\n"
+	bb += "[center][color=#A0AEC0][i]Cả hai bộ bài trên tay và trên trán của mỗi người chơi đã được dùng trọn vẹn qua 10 vòng.[/i][/color][/center]"
+
+	match_standings_label.text = bb
+	match_completed_modal.visible = true
+
+
+func hide_match_completed_modal() -> void:
+	if match_completed_modal != null and is_instance_valid(match_completed_modal):
+		match_completed_modal.visible = false
+

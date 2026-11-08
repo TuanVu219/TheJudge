@@ -6,6 +6,8 @@ export declare class PokerDeck {
     currentSlot: number | null;
     readonly deckName: string;
     readonly playerId: string;
+    get cards(): number[];
+    set cards(val: number[]);
     constructor(playerId: string, deckName: "HAND" | "FOREHEAD");
     /**
      * Restores deck to full set [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] across slots 0..9 and clears history.

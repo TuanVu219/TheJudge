@@ -253,8 +253,22 @@ export class Room {
             this.pokerMatch = new ForeheadPokerMatch(playerIds, seatMap, this.roomCode);
             this.startedMatchRoster = Array.from(this.players.values()).map((p) => p.toRecord());
             this.status = "STARTED";
-            // Start round 1 with 15-second card picking phase
-            this.startPokerRound();
+            // Draw initial round 1
+            this.pokerMatch.drawRound();
+            // Dispatch private hands & opponent foreheads
+            for (const [pId, p] of this.players) {
+                if (p.isDisconnected)
+                    continue;
+                const privateHand = this.pokerMatch.getPrivateHandPayload(pId);
+                if (privateHand)
+                    p.send(privateHand);
+                const opponentForeheads = this.pokerMatch.getOpponentForeheadsPayload(pId);
+                if (opponentForeheads)
+                    p.send(opponentForeheads);
+            }
+            // Broadcast public status and betting state
+            this.broadcast(this.pokerMatch.getPublicRoundStatusPayload());
+            this.broadcast(this.pokerMatch.getPublicBettingPayload());
             return { success: true, roster: this.startedMatchRoster };
         }
         this.gridColumns = CONFIG.MODE_GRID_SIZES[this.gameMode] || 6;
@@ -523,6 +537,34 @@ export class Room {
         // Broadcast round status & initial betting state
         this.broadcast(this.pokerMatch.getPublicRoundStatusPayload());
         this.broadcast(this.pokerMatch.getPublicBettingPayload());
+    }
+    resolvePokerShowdown() {
+        if (!this.pokerMatch)
+            return null;
+        const result = this.pokerMatch.resolveShowdown();
+        // Broadcast authoritative round result
+        this.broadcast({
+            type: "POKER_ROUND_RESULT",
+            round_result: result,
+            room_code: this.roomCode,
+            round: result.roundNumber,
+            total_rounds: 10,
+        });
+        // Broadcast updated public betting state with distributed chip balances
+        this.broadcast(this.pokerMatch.getPublicBettingPayload());
+        // If match completed (10 rounds exhausted)
+        if (result.isMatchCompleted) {
+            const overall = this.pokerMatch.getOverallWinners();
+            this.broadcast({
+                type: "POKER_MATCH_COMPLETED",
+                room_code: this.roomCode,
+                overall_winners: overall.winners,
+                final_balances: overall.finalBalances,
+                chips_won: overall.chipsWon,
+                match_history: this.pokerMatch.matchHistory,
+            });
+        }
+        return result;
     }
     resetPokerMatch() {
         if (this.pickPhaseTimer) {

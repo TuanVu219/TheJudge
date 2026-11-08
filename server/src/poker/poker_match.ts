@@ -1,6 +1,7 @@
 import { PokerDeck } from "./poker_deck.js";
 import { PokerBettingManager, type BettingActionResult } from "./poker_betting.js";
-import type { BettingActionType } from "./poker_config.js";
+import { PokerShowdownManager, type RoundResult } from "./poker_showdown.js";
+import { POKER_CONFIG, type BettingActionType } from "./poker_config.js";
 import type { ServerMessage } from "../websocket/protocol.js";
 
 export type PokerRoundPhase = "IDLE" | "PICKING" | "BETTING" | "SHOWDOWN" | "ROUND_END";
@@ -25,6 +26,8 @@ export class ForeheadPokerMatch {
   public stateVersion: number = 0;
   public playerSeatMap: Map<string, number> = new Map();
   public roomCode: string = "";
+  public matchHistory: RoundResult[] = [];
+  public lastRoundResult: RoundResult | null = null;
   private players: Map<string, PlayerPokerState> = new Map();
 
   constructor(playerIds: string[] = [], seatAssignments?: Map<string, number>, roomCode: string = "") {
@@ -265,6 +268,8 @@ export class ForeheadPokerMatch {
   public resetMatch(): void {
     this.round = 0;
     this.phase = "IDLE";
+    this.matchHistory = [];
+    this.lastRoundResult = null;
     this.stateVersion++;
     for (const [, state] of this.players) {
       state.handDeck.reset();
@@ -276,6 +281,48 @@ export class ForeheadPokerMatch {
       state.isPickConfirmed = false;
     }
     this.bettingManager.initPlayers(this.getPlayerIds());
+  }
+
+  /**
+   * Resolves showdown and pot distribution authoritatively for this round.
+   */
+  public resolveShowdown(): RoundResult {
+    const res = PokerShowdownManager.resolveRoundResult(
+      this.round,
+      this.bettingManager,
+      this.players,
+      this.playerSeatMap,
+      this.stateVersion
+    );
+    this.lastRoundResult = res;
+    this.matchHistory.push(res);
+    this.phase = res.isMatchCompleted ? "ROUND_END" : "SHOWDOWN";
+    this.stateVersion++;
+    return res;
+  }
+
+  public getOverallWinners(): {
+    winners: string[];
+    finalBalances: Record<string, number>;
+    chipsWon: Record<string, number>;
+  } {
+    const finalBalances: Record<string, number> = {};
+    const chipsWon: Record<string, number> = {};
+    let maxBal = -1;
+    let winners: string[] = [];
+
+    for (const [pid, pBet] of this.bettingManager.players) {
+      finalBalances[pid] = pBet.balance;
+      chipsWon[pid] = pBet.balance - POKER_CONFIG.STARTING_CHIPS;
+      if (pBet.balance > maxBal) {
+        maxBal = pBet.balance;
+        winners = [pid];
+      } else if (pBet.balance === maxBal) {
+        winners.push(pid);
+      }
+    }
+
+    return { winners, finalBalances, chipsWon };
   }
 
   public processBettingAction(

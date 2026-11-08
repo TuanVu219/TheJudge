@@ -9,6 +9,14 @@ export class PokerDeck {
   public readonly deckName: string;
   public readonly playerId: string;
 
+  public get cards(): number[] {
+    return this.slots.filter((c): c is number => c !== null);
+  }
+
+  public set cards(val: number[]) {
+    this.slots = [...val];
+  }
+
   constructor(playerId: string, deckName: "HAND" | "FOREHEAD") {
     this.playerId = playerId;
     this.deckName = deckName;
@@ -73,8 +81,7 @@ export class PokerDeck {
     if (slotIndex !== undefined && slotIndex !== null && this.isSlotAvailable(slotIndex)) {
       targetSlot = slotIndex;
     } else {
-      const rIdx = randomInt(0, available.length);
-      targetSlot = available[rIdx];
+      targetSlot = available[available.length - 1];
     }
 
     const drawn = this.slots[targetSlot]!;

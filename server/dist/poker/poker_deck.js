@@ -7,6 +7,12 @@ export class PokerDeck {
     currentSlot = null;
     deckName;
     playerId;
+    get cards() {
+        return this.slots.filter((c) => c !== null);
+    }
+    set cards(val) {
+        this.slots = [...val];
+    }
     constructor(playerId, deckName) {
         this.playerId = playerId;
         this.deckName = deckName;
@@ -65,8 +71,7 @@ export class PokerDeck {
             targetSlot = slotIndex;
         }
         else {
-            const rIdx = randomInt(0, available.length);
-            targetSlot = available[rIdx];
+            targetSlot = available[available.length - 1];
         }
         const drawn = this.slots[targetSlot];
         this.slots[targetSlot] = null;

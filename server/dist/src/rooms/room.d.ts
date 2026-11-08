@@ -2,6 +2,7 @@ import type { WebSocket } from "ws";
 import { Player, type PlayerRecord } from "../players/player.js";
 import type { RoomRecord, ServerMessage } from "../websocket/protocol.js";
 import { ForeheadPokerMatch } from "../poker/poker_match.js";
+import type { RoundResult } from "../poker/poker_showdown.js";
 export declare class Room {
     roomId: string;
     roomCode: string;
@@ -18,6 +19,7 @@ export declare class Room {
     gridTiles: number[];
     redScore: number;
     blueScore: number;
+    pickPhaseTimer: NodeJS.Timeout | null;
     pokerMatch?: ForeheadPokerMatch;
     constructor(roomCode: string, hostPlayer: Player, roomName?: string, maxPlayers?: number, visibility?: "PUBLIC" | "PRIVATE", gameMode?: string);
     addPlayer(player: Player): {
@@ -84,5 +86,17 @@ export declare class Room {
         round: number;
         error?: string;
     };
+    startPokerRound(): {
+        success: boolean;
+        round: number;
+        error?: string;
+    };
+    handlePlayerPokerPick(playerId: string, handSlot: number | null | undefined, foreheadSlot: number | null | undefined): {
+        success: boolean;
+        allConfirmed: boolean;
+        error?: string;
+    };
+    finalizePokerPickPhase(): void;
+    resolvePokerShowdown(): RoundResult | null;
     resetPokerMatch(): void;
 }

@@ -1,5 +1,7 @@
 import { PokerDeck } from "./poker_deck.js";
 import { PokerBettingManager } from "./poker_betting.js";
+import { PokerShowdownManager } from "./poker_showdown.js";
+import { POKER_CONFIG } from "./poker_config.js";
 export class ForeheadPokerMatch {
     static TOTAL_ROUNDS = 10;
     static PICK_COUNTDOWN_SECONDS = 15;
@@ -10,6 +12,8 @@ export class ForeheadPokerMatch {
     stateVersion = 0;
     playerSeatMap = new Map();
     roomCode = "";
+    matchHistory = [];
+    lastRoundResult = null;
     players = new Map();
     constructor(playerIds = [], seatAssignments, roomCode = "") {
         if (playerIds.length > 0) {
@@ -198,6 +202,8 @@ export class ForeheadPokerMatch {
     resetMatch() {
         this.round = 0;
         this.phase = "IDLE";
+        this.matchHistory = [];
+        this.lastRoundResult = null;
         this.stateVersion++;
         for (const [, state] of this.players) {
             state.handDeck.reset();
@@ -209,6 +215,35 @@ export class ForeheadPokerMatch {
             state.isPickConfirmed = false;
         }
         this.bettingManager.initPlayers(this.getPlayerIds());
+    }
+    /**
+     * Resolves showdown and pot distribution authoritatively for this round.
+     */
+    resolveShowdown() {
+        const res = PokerShowdownManager.resolveRoundResult(this.round, this.bettingManager, this.players, this.playerSeatMap, this.stateVersion);
+        this.lastRoundResult = res;
+        this.matchHistory.push(res);
+        this.phase = res.isMatchCompleted ? "ROUND_END" : "SHOWDOWN";
+        this.stateVersion++;
+        return res;
+    }
+    getOverallWinners() {
+        const finalBalances = {};
+        const chipsWon = {};
+        let maxBal = -1;
+        let winners = [];
+        for (const [pid, pBet] of this.bettingManager.players) {
+            finalBalances[pid] = pBet.balance;
+            chipsWon[pid] = pBet.balance - POKER_CONFIG.STARTING_CHIPS;
+            if (pBet.balance > maxBal) {
+                maxBal = pBet.balance;
+                winners = [pid];
+            }
+            else if (pBet.balance === maxBal) {
+                winners.push(pid);
+            }
+        }
+        return { winners, finalBalances, chipsWon };
     }
     processBettingAction(playerId, action, targetRaiseBet = 0) {
         const res = this.bettingManager.processAction(playerId, action, targetRaiseBet);

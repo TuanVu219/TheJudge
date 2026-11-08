@@ -188,6 +188,11 @@ func _setup_offline_characters() -> void:
 			preset["skin"],
 			is_local
 		)
+	if hud_instance != null:
+		var name_map: Dictionary = {}
+		for p in PRESETS:
+			name_map[p["id"]] = p["name"]
+		hud_instance.set_player_names_map(name_map)
 
 
 func _setup_online_roster() -> void:
@@ -264,6 +269,13 @@ func _setup_online_roster() -> void:
 		seat_to_player_id[s_idx] = pid
 		seat_to_player_name[s_idx] = clean_name
 		print("[ForeheadPokerRoom] Spawned player: %s at seat %d (is_local=%s)" % [clean_name, s_idx, is_local])
+
+	if hud_instance != null:
+		var name_map: Dictionary = {}
+		for pid in player_id_to_seat.keys():
+			var s: int = player_id_to_seat[pid]
+			name_map[pid] = seat_to_player_name.get(s, pid)
+		hud_instance.set_player_names_map(name_map)
 
 
 func _setup_first_person_camera() -> void:
@@ -377,6 +389,12 @@ func _replay_cached_network_state() -> void:
 			pick_phase.get("used_hand_slots", []),
 			pick_phase.get("used_forehead_slots", [])
 		)
+	var rnd_res: Dictionary = network_client.get("last_poker_round_result") if network_client.get("last_poker_round_result") != null else {}
+	if not rnd_res.is_empty():
+		_on_poker_round_result(rnd_res)
+	var match_comp: Dictionary = network_client.get("last_poker_match_completed") if network_client.get("last_poker_match_completed") != null else {}
+	if not match_comp.is_empty():
+		_on_poker_match_completed(match_comp)
 
 
 func _bind_network_signals() -> void:
@@ -396,6 +414,10 @@ func _bind_network_signals() -> void:
 		network_client.connect("poker_action_result_received", _on_poker_action_result)
 	if network_client.has_signal("poker_betting_completed_received") and not network_client.is_connected("poker_betting_completed_received", _on_poker_betting_completed):
 		network_client.connect("poker_betting_completed_received", _on_poker_betting_completed)
+	if network_client.has_signal("poker_round_result_received") and not network_client.is_connected("poker_round_result_received", _on_poker_round_result):
+		network_client.connect("poker_round_result_received", _on_poker_round_result)
+	if network_client.has_signal("poker_match_completed_received") and not network_client.is_connected("poker_match_completed_received", _on_poker_match_completed):
+		network_client.connect("poker_match_completed_received", _on_poker_match_completed)
 	if network_client.has_signal("poker_reconnect_response_received") and not network_client.is_connected("poker_reconnect_response_received", _on_poker_reconnect_response):
 		network_client.connect("poker_reconnect_response_received", _on_poker_reconnect_response)
 	if network_client.has_signal("connection_closed") and not network_client.is_connected("connection_closed", _on_connection_closed):
@@ -559,7 +581,11 @@ func _draw_simulated_round() -> void:
 	_turn_sequence_token += 1
 	_sim_round += 1
 
+	for i in range(seat_nodes.size()):
+		seat_nodes[i].call("clear_showdown_result")
+
 	if hud_instance != null:
+		hud_instance.hide_showdown_result()
 		hud_instance.reset_action_history(_sim_round)
 		var used_h: Array = _sim_used_hand_slots.get(local_seat_index, [])
 		var used_f: Array = _sim_used_forehead_slots.get(local_seat_index, [])
@@ -811,6 +837,7 @@ func _advance_simulated_turn() -> void:
 		for i in range(seat_nodes.size()):
 			seat_nodes[i].call("set_turn_active", false)
 		_sync_simulated_betting_state()
+		_resolve_simulated_showdown()
 		return
 
 	# Increment turn sequence token to invalidate any previous pending timers
@@ -849,6 +876,7 @@ func _advance_simulated_turn() -> void:
 	for i in range(seat_nodes.size()):
 		seat_nodes[i].call("set_turn_active", false)
 	_sync_simulated_betting_state()
+	_resolve_simulated_showdown()
 
 
 func _execute_npc_turn_async(token: int, seat_idx: int) -> void:
@@ -1241,4 +1269,262 @@ func _on_room_state_received(room_dict: Dictionary) -> void:
 					player_id_to_seat[pid] = s_idx
 					seat_to_player_id[s_idx] = pid
 					seat_to_player_name[s_idx] = Wardrobe.clean_name(str(p.get("display_name", pid)))
+
+
+# ── STAGE P6: SHOWDOWN, WINNER DETERMINATION & POT DISTRIBUTION ────────────
+
+func _on_poker_round_result(result: Dictionary) -> void:
+	var round_num := int(result.get("roundNumber", result.get("round_number", 1)))
+	var is_uncontested := bool(result.get("isUncontested", result.get("is_uncontested", false)))
+	var winner_pids: Array = result.get("winnerPlayerIds", result.get("winner_player_ids", []))
+	var winning_score := int(result.get("winningScore", result.get("winning_score", 0)))
+	var total_awarded: Dictionary = result.get("totalAwardedByPlayer", result.get("total_awarded_by_player", {}))
+	var revealed_cards: Dictionary = result.get("revealedCards", result.get("revealed_cards", {}))
+	var updated_balances: Dictionary = result.get("updatedBalances", result.get("updated_balances", {}))
+
+	print("[ForeheadPokerRoom] Stage P6 Showdown resolved: Round %d, Uncontested=%s, Winners=%s" % [round_num, is_uncontested, str(winner_pids)])
+
+	# 1. Update 3D Seats visual state
+	for pid in updated_balances.keys():
+		var s_idx: int = -1
+		if is_online_match:
+			s_idx = player_id_to_seat.get(pid, -1)
+		else:
+			for i in range(PRESETS.size()):
+				if PRESETS[i]["id"] == pid:
+					s_idx = i
+					break
+		if s_idx >= 0 and s_idx < seat_nodes.size():
+			var bal := int(updated_balances.get(pid, 0))
+			seat_nodes[s_idx].call("update_balance", bal)
+			var is_win := winner_pids.has(pid)
+			var chips_won := int(total_awarded.get(pid, 0))
+
+			if is_uncontested:
+				if is_win:
+					seat_nodes[s_idx].call("reveal_uncontested_winner", chips_won, bal)
+			else:
+				var c_info: Dictionary = revealed_cards.get(pid, {})
+				var h_val := int(c_info.get("hand", 0))
+				var f_val := int(c_info.get("forehead", 0))
+				var score := int(c_info.get("score", h_val + f_val))
+				# Also reveal forehead card value visually if opponent
+				if s_idx != local_seat_index and f_val > 0:
+					seat_nodes[s_idx].call("set_forehead_card_value", f_val)
+				seat_nodes[s_idx].call("reveal_showdown_result", h_val, f_val, score, is_win, chips_won, bal)
+
+	# 2. Update HUD Showdown Overlay
+	if hud_instance != null:
+		hud_instance.show_showdown_result(result)
+
+
+func _on_poker_match_completed(data: Dictionary) -> void:
+	print("[ForeheadPokerRoom] Stage P6: Match completed! Showing final standings modal.")
+	var overall_winners: Array = data.get("overall_winners", [])
+	var final_balances: Dictionary = data.get("final_balances", {})
+	var chips_won: Dictionary = data.get("chips_won", {})
+	var match_history: Array = data.get("match_history", [])
+
+	if hud_instance != null:
+		hud_instance.show_match_completed_modal(overall_winners, final_balances, chips_won, match_history)
+
+
+func _resolve_simulated_showdown() -> void:
+	var active_seats: Array[int] = []
+	for i in range(6):
+		if not _sim_folded[i]:
+			active_seats.append(i)
+
+	var is_uncontested: bool = (active_seats.size() <= 1)
+	var winner_player_ids: Array = []
+	var winning_score: int = 0
+	var player_scores: Dictionary = {}
+	var revealed_cards: Dictionary = {}
+	var total_awarded: Dictionary = {}
+	for i in range(6):
+		total_awarded[PRESETS[i]["id"]] = 0
+
+	# 1. Card scores for active contenders
+	if not is_uncontested:
+		for s in active_seats:
+			var h_card: int = _sim_hand_history[s].back() if not _sim_hand_history[s].is_empty() else 1
+			var f_card: int = _sim_forehead_history[s].back() if not _sim_forehead_history[s].is_empty() else 1
+			var score: int = h_card + f_card
+			var pid: String = PRESETS[s]["id"]
+			player_scores[pid] = score
+			revealed_cards[pid] = {
+				"hand": h_card,
+				"forehead": f_card,
+				"score": score
+			}
+			if score > winning_score:
+				winning_score = score
+
+	# 2. Pots Calculation (Layered Main Pot & Side Pots)
+	var contrib_thresholds: Array[int] = []
+	for i in range(6):
+		var c: int = _sim_total_contributions[i]
+		if c > 0 and not contrib_thresholds.has(c):
+			contrib_thresholds.append(c)
+	contrib_thresholds.sort()
+
+	var pot_layers: Array[Dictionary] = []
+	var prev_tier: int = 0
+	for cap in contrib_thresholds:
+		var tier_size: int = cap - prev_tier
+		if tier_size <= 0:
+			continue
+		var tier_pot: int = 0
+		var eligible: Array[int] = []
+		for i in range(6):
+			var c: int = _sim_total_contributions[i]
+			if c > prev_tier:
+				tier_pot += mini(c - prev_tier, tier_size)
+			if not _sim_folded[i] and c >= cap:
+				eligible.append(i)
+		if tier_pot > 0 and not eligible.is_empty():
+			pot_layers.append({
+				"amount": tier_pot,
+				"eligible": eligible
+			})
+		prev_tier = cap
+
+	if pot_layers.is_empty():
+		pot_layers.append({
+			"amount": _sim_total_pot,
+			"eligible": active_seats
+		})
+
+	var main_pot_dist: Dictionary = {}
+	var side_pot_dists: Array = []
+
+	# Distribute each layer
+	for layer_idx in range(pot_layers.size()):
+		var layer: Dictionary = pot_layers[layer_idx]
+		var layer_amt: int = layer["amount"]
+		var layer_elig: Array = layer["eligible"]
+		var payouts: Dictionary = {}
+
+		var layer_winners: Array = []
+		var layer_win_score: int = 0
+
+		if is_uncontested:
+			var sole_winner_seat: int = active_seats[0] if not active_seats.is_empty() else 0
+			layer_winners = [PRESETS[sole_winner_seat]["id"]]
+			layer_win_score = 0
+		else:
+			var eligible_pids: Array[String] = []
+			for s in layer_elig:
+				if not _sim_folded[s]:
+					eligible_pids.append(PRESETS[s]["id"])
+
+			if not eligible_pids.is_empty():
+				var max_s: int = -1
+				for pid in eligible_pids:
+					var sc: int = player_scores.get(pid, 0)
+					if sc > max_s:
+						max_s = sc
+				layer_win_score = max_s
+				for pid in eligible_pids:
+					if player_scores.get(pid, 0) == max_s:
+						layer_winners.append(pid)
+			else:
+				layer_winners = [PRESETS[active_seats[0]]["id"]]
+
+		# Pot division & remainder deterministic distribution by seat order
+		if not layer_winners.is_empty() and layer_amt > 0:
+			var base_share: int = layer_amt / layer_winners.size()
+			var remainder: int = layer_amt % layer_winners.size()
+
+			# Sort winners by seat index ascending
+			layer_winners.sort_custom(func(a, b):
+				var s_a := 0
+				var s_b := 0
+				for idx in range(PRESETS.size()):
+					if PRESETS[idx]["id"] == a: s_a = idx
+					if PRESETS[idx]["id"] == b: s_b = idx
+				return s_a < s_b
+			)
+
+			for w_idx in range(layer_winners.size()):
+				var wid: String = layer_winners[w_idx]
+				var share: int = base_share + (1 if w_idx < remainder else 0)
+				payouts[wid] = share
+				total_awarded[wid] = int(total_awarded.get(wid, 0)) + share
+				if not winner_player_ids.has(wid):
+					winner_player_ids.append(wid)
+
+		var pot_dist_data: Dictionary = {
+			"potName": "Main Pot" if layer_idx == 0 else "Side Pot #%d" % layer_idx,
+			"potAmount": layer_amt,
+			"eligiblePlayerIds": layer_elig.map(func(s): return PRESETS[s]["id"]),
+			"winningPlayerIds": layer_winners,
+			"winningScore": layer_win_score,
+			"payouts": payouts
+		}
+
+		if layer_idx == 0:
+			main_pot_dist = pot_dist_data
+		else:
+			side_pot_dists.append(pot_dist_data)
+
+	# 3. Update player balances & strictly conserve chips
+	var updated_balances: Dictionary = {}
+	for i in range(6):
+		var pid: String = PRESETS[i]["id"]
+		var award: int = int(total_awarded.get(pid, 0))
+		_sim_balances[i] += award
+		updated_balances[pid] = _sim_balances[i]
+		_sim_total_contributions[i] = 0
+		_sim_round_bets[i] = 0
+		_sim_has_acted[i] = false
+		_sim_folded[i] = false
+		_sim_all_in[i] = (_sim_balances[i] == 0)
+
+	_sim_total_pot = 0
+	_sim_side_pots.clear()
+
+	var is_match_completed: bool = (_sim_round >= 10)
+
+	var result_payload: Dictionary = {
+		"roundNumber": _sim_round,
+		"stateVersion": _turn_sequence_token,
+		"finalPot": main_pot_dist.get("potAmount", 0) + (side_pot_dists.reduce(func(acc, p): return acc + int(p.get("potAmount", 0)), 0) if not side_pot_dists.is_empty() else 0),
+		"isUncontested": is_uncontested,
+		"eligiblePlayerIds": active_seats.map(func(s): return PRESETS[s]["id"]),
+		"winnerPlayerIds": winner_player_ids,
+		"winningScore": winning_score,
+		"mainPotDistribution": main_pot_dist,
+		"sidePotDistributions": side_pot_dists,
+		"totalAwardedByPlayer": total_awarded,
+		"playerScores": player_scores,
+		"revealedCards": revealed_cards,
+		"updatedBalances": updated_balances,
+		"isMatchCompleted": is_match_completed
+	}
+
+	_on_poker_round_result(result_payload)
+
+	if is_match_completed:
+		var max_bal: int = -1
+		var overall_winners: Array = []
+		var chips_won: Dictionary = {}
+		for i in range(6):
+			var pid: String = PRESETS[i]["id"]
+			var b: int = _sim_balances[i]
+			chips_won[pid] = b - 100
+			if b > max_bal:
+				max_bal = b
+				overall_winners = [pid]
+			elif b == max_bal:
+				overall_winners.append(pid)
+
+		var match_completed_data: Dictionary = {
+			"overall_winners": overall_winners,
+			"final_balances": updated_balances,
+			"chips_won": chips_won,
+			"match_history": []
+		}
+		_on_poker_match_completed(match_completed_data)
+
 

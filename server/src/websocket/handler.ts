@@ -607,7 +607,7 @@ export class WebSocketHandler {
     // Broadcast updated betting state (pot, balances, current turn)
     room.broadcast(room.pokerMatch.getPublicBettingPayload());
 
-    // If betting completed, broadcast completion
+    // If betting completed, broadcast completion and resolve showdown
     if (result.isRoundComplete) {
       room.broadcast({
         type: "POKER_BETTING_COMPLETED",
@@ -616,6 +616,9 @@ export class WebSocketHandler {
         main_pot: room.pokerMatch.bettingManager.mainPot,
         side_pots: room.pokerMatch.bettingManager.sidePots,
       });
+
+      // Authoritative P6 Showdown, Winner Determination & Pot Distribution
+      room.resolvePokerShowdown();
     }
   }
 

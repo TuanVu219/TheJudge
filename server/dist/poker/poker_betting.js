@@ -15,6 +15,7 @@ export class PokerBettingManager {
     // Pot calculation cache
     mainPot = 0;
     sidePots = [];
+    potLayers = [];
     totalPot = 0;
     constructor(playerIds = [], startingChips = POKER_CONFIG.STARTING_CHIPS) {
         if (playerIds.length > 0) {
@@ -58,6 +59,9 @@ export class PokerBettingManager {
         // Reset per-round betting flags
         for (const [, p] of this.players) {
             p.roundBetContribution = 0;
+            p.totalHandContribution = 0;
+            p.anteContribution = 0;
+            p.startingBalance = p.balance;
             p.hasActedThisRound = false;
             // Do not reset isFolded / isAllIn if already folded/all-in from previous match state
         }
@@ -391,10 +395,12 @@ export class PokerBettingManager {
             prevLevel = level;
         }
         if (potLayers.length > 0) {
+            this.potLayers = potLayers;
             this.mainPot = potLayers[0].potAmount;
             this.sidePots = potLayers.slice(1);
         }
         else {
+            this.potLayers = [];
             this.mainPot = this.totalPot;
             this.sidePots = [];
         }
@@ -442,6 +448,7 @@ export class PokerBettingManager {
     resetAllPotState() {
         this.mainPot = 0;
         this.sidePots = [];
+        this.potLayers = [];
         this.totalPot = 0;
         this.currentHighestBet = 0;
         this.minRaiseIncrement = POKER_CONFIG.MIN_OPENING_BET;

@@ -2,6 +2,7 @@ import type { WebSocket } from "ws";
 import { Player, type PlayerRecord } from "../players/player.js";
 import type { RoomRecord, ServerMessage } from "../websocket/protocol.js";
 import { ForeheadPokerMatch } from "../poker/poker_match.js";
+import type { RoundResult } from "../poker/poker_showdown.js";
 export declare class Room {
     roomId: string;
     roomCode: string;
@@ -96,5 +97,6 @@ export declare class Room {
         error?: string;
     };
     finalizePokerPickPhase(): void;
+    resolvePokerShowdown(): RoundResult | null;
     resetPokerMatch(): void;
 }

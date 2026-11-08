@@ -1,6 +1,7 @@
 import { PokerDeck } from "./poker_deck.js";
 import { PokerBettingManager, type BettingActionResult } from "./poker_betting.js";
-import type { BettingActionType } from "./poker_config.js";
+import { type RoundResult } from "./poker_showdown.js";
+import { type BettingActionType } from "./poker_config.js";
 import type { ServerMessage } from "../websocket/protocol.js";
 export type PokerRoundPhase = "IDLE" | "PICKING" | "BETTING" | "SHOWDOWN" | "ROUND_END";
 export interface PlayerPokerState {
@@ -21,6 +22,8 @@ export declare class ForeheadPokerMatch {
     stateVersion: number;
     playerSeatMap: Map<string, number>;
     roomCode: string;
+    matchHistory: RoundResult[];
+    lastRoundResult: RoundResult | null;
     private players;
     constructor(playerIds?: string[], seatAssignments?: Map<string, number>, roomCode?: string);
     /**
@@ -107,6 +110,15 @@ export declare class ForeheadPokerMatch {
      * Resets all decks for all players back to full sets [1..10], reshuffles, and resets round to 0.
      */
     resetMatch(): void;
+    /**
+     * Resolves showdown and pot distribution authoritatively for this round.
+     */
+    resolveShowdown(): RoundResult;
+    getOverallWinners(): {
+        winners: string[];
+        finalBalances: Record<string, number>;
+        chipsWon: Record<string, number>;
+    };
     processBettingAction(playerId: string, action: BettingActionType, targetRaiseBet?: number): BettingActionResult;
     getPublicBettingPayload(roomCodeOverride?: string): ServerMessage;
     isExhausted(): boolean;

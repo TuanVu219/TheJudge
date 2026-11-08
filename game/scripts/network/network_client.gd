@@ -28,6 +28,8 @@ signal poker_reconnect_response_received(success: bool, data: Dictionary)
 signal poker_pick_phase_started(round: int, total_rounds: int, countdown: float, avail_hand: Array, avail_forehead: Array, used_hand: Array, used_forehead: Array)
 signal poker_pick_confirmed(player_id: String, hand_slot: Variant, forehead_slot: Variant)
 signal poker_pick_phase_ended(round: int, picks: Dictionary)
+signal poker_round_result_received(round_result: Dictionary)
+signal poker_match_completed_received(data: Dictionary)
 
 const NetworkConfig = preload("res://scripts/network/network_config.gd")
 const RECONNECT_INTERVAL_SECONDS := 2.0
@@ -49,6 +51,8 @@ var last_poker_opponent_foreheads: Dictionary = {}
 var last_poker_round_status: Dictionary = {}
 var last_poker_betting_state: Dictionary = {}
 var last_poker_pick_phase: Dictionary = {}
+var last_poker_round_result: Dictionary = {}
+var last_poker_match_completed: Dictionary = {}
 
 
 func _init() -> void:
@@ -272,6 +276,15 @@ func _handle_server_message(raw_json: String) -> void:
 		"POKER_RECONNECT_RESPONSE":
 			var success := bool(data.get("success", true))
 			poker_reconnect_response_received.emit(success, data)
+
+		"POKER_ROUND_RESULT":
+			var r_res: Dictionary = data.get("round_result", {})
+			last_poker_round_result = r_res.duplicate(true)
+			poker_round_result_received.emit(r_res)
+
+		"POKER_MATCH_COMPLETED":
+			last_poker_match_completed = data.duplicate(true)
+			poker_match_completed_received.emit(data)
 
 		"ERROR":
 			var code := str(data.get("error_code", "ERROR"))
