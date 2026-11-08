@@ -325,12 +325,41 @@ func _init_network_or_simulation() -> void:
 		is_online_match = true
 		_bind_network_signals()
 		_setup_online_roster()
+		_replay_cached_network_state()
 	else:
 		is_online_match = false
 		_setup_offline_characters()
 		_setup_first_person_camera()
 		_init_offline_simulation()
 		_draw_simulated_round()
+
+
+func _replay_cached_network_state() -> void:
+	if network_client == null:
+		return
+	var rnd_status: Dictionary = network_client.get("last_poker_round_status") if network_client.get("last_poker_round_status") != null else {}
+	if not rnd_status.is_empty():
+		_on_poker_round_status(
+			int(rnd_status.get("round", 1)),
+			int(rnd_status.get("total_rounds", 10)),
+			bool(rnd_status.get("is_exhausted", false))
+		)
+	var priv_hand: Dictionary = network_client.get("last_poker_private_hand") if network_client.get("last_poker_private_hand") != null else {}
+	if not priv_hand.is_empty():
+		_on_poker_private_hand(
+			int(priv_hand.get("round", 1)),
+			int(priv_hand.get("card", 0)),
+			priv_hand.get("history", [])
+		)
+	var opp_foreheads: Dictionary = network_client.get("last_poker_opponent_foreheads") if network_client.get("last_poker_opponent_foreheads") != null else {}
+	if not opp_foreheads.is_empty():
+		_on_poker_opponent_foreheads(
+			int(opp_foreheads.get("round", 1)),
+			opp_foreheads.get("cards", [])
+		)
+	var bet_state: Dictionary = network_client.get("last_poker_betting_state") if network_client.get("last_poker_betting_state") != null else {}
+	if not bet_state.is_empty():
+		_on_poker_betting_state(bet_state)
 
 
 func _bind_network_signals() -> void:
@@ -815,6 +844,10 @@ func _get_action_color_hex(action: String) -> String:
 			return "#CC5DE8"
 		_:
 			return "#FFFFFF"
+
+
+func _get_action_color(action: String) -> Color:
+	return Color(_get_action_color_hex(action))
 
 
 func _check_simulated_betting_complete() -> bool:

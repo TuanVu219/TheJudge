@@ -38,6 +38,13 @@ var reconnect_token := ""
 var _last_state := WebSocketPeer.STATE_CLOSED
 var _reconnect_timer := 0.0
 
+# Cached Poker Match State for Seamless Scene Transitions
+var started_match_roster: Array = []
+var last_poker_private_hand: Dictionary = {}
+var last_poker_opponent_foreheads: Dictionary = {}
+var last_poker_round_status: Dictionary = {}
+var last_poker_betting_state: Dictionary = {}
+
 
 func _init() -> void:
 	if server_url.is_empty():
@@ -140,6 +147,7 @@ func _handle_server_message(raw_json: String) -> void:
 		"MATCH_STARTED":
 			var code := str(data.get("room_code", ""))
 			var roster: Array = data.get("roster", [])
+			started_match_roster = roster.duplicate(true)
 			var mode := str(data.get("game_mode", data.get("mode", "")))
 			if mode.is_empty() and data.has("mode"):
 				mode = str(data.get("mode", ""))
@@ -148,6 +156,11 @@ func _handle_server_message(raw_json: String) -> void:
 		"ROOM_CLOSED":
 			var code := str(data.get("room_code", ""))
 			var reason := str(data.get("reason", "Room was closed."))
+			started_match_roster.clear()
+			last_poker_private_hand.clear()
+			last_poker_opponent_foreheads.clear()
+			last_poker_round_status.clear()
+			last_poker_betting_state.clear()
 			room_closed_received.emit(code, reason)
 
 		"PLAYER_MOVED":
@@ -169,6 +182,11 @@ func _handle_server_message(raw_json: String) -> void:
 
 		"MATCH_RESET":
 			var code := str(data.get("room_code", ""))
+			started_match_roster.clear()
+			last_poker_private_hand.clear()
+			last_poker_opponent_foreheads.clear()
+			last_poker_round_status.clear()
+			last_poker_betting_state.clear()
 			match_reset_received.emit(code)
 
 		"POKER_MATCH_INIT":
@@ -180,24 +198,32 @@ func _handle_server_message(raw_json: String) -> void:
 			var rnd := int(data.get("round", 0))
 			var card_val := int(data.get("card", 0))
 			var hist: Array = data.get("history", [])
+			last_poker_private_hand = {"round": rnd, "card": card_val, "history": hist}
 			poker_private_hand_received.emit(rnd, card_val, hist)
 
 		"POKER_OPPONENT_FOREHEADS":
 			var rnd := int(data.get("round", 0))
 			var card_list: Array = data.get("cards", [])
+			last_poker_opponent_foreheads = {"round": rnd, "cards": card_list}
 			poker_opponent_foreheads_received.emit(rnd, card_list)
 
 		"POKER_ROUND_STATUS":
 			var rnd := int(data.get("round", 0))
 			var total := int(data.get("total_rounds", 10))
 			var exhausted := bool(data.get("is_exhausted", false))
+			last_poker_round_status = {"round": rnd, "total_rounds": total, "is_exhausted": exhausted}
 			poker_round_status_received.emit(rnd, total, exhausted)
 
 		"POKER_MATCH_RESET":
 			var code := str(data.get("room_code", ""))
+			last_poker_private_hand.clear()
+			last_poker_opponent_foreheads.clear()
+			last_poker_round_status.clear()
+			last_poker_betting_state.clear()
 			poker_match_reset_received.emit(code)
 
 		"POKER_BETTING_STATE":
+			last_poker_betting_state = data.duplicate(true)
 			poker_betting_state_received.emit(data)
 
 		"POKER_ACTION_RESULT":
