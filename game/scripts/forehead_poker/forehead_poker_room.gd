@@ -206,6 +206,31 @@ func _setup_online_roster() -> void:
 	seat_to_player_id.clear()
 	seat_to_player_name.clear()
 
+	# Guarantee valid seat assignment for all players in roster (even if server omitted seat_index)
+	var occupied_seats: Dictionary = {}
+	# Pass 1: preserve valid pre-assigned seats
+	for p in roster:
+		var s := int(p.get("seat_index", -1))
+		if s >= 0 and s < seat_nodes.size() and not occupied_seats.has(s):
+			occupied_seats[s] = str(p.get("player_id", ""))
+
+	# Pass 2: assign any player without a valid seat index
+	for i in range(roster.size()):
+		var p: Dictionary = roster[i]
+		var s := int(p.get("seat_index", -1))
+		if s < 0 or s >= seat_nodes.size() or (occupied_seats.has(s) and occupied_seats[s] != str(p.get("player_id", ""))):
+			# For 2-player heads-up, place 2nd player at Seat 3 (North, directly opposite) if free
+			var preferred_seat := 3 if (roster.size() == 2 and i == 1 and not occupied_seats.has(3)) else -1
+			if preferred_seat >= 0:
+				s = preferred_seat
+			else:
+				for candidate in range(seat_nodes.size()):
+					if not occupied_seats.has(candidate):
+						s = candidate
+						break
+			p["seat_index"] = s
+			occupied_seats[s] = str(p.get("player_id", ""))
+
 	# Find local player's assigned seat index
 	local_seat_index = 0
 	for p in roster:
@@ -236,6 +261,7 @@ func _setup_online_roster() -> void:
 		player_id_to_seat[pid] = s_idx
 		seat_to_player_id[s_idx] = pid
 		seat_to_player_name[s_idx] = clean_name
+		print("[ForeheadPokerRoom] Spawned player: %s at seat %d (is_local=%s)" % [clean_name, s_idx, is_local])
 
 
 func _setup_first_person_camera() -> void:
