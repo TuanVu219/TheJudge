@@ -16,23 +16,21 @@
 
 [sub_resource type="Environment" id="Env_SaloonPixar"]
 background_mode = 1
-background_color = Color(0.2, 0.12, 0.08, 1)
+background_color = Color(0.08, 0.05, 0.03, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.85, 0.58, 0.38, 1)
-ambient_light_energy = 0.75
+ambient_light_color = Color(0.52, 0.40, 0.30, 1)
+ambient_light_energy = 0.55
 tonemap_mode = 3
-tonemap_exposure = 1.2
+tonemap_exposure = 1.05
 ssr_enabled = true
 ssao_enabled = true
 ssil_enabled = true
 glow_enabled = true
-glow_bloom = 0.18
-volumetric_fog_enabled = true
-volumetric_fog_density = 0.012
-volumetric_fog_albedo = Color(1, 0.88, 0.65, 1)
+glow_bloom = 0.08
+volumetric_fog_enabled = false
 adjustment_enabled = true
 adjustment_contrast = 1.05
-adjustment_saturation = 1.15
+adjustment_saturation = 1.10
 
 [sub_resource type="StandardMaterial3D" id="Mat_Floor"]
 albedo_texture = ExtResource("Tex_FloorAlbedo")
@@ -58,10 +56,9 @@ normal_texture = ExtResource("Tex_TimberNormal")
 uv1_scale = Vector3(1, 3, 1)
 
 [sub_resource type="StandardMaterial3D" id="Mat_WindowSunGlow"]
-albedo_color = Color(1, 0.92, 0.72, 1)
-emission_enabled = true
-emission = Color(1, 0.9, 0.65, 1)
-emission_energy_multiplier = 3.0
+albedo_color = Color(0.25, 0.18, 0.12, 1)
+roughness = 0.8
+emission_enabled = false
 
 [sub_resource type="StandardMaterial3D" id="Mat_WhiteCurtain"]
 albedo_color = Color(0.95, 0.92, 0.84, 1)
@@ -155,37 +152,42 @@ environment = SubResource("Env_SaloonPixar")
 
 [node name="SunKey" type="DirectionalLight3D" parent="Lights" unique_id=450089392]
 transform = Transform3D(0.42261824, -0.38302225, 0.8213938, 0, 0.90630776, 0.42261827, -0.9063078, -0.17860618, 0.3830222, -6.5, 5, -1.8)
+visible = false
 light_color = Color(1, 0.85, 0.58, 1)
-light_energy = 2.5
-light_volumetric_fog_energy = 3.2
-shadow_enabled = true
-shadow_bias = 0.03
+light_energy = 0.0
 
 [node name="TableSpot" type="SpotLight3D" parent="Lights" unique_id=481458475]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 4.8, 0)
-light_color = Color(1, 0.76, 0.48, 1)
-light_energy = 4.0
+light_color = Color(1, 0.84, 0.62, 1)
+light_energy = 2.4
 shadow_enabled = true
+shadow_bias = 0.03
 spot_range = 6.5
-spot_angle = 42.0
+spot_angle = 45.0
 
 [node name="LampAboveTable" type="OmniLight3D" parent="Lights" unique_id=468719573]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, 0)
-light_color = Color(1, 0.76, 0.48, 1)
-light_energy = 1.8
-omni_range = 6.0
+light_color = Color(1, 0.80, 0.55, 1)
+light_energy = 1.3
+omni_range = 6.5
 
 [node name="BarFillLight" type="OmniLight3D" parent="Lights" unique_id=1450236915]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 2.5, -4.5)
-light_color = Color(0.98, 0.62, 0.32, 1)
-light_energy = 1.6
-omni_range = 5.5
+light_color = Color(0.95, 0.68, 0.42, 1)
+light_energy = 0.9
+omni_range = 5.0
 
 [node name="DoorwayFillLight" type="OmniLight3D" parent="Lights" unique_id=574626683]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 2.4, -6.5)
-light_color = Color(1, 0.82, 0.5, 1)
-light_energy = 2.2
-omni_range = 6.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 2.4, -6.0)
+light_color = Color(0.95, 0.72, 0.48, 1)
+light_energy = 0.8
+omni_range = 5.0
+
+[node name="SouthFillLight" type="OmniLight3D" parent="Lights" unique_id=1450236916]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 4.5)
+light_color = Color(1, 0.80, 0.55, 1)
+light_energy = 0.85
+omni_range = 5.5
 
 [node name="Room" type="Node3D" parent="." unique_id=58159470]
 
@@ -231,6 +233,56 @@ mesh = SubResource("Mesh_Box")
 
 [node name="RightWainscot" type="MeshInstance3D" parent="Room" unique_id=1902292537]
 transform = Transform3D(0.15, 0, 0, 0, 1.5, 0, 0, 0, 15.9, 6.78, 0.75, 0)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="RightTrim" type="MeshInstance3D" parent="Room" unique_id=1902292538]
+transform = Transform3D(0.18, 0, 0, 0, 0.12, 0, 0, 0, 15.9, 6.75, 1.55, 0)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="WallSouth" type="MeshInstance3D" parent="Room" unique_id=2100000001]
+transform = Transform3D(16, 0, 0, 0, 7, 0, 0, 0, 0.4, 0, 3.5, 7)
+material_override = SubResource("Mat_RedWallpaper")
+mesh = SubResource("Mesh_Box")
+
+[node name="SouthWainscot" type="MeshInstance3D" parent="Room" unique_id=2100000002]
+transform = Transform3D(15.9, 0, 0, 0, 1.5, 0, 0, 0, 0.15, 0, 0.75, 6.78)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="SouthTrim" type="MeshInstance3D" parent="Room" unique_id=2100000003]
+transform = Transform3D(15.9, 0, 0, 0, 0.12, 0, 0, 0, 0.18, 0, 1.55, 6.75)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="PillarFL" type="MeshInstance3D" parent="Room" unique_id=2100000004]
+transform = Transform3D(0.65, 0, 0, 0, 7, 0, 0, 0, 0.65, -6.65, 3.5, 6.65)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="PillarFR" type="MeshInstance3D" parent="Room" unique_id=2100000005]
+transform = Transform3D(0.65, 0, 0, 0, 7, 0, 0, 0, 0.65, 6.65, 3.5, 6.65)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="Ceiling" type="MeshInstance3D" parent="Room" unique_id=2100000006]
+transform = Transform3D(16, 0, 0, 0, 0.3, 0, 0, 0, 16, 0, 7, 0)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="CeilingBeam1" type="MeshInstance3D" parent="Room" unique_id=2100000007]
+transform = Transform3D(15.8, 0, 0, 0, 0.35, 0, 0, 0, 0.45, 0, 6.8, -3.5)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="CeilingBeam2" type="MeshInstance3D" parent="Room" unique_id=2100000008]
+transform = Transform3D(15.8, 0, 0, 0, 0.35, 0, 0, 0, 0.45, 0, 6.8, 0)
+material_override = SubResource("Mat_Timber")
+mesh = SubResource("Mesh_Box")
+
+[node name="CeilingBeam3" type="MeshInstance3D" parent="Room" unique_id=2100000009]
+transform = Transform3D(15.8, 0, 0, 0, 0.35, 0, 0, 0, 0.45, 0, 6.8, 3.5)
 material_override = SubResource("Mat_Timber")
 mesh = SubResource("Mesh_Box")
 
@@ -361,6 +413,7 @@ mesh = SubResource("Mesh_Box")
 
 [node name="DesertSunGlow" type="MeshInstance3D" parent="Room/SaloonDoors" unique_id=727362195]
 transform = Transform3D(1.8, 0, 0, 0, 2.8, 0, 0, 0, 0.05, 0, 1.4, -0.3)
+visible = false
 material_override = SubResource("Mat_WindowSunGlow")
 mesh = SubResource("Mesh_Box")
 
@@ -669,6 +722,42 @@ mesh = SubResource("Mesh_Box")
 transform = Transform3D(0.25, 0, 0, 0, 0.35, 0, 0, 0, 0.25, -0.25, -0.15, 0)
 material_override = SubResource("Mat_LampGlow")
 mesh = SubResource("Mesh_Sphere")
+
+[node name="WallLampSouthL" type="Node3D" parent="Props" unique_id=2100000010]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 3.4, 6.75)
+
+[node name="LampMountSL" type="MeshInstance3D" parent="Props/WallLampSouthL" unique_id=2100000011]
+transform = Transform3D(0.08, 0, 0, 0, 0.08, 0, 0, 0, 0.3, 0, 0, -0.15)
+material_override = SubResource("Mat_LampMetal")
+mesh = SubResource("Mesh_Box")
+
+[node name="LampGlowSL" type="MeshInstance3D" parent="Props/WallLampSouthL" unique_id=2100000012]
+transform = Transform3D(0.25, 0, 0, 0, 0.35, 0, 0, 0, 0.25, 0, -0.15, -0.3)
+material_override = SubResource("Mat_LampGlow")
+mesh = SubResource("Mesh_Sphere")
+
+[node name="WallLampSouthR" type="Node3D" parent="Props" unique_id=2100000013]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 3.4, 6.75)
+
+[node name="LampMountSR" type="MeshInstance3D" parent="Props/WallLampSouthR" unique_id=2100000014]
+transform = Transform3D(0.08, 0, 0, 0, 0.08, 0, 0, 0, 0.3, 0, 0, -0.15)
+material_override = SubResource("Mat_LampMetal")
+mesh = SubResource("Mesh_Box")
+
+[node name="LampGlowSR" type="MeshInstance3D" parent="Props/WallLampSouthR" unique_id=2100000015]
+transform = Transform3D(0.25, 0, 0, 0, 0.35, 0, 0, 0, 0.25, 0, -0.15, -0.3)
+material_override = SubResource("Mat_LampGlow")
+mesh = SubResource("Mesh_Sphere")
+
+[node name="SouthBarrel1" type="MeshInstance3D" parent="Props" unique_id=2100000016]
+transform = Transform3D(0.85, 0, 0, 0, 1.25, 0, 0, 0, 0.85, -5.2, 0.62, 5.8)
+material_override = SubResource("Mat_Barrel")
+mesh = SubResource("Mesh_Cyl")
+
+[node name="SouthBarrel2" type="MeshInstance3D" parent="Props" unique_id=2100000017]
+transform = Transform3D(0.85, 0, 0, 0, 1.25, 0, 0, 0, 0.85, 5.2, 0.62, 5.8)
+material_override = SubResource("Mat_Barrel")
+mesh = SubResource("Mesh_Cyl")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1740266668]
 transform = Transform3D(1, 0, 0, 0, 0.9848077, 0.17364818, 0, -0.17364818, 0.9848077, 0, 1.6, 3.45)

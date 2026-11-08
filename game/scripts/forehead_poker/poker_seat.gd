@@ -232,22 +232,6 @@ func _setup_forehead_card() -> void:
 	forehead_card_node.position = Vector3(0, 1.48, 0.52)
 	forehead_card_node.rotation_degrees = Vector3(-8, 0, 0)
 	
-	# Stylized elastic cloth headband wrapping around the bean head to secure the card
-	var band_mesh := TorusMesh.new()
-	band_mesh.inner_radius = 0.49
-	band_mesh.outer_radius = 0.525
-	band_mesh.rings = 24
-	band_mesh.ring_segments = 12
-	var band_mat := StandardMaterial3D.new()
-	band_mat.albedo_color = Color(0.92, 0.82, 0.55, 1.0)
-	band_mat.roughness = 0.65
-	var band_inst := MeshInstance3D.new()
-	band_inst.name = "ElasticHeadband"
-	band_inst.mesh = band_mesh
-	band_inst.material_override = band_mat
-	band_inst.position = Vector3(0, -0.06, -0.42)
-	forehead_card_node.add_child(band_inst)
-	
 	# Front Card Face (facing outward +Z toward opponents)
 	var card_front_mesh := QuadMesh.new()
 	card_front_mesh.size = Vector2(0.32, 0.46)
