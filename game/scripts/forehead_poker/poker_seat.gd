@@ -42,6 +42,40 @@ var _current_temp_action: String = ""
 const SEAT_HEIGHT_OFFSET: float = 0.46
 const LEG_PITCH_DEGREES: float = -68.0
 
+# Look rotation interpolation
+var _target_look_yaw: float = 0.0
+var _current_look_yaw: float = 0.0
+var _target_look_pitch: float = 0.0
+var _current_look_pitch: float = 0.0
+var _has_look_target: bool = false
+const LOOK_SMOOTH_SPEED: float = 14.0
+
+
+func set_look_rotation(yaw_deg: float, pitch_deg: float = 0.0) -> void:
+	_target_look_yaw = yaw_deg
+	_target_look_pitch = pitch_deg
+	if not _has_look_target:
+		_current_look_yaw = yaw_deg
+		_current_look_pitch = pitch_deg
+		_has_look_target = true
+
+
+func _process(delta: float) -> void:
+	if not _has_look_target or character_instance == null or not is_instance_valid(character_instance):
+		return
+	
+	var cur_rad := deg_to_rad(_current_look_yaw)
+	var tgt_rad := deg_to_rad(_target_look_yaw)
+	var lerped_rad := lerp_angle(cur_rad, tgt_rad, clampf(delta * LOOK_SMOOTH_SPEED, 0.0, 1.0))
+	_current_look_yaw = rad_to_deg(lerped_rad)
+	_current_look_pitch = lerpf(_current_look_pitch, _target_look_pitch, clampf(delta * LOOK_SMOOTH_SPEED, 0.0, 1.0))
+	
+	character_instance.global_rotation_degrees.y = _current_look_yaw + 180.0
+	
+	var visual_root := character_instance.get_node_or_null("VisualRoot") as Node3D
+	if visual_root != null:
+		visual_root.rotation_degrees.x = clampf(_current_look_pitch * 0.45, -20.0, 20.0)
+
 
 func _ready() -> void:
 	pass
@@ -54,6 +88,7 @@ func clear_character() -> void:
 	forehead_card_node = null
 	balance_label = null
 	action_badge_label = null
+	_has_look_target = false
 	set_turn_active(false)
 
 

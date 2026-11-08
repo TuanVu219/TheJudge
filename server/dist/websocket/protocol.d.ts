@@ -28,6 +28,7 @@ export interface ClientMessage {
     position?: [number, number, number];
     velocity?: [number, number, number];
     rotation?: number;
+    pitch?: number;
     col?: number;
     row?: number;
     action?: "FOLD" | "CHECK" | "CALL" | "RAISE" | "ALL_IN";
@@ -50,6 +51,7 @@ export interface ServerMessage {
     position?: [number, number, number];
     velocity?: [number, number, number];
     rotation?: number;
+    pitch?: number;
     col?: number;
     row?: number;
     team_id?: number;

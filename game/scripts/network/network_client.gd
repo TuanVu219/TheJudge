@@ -10,6 +10,7 @@ signal room_state_received(room_record: Dictionary)
 signal match_started_received(room_code: String, roster: Array, game_mode: String)
 signal room_closed_received(room_code: String, reason: String)
 signal player_moved_received(player_id: String, position: Vector3, velocity: Vector3, rotation_y: float)
+signal player_looked_received(player_id: String, yaw: float, pitch: float)
 signal tile_claimed_received(col: int, row: int, team_id: int, red_score: int, blue_score: int)
 signal match_reset_received(room_code: String)
 signal error_received(error_code: String, message: String)
@@ -168,9 +169,11 @@ func _handle_server_message(raw_json: String) -> void:
 			var pos_arr: Array = data.get("position", [0.0, 0.0, 0.0])
 			var vel_arr: Array = data.get("velocity", [0.0, 0.0, 0.0])
 			var rot_y := float(data.get("rotation", 0.0))
+			var pitch := float(data.get("pitch", 0.0))
 			var pos := Vector3(float(pos_arr[0]), float(pos_arr[1]), float(pos_arr[2])) if pos_arr.size() >= 3 else Vector3.ZERO
 			var vel := Vector3(float(vel_arr[0]), float(vel_arr[1]), float(vel_arr[2])) if vel_arr.size() >= 3 else Vector3.ZERO
 			player_moved_received.emit(pid, pos, vel, rot_y)
+			player_looked_received.emit(pid, rot_y, pitch)
 
 		"TILE_CLAIMED":
 			var col := int(data.get("col", 0))
@@ -304,4 +307,16 @@ func send_poker_reconnect(room_code: String, player_id: String, token: String) -
 		"player_id": player_id,
 		"reconnect_token": token,
 	})
+
+
+func send_player_look(room_code: String, yaw_deg: float, pitch_deg: float) -> void:
+	if not is_connected_to_server or room_code.is_empty():
+		return
+	send_message({
+		"type": "PLAYER_MOVE",
+		"room_code": room_code,
+		"rotation": yaw_deg,
+		"pitch": pitch_deg,
+	})
+
 

@@ -20,6 +20,8 @@ extends Camera3D
 const LAYER_WORLD_AND_OPPONENTS: int = 1
 const LAYER_LOCAL_PLAYER_HIDDEN: int = 2
 
+signal camera_rotated(yaw_deg: float, pitch_deg: float)
+
 @export var mouse_sensitivity: float = 0.0022
 @export var smooth_speed: float = 16.0
 
@@ -103,10 +105,15 @@ func _process(delta: float) -> void:
 	
 	# Smooth interpolation
 	var yaw_diff := wrapf(_target_yaw - _current_yaw, -180.0, 180.0)
+	var prev_yaw := _current_yaw
+	var prev_pitch := _current_pitch
 	_current_yaw += yaw_diff * clampf(delta * smooth_speed, 0.0, 1.0)
 	_current_pitch = lerpf(_current_pitch, _target_pitch, clampf(delta * smooth_speed, 0.0, 1.0))
 	
 	_apply_rotation()
+	
+	if absf(_current_yaw - prev_yaw) > 0.02 or absf(_current_pitch - prev_pitch) > 0.02:
+		camera_rotated.emit(_current_yaw, _current_pitch)
 
 
 func _apply_rotation() -> void:

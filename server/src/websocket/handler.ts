@@ -380,6 +380,7 @@ export class WebSocketHandler {
       position: msg.position,
       velocity: msg.velocity,
       rotation: msg.rotation,
+      pitch: msg.pitch,
     });
   }
 

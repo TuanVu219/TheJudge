@@ -278,6 +278,9 @@ func _setup_first_person_camera() -> void:
 			camera.call("setup_first_person_view", eye_pos, look_target)
 		elif camera.has_method("set_initial_seat_view"):
 			camera.call("set_initial_seat_view", local_seat.position)
+	
+	if camera.has_signal("camera_rotated") and not camera.is_connected("camera_rotated", _on_camera_rotated):
+		camera.connect("camera_rotated", _on_camera_rotated)
 
 
 func _setup_poker_hud() -> void:
@@ -387,6 +390,36 @@ func _bind_network_signals() -> void:
 		network_client.connect("connected_to_server", _on_connected_to_server)
 	if network_client.has_signal("room_state_received") and not network_client.is_connected("room_state_received", _on_room_state_received):
 		network_client.connect("room_state_received", _on_room_state_received)
+	if network_client.has_signal("player_looked_received") and not network_client.is_connected("player_looked_received", _on_player_looked_received):
+		network_client.connect("player_looked_received", _on_player_looked_received)
+
+
+var _last_look_sync_time: float = 0.0
+var _last_sent_yaw: float = 999.0
+var _last_sent_pitch: float = 999.0
+const LOOK_SYNC_INTERVAL: float = 0.05
+
+
+func _on_camera_rotated(yaw: float, pitch: float) -> void:
+	if seat_nodes.size() > local_seat_index:
+		seat_nodes[local_seat_index].call("set_look_rotation", yaw, pitch)
+	
+	if is_online_match and network_client != null and not active_room_code.is_empty():
+		var now := Time.get_ticks_msec() / 1000.0
+		if (now - _last_look_sync_time) >= LOOK_SYNC_INTERVAL:
+			if absf(yaw - _last_sent_yaw) > 0.8 or absf(pitch - _last_sent_pitch) > 0.8:
+				_last_look_sync_time = now
+				_last_sent_yaw = yaw
+				_last_sent_pitch = pitch
+				network_client.call("send_player_look", active_room_code, yaw, pitch)
+
+
+func _on_player_looked_received(pid: String, yaw: float, pitch: float) -> void:
+	if pid == local_player_id:
+		return
+	var s_idx: int = player_id_to_seat.get(pid, -1)
+	if s_idx >= 0 and s_idx < seat_nodes.size():
+		seat_nodes[s_idx].call("set_look_rotation", yaw, pitch)
 
 
 # ── HUD CONTROLS & LOCAL PLAYER BETTING ──────────────────────────────────────

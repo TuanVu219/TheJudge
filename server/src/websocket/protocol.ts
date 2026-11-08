@@ -68,6 +68,7 @@ export interface ClientMessage {
   position?: [number, number, number];
   velocity?: [number, number, number];
   rotation?: number;
+  pitch?: number;
   col?: number;
   row?: number;
   // Poker betting client fields
@@ -92,6 +93,7 @@ export interface ServerMessage {
   position?: [number, number, number];
   velocity?: [number, number, number];
   rotation?: number;
+  pitch?: number;
   col?: number;
   row?: number;
   team_id?: number;
