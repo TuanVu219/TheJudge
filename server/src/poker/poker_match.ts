@@ -3,15 +3,23 @@ import { PokerBettingManager, type BettingActionResult } from "./poker_betting.j
 import type { BettingActionType } from "./poker_config.js";
 import type { ServerMessage } from "../websocket/protocol.js";
 
+export type PokerRoundPhase = "IDLE" | "PICKING" | "BETTING" | "SHOWDOWN" | "ROUND_END";
+
 export interface PlayerPokerState {
   playerId: string;
   handDeck: PokerDeck;
   foreheadDeck: PokerDeck;
+  pickedHandSlot: number | null;
+  pickedForeheadSlot: number | null;
+  isPickConfirmed: boolean;
 }
 
 export class ForeheadPokerMatch {
   public static readonly TOTAL_ROUNDS = 10;
+  public static readonly PICK_COUNTDOWN_SECONDS = 15;
+
   public round: number = 0;
+  public phase: PokerRoundPhase = "IDLE";
   public isMatchStarted: boolean = false;
   public bettingManager: PokerBettingManager = new PokerBettingManager();
   public stateVersion: number = 0;
@@ -27,12 +35,13 @@ export class ForeheadPokerMatch {
 
   /**
    * Initializes a new match for the given player IDs.
-   * Creates exactly 2 independent decks (Hand + Forehead) per player and shuffles each independently.
+   * Creates exactly 2 independent decks (Hand + Forehead) per player and shuffles each independently across 10 slots.
    */
   public initMatch(playerIds: string[], seatAssignments?: Map<string, number>, roomCode: string = ""): void {
     this.players.clear();
     this.playerSeatMap.clear();
     this.round = 0;
+    this.phase = "IDLE";
     this.roomCode = roomCode;
     this.stateVersion = 1;
     this.bettingManager.initPlayers(playerIds);
@@ -52,6 +61,9 @@ export class ForeheadPokerMatch {
         playerId: pid,
         handDeck,
         foreheadDeck,
+        pickedHandSlot: null,
+        pickedForeheadSlot: null,
+        isPickConfirmed: false,
       });
     }
 
@@ -59,10 +71,9 @@ export class ForeheadPokerMatch {
   }
 
   /**
-   * Draws the next card from each player's independent Hand and Forehead decks.
-   * Advances the round count.
+   * Starts the 15-second Card Picking Phase for a new round.
    */
-  public drawRound(): { success: boolean; round: number; error?: string } {
+  public startRoundPicking(roundNum?: number): { success: boolean; round: number; error?: string } {
     if (!this.isMatchStarted) {
       return { success: false, round: this.round, error: "MATCH_NOT_STARTED" };
     }
@@ -71,17 +82,108 @@ export class ForeheadPokerMatch {
       return { success: false, round: this.round, error: "DECKS_EXHAUSTED" };
     }
 
-    this.round++;
+    this.round = roundNum !== undefined ? roundNum : (this.round + 1);
+    this.phase = "PICKING";
     this.stateVersion++;
 
     for (const [, state] of this.players) {
-      state.handDeck.draw();
-      state.foreheadDeck.draw();
+      state.pickedHandSlot = null;
+      state.pickedForeheadSlot = null;
+      state.isPickConfirmed = false;
     }
+
+    return { success: true, round: this.round };
+  }
+
+  /**
+   * Records a player's choice of card slots for their Hand and Forehead decks.
+   * If a slot is not specified or null, it keeps previous pick or remains pending.
+   */
+  public setPlayerPick(
+    playerId: string,
+    handSlot: number | null | undefined,
+    foreheadSlot: number | null | undefined
+  ): { success: boolean; allConfirmed: boolean; error?: string } {
+    const state = this.players.get(playerId);
+    if (!state) {
+      return { success: false, allConfirmed: false, error: "PLAYER_NOT_FOUND" };
+    }
+
+    if (this.phase !== "PICKING") {
+      return { success: false, allConfirmed: false, error: "NOT_IN_PICKING_PHASE" };
+    }
+
+    if (handSlot !== undefined && handSlot !== null) {
+      if (!state.handDeck.isSlotAvailable(handSlot)) {
+        return { success: false, allConfirmed: false, error: "HAND_SLOT_UNAVAILABLE" };
+      }
+      state.pickedHandSlot = handSlot;
+    }
+
+    if (foreheadSlot !== undefined && foreheadSlot !== null) {
+      if (!state.foreheadDeck.isSlotAvailable(foreheadSlot)) {
+        return { success: false, allConfirmed: false, error: "FOREHEAD_SLOT_UNAVAILABLE" };
+      }
+      state.pickedForeheadSlot = foreheadSlot;
+    }
+
+    if (state.pickedHandSlot !== null && state.pickedForeheadSlot !== null) {
+      state.isPickConfirmed = true;
+    }
+
+    const allConfirmed = this.areAllActivePicksConfirmed();
+    return { success: true, allConfirmed };
+  }
+
+  public areAllActivePicksConfirmed(): boolean {
+    if (this.players.size === 0) return false;
+    for (const [, state] of this.players) {
+      if (!state.isPickConfirmed) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Finalizes the picking phase:
+   * Any slot not explicitly chosen by a player is automatically chosen at random from remaining slots.
+   * Draws the cards from the chosen slots, updates history, and transitions match into the BETTING phase.
+   */
+  public finalizePicking(): {
+    round: number;
+    playerPicks: Record<string, { handSlot: number; foreheadSlot: number; handCard: number; foreheadCard: number }>;
+  } {
+    const playerPicks: Record<string, { handSlot: number; foreheadSlot: number; handCard: number; foreheadCard: number }> = {};
+
+    for (const [pid, state] of this.players) {
+      const hRes = state.handDeck.drawSlot(state.pickedHandSlot);
+      const fRes = state.foreheadDeck.drawSlot(state.pickedForeheadSlot);
+
+      playerPicks[pid] = {
+        handSlot: hRes.slot ?? 0,
+        foreheadSlot: fRes.slot ?? 0,
+        handCard: hRes.card ?? 1,
+        foreheadCard: fRes.card ?? 1,
+      };
+    }
+
+    this.phase = "BETTING";
+    this.stateVersion++;
 
     // Start betting phase and collect ante
     this.bettingManager.startRound(this.round);
 
+    return { round: this.round, playerPicks };
+  }
+
+  /**
+   * Legacy drawRound: starts picking phase and immediately finalizes with random/pending slots.
+   */
+  public drawRound(): { success: boolean; round: number; error?: string } {
+    const startRes = this.startRoundPicking();
+    if (!startRes.success) return startRes;
+    this.finalizePicking();
     return { success: true, round: this.round };
   }
 
@@ -93,6 +195,7 @@ export class ForeheadPokerMatch {
     type: "POKER_PRIVATE_HAND";
     round: number;
     card: number | null;
+    slot: number | null;
     history: number[];
   } | null {
     const state = this.players.get(playerId);
@@ -102,6 +205,7 @@ export class ForeheadPokerMatch {
       type: "POKER_PRIVATE_HAND",
       round: this.round,
       card: state.handDeck.currentCard,
+      slot: state.handDeck.currentSlot,
       history: state.handDeck.getUsedHistory(),
     };
   }
@@ -113,19 +217,19 @@ export class ForeheadPokerMatch {
   public getOpponentForeheadsPayload(playerId: string): {
     type: "POKER_OPPONENT_FOREHEADS";
     round: number;
-    cards: Array<{ player_id: string; card: number | null; history: number[] }>;
+    cards: Array<{ player_id: string; card: number | null; slot: number | null; history: number[] }>;
   } | null {
     if (!this.players.has(playerId)) return null;
 
-    const opponentCards: Array<{ player_id: string; card: number | null; history: number[] }> = [];
+    const opponentCards: Array<{ player_id: string; card: number | null; slot: number | null; history: number[] }> = [];
 
     for (const [otherId, otherState] of this.players) {
-      // Exclude self strictly
       if (otherId === playerId) continue;
 
       opponentCards.push({
         player_id: otherId,
         card: otherState.foreheadDeck.currentCard,
+        slot: otherState.foreheadDeck.currentSlot,
         history: otherState.foreheadDeck.getUsedHistory(),
       });
     }
@@ -160,12 +264,16 @@ export class ForeheadPokerMatch {
    */
   public resetMatch(): void {
     this.round = 0;
+    this.phase = "IDLE";
     this.stateVersion++;
     for (const [, state] of this.players) {
       state.handDeck.reset();
       state.foreheadDeck.reset();
       state.handDeck.shuffle();
       state.foreheadDeck.shuffle();
+      state.pickedHandSlot = null;
+      state.pickedForeheadSlot = null;
+      state.isPickConfirmed = false;
     }
     this.bettingManager.initPlayers(this.getPlayerIds());
   }
@@ -242,4 +350,3 @@ export class ForeheadPokerMatch {
     return this.players.get(playerId);
   }
 }
-

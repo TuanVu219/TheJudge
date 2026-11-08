@@ -129,6 +129,9 @@ export class WebSocketHandler {
             case "POKER_BETTING_ACTION":
                 this.handlePokerBettingAction(player, msg);
                 break;
+            case "POKER_PICK_CARDS":
+                this.handlePokerPickCards(player, msg);
+                break;
             case "POKER_RECONNECT":
                 this.handlePokerReconnect(player, msg);
                 break;
@@ -448,34 +451,37 @@ export class WebSocketHandler {
             player.send({ type: "ERROR", error_code: "NOT_HOST", message: "Only the host can draw a new round." });
             return;
         }
-        if (!room.pokerMatch) {
-            room.initPokerMatch();
-        }
-        const drawRes = room.pokerMatch.drawRound();
-        if (!drawRes.success) {
+        const startRes = room.startPokerRound();
+        if (!startRes.success) {
             player.send({
                 type: "ERROR",
-                error_code: drawRes.error || "DRAW_FAILED",
-                message: drawRes.error === "DECKS_EXHAUSTED" ? "All 10 rounds have been completed." : "Failed to draw round.",
+                error_code: startRes.error || "DRAW_FAILED",
+                message: startRes.error === "DECKS_EXHAUSTED" ? "All 10 rounds have been completed." : "Failed to draw round.",
             });
             return;
         }
-        // SECURITY & PRIVACY ENFORCEMENT:
-        // Send strictly segregated payloads to each individual player's WebSocket.
-        for (const [pId, p] of room.players) {
-            const privateHand = room.pokerMatch.getPrivateHandPayload(pId);
-            if (privateHand) {
-                p.send(privateHand);
-            }
-            const opponentForeheads = room.pokerMatch.getOpponentForeheadsPayload(pId);
-            if (opponentForeheads) {
-                p.send(opponentForeheads);
-            }
+    }
+    handlePokerPickCards(player, msg) {
+        const code = msg.room_code || player.currentRoomCode;
+        if (!code) {
+            player.send({ type: "ERROR", error_code: "NOT_IN_ROOM", message: "You are not in a room." });
+            return;
         }
-        // Broadcast public status (NO secret card values included)
-        room.broadcast(room.pokerMatch.getPublicRoundStatusPayload());
-        // Broadcast initial betting state for this round (ante deducted, first player turn)
-        room.broadcast(room.pokerMatch.getPublicBettingPayload());
+        const room = this.roomManager.findRoomByCode(code);
+        if (!room) {
+            player.send({ type: "ERROR", error_code: "ROOM_NOT_FOUND", message: "Room not found." });
+            return;
+        }
+        const handSlot = typeof msg.hand_slot === "number" ? msg.hand_slot : null;
+        const foreheadSlot = typeof msg.forehead_slot === "number" ? msg.forehead_slot : null;
+        const res = room.handlePlayerPokerPick(player.playerId, handSlot, foreheadSlot);
+        if (!res.success) {
+            player.send({
+                type: "ERROR",
+                error_code: res.error || "PICK_FAILED",
+                message: `Failed to pick cards: ${res.error}`,
+            });
+        }
     }
     handlePokerBettingAction(player, msg) {
         const code = msg.room_code || player.currentRoomCode;

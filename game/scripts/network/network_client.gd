@@ -25,6 +25,9 @@ signal poker_betting_state_received(data: Dictionary)
 signal poker_action_result_received(data: Dictionary)
 signal poker_betting_completed_received(data: Dictionary)
 signal poker_reconnect_response_received(success: bool, data: Dictionary)
+signal poker_pick_phase_started(round: int, total_rounds: int, countdown: float, avail_hand: Array, avail_forehead: Array, used_hand: Array, used_forehead: Array)
+signal poker_pick_confirmed(player_id: String, hand_slot: Variant, forehead_slot: Variant)
+signal poker_pick_phase_ended(round: int, picks: Dictionary)
 
 const NetworkConfig = preload("res://scripts/network/network_config.gd")
 const RECONNECT_INTERVAL_SECONDS := 2.0
@@ -45,6 +48,7 @@ var last_poker_private_hand: Dictionary = {}
 var last_poker_opponent_foreheads: Dictionary = {}
 var last_poker_round_status: Dictionary = {}
 var last_poker_betting_state: Dictionary = {}
+var last_poker_pick_phase: Dictionary = {}
 
 
 func _init() -> void:
@@ -235,6 +239,36 @@ func _handle_server_message(raw_json: String) -> void:
 		"POKER_BETTING_COMPLETED":
 			poker_betting_completed_received.emit(data)
 
+		"POKER_PICK_PHASE_START":
+			var rnd := int(data.get("round", 1))
+			var total := int(data.get("total_rounds", 10))
+			var countdown := float(data.get("countdown_seconds", 15.0))
+			var avail_h: Array = data.get("available_hand_slots", [])
+			var avail_f: Array = data.get("available_forehead_slots", [])
+			var used_h: Array = data.get("used_hand_slots", [])
+			var used_f: Array = data.get("used_forehead_slots", [])
+			last_poker_pick_phase = {
+				"round": rnd,
+				"total_rounds": total,
+				"countdown": countdown,
+				"available_hand_slots": avail_h,
+				"available_forehead_slots": avail_f,
+				"used_hand_slots": used_h,
+				"used_forehead_slots": used_f
+			}
+			poker_pick_phase_started.emit(rnd, total, countdown, avail_h, avail_f, used_h, used_f)
+
+		"POKER_PICK_CONFIRMED":
+			var pid := str(data.get("player_id", ""))
+			var h_slot: Variant = data.get("hand_slot", null)
+			var f_slot: Variant = data.get("forehead_slot", null)
+			poker_pick_confirmed.emit(pid, h_slot, f_slot)
+
+		"POKER_PICK_PHASE_END":
+			var rnd := int(data.get("round", 1))
+			var pks: Dictionary = data.get("picks", {})
+			poker_pick_phase_ended.emit(rnd, pks)
+
 		"POKER_RECONNECT_RESPONSE":
 			var success := bool(data.get("success", true))
 			poker_reconnect_response_received.emit(success, data)
@@ -287,6 +321,18 @@ func send_poker_reset_match(room_code: String) -> void:
 		"type": "POKER_RESET_MATCH",
 		"room_code": room_code,
 	})
+
+
+func send_poker_pick_cards(room_code: String, hand_slot: Variant, forehead_slot: Variant) -> void:
+	var msg: Dictionary = {
+		"type": "POKER_PICK_CARDS",
+		"room_code": room_code,
+	}
+	if hand_slot != null:
+		msg["hand_slot"] = int(hand_slot)
+	if forehead_slot != null:
+		msg["forehead_slot"] = int(forehead_slot)
+	send_message(msg)
 
 
 func send_poker_betting_action(room_code: String, action: String, target_bet: int = 0) -> void:

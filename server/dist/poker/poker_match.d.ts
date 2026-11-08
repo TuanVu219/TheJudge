@@ -2,14 +2,20 @@ import { PokerDeck } from "./poker_deck.js";
 import { PokerBettingManager, type BettingActionResult } from "./poker_betting.js";
 import type { BettingActionType } from "./poker_config.js";
 import type { ServerMessage } from "../websocket/protocol.js";
+export type PokerRoundPhase = "IDLE" | "PICKING" | "BETTING" | "SHOWDOWN" | "ROUND_END";
 export interface PlayerPokerState {
     playerId: string;
     handDeck: PokerDeck;
     foreheadDeck: PokerDeck;
+    pickedHandSlot: number | null;
+    pickedForeheadSlot: number | null;
+    isPickConfirmed: boolean;
 }
 export declare class ForeheadPokerMatch {
     static readonly TOTAL_ROUNDS = 10;
+    static readonly PICK_COUNTDOWN_SECONDS = 15;
     round: number;
+    phase: PokerRoundPhase;
     isMatchStarted: boolean;
     bettingManager: PokerBettingManager;
     stateVersion: number;
@@ -19,12 +25,43 @@ export declare class ForeheadPokerMatch {
     constructor(playerIds?: string[], seatAssignments?: Map<string, number>, roomCode?: string);
     /**
      * Initializes a new match for the given player IDs.
-     * Creates exactly 2 independent decks (Hand + Forehead) per player and shuffles each independently.
+     * Creates exactly 2 independent decks (Hand + Forehead) per player and shuffles each independently across 10 slots.
      */
     initMatch(playerIds: string[], seatAssignments?: Map<string, number>, roomCode?: string): void;
     /**
-     * Draws the next card from each player's independent Hand and Forehead decks.
-     * Advances the round count.
+     * Starts the 15-second Card Picking Phase for a new round.
+     */
+    startRoundPicking(roundNum?: number): {
+        success: boolean;
+        round: number;
+        error?: string;
+    };
+    /**
+     * Records a player's choice of card slots for their Hand and Forehead decks.
+     * If a slot is not specified or null, it keeps previous pick or remains pending.
+     */
+    setPlayerPick(playerId: string, handSlot: number | null | undefined, foreheadSlot: number | null | undefined): {
+        success: boolean;
+        allConfirmed: boolean;
+        error?: string;
+    };
+    areAllActivePicksConfirmed(): boolean;
+    /**
+     * Finalizes the picking phase:
+     * Any slot not explicitly chosen by a player is automatically chosen at random from remaining slots.
+     * Draws the cards from the chosen slots, updates history, and transitions match into the BETTING phase.
+     */
+    finalizePicking(): {
+        round: number;
+        playerPicks: Record<string, {
+            handSlot: number;
+            foreheadSlot: number;
+            handCard: number;
+            foreheadCard: number;
+        }>;
+    };
+    /**
+     * Legacy drawRound: starts picking phase and immediately finalizes with random/pending slots.
      */
     drawRound(): {
         success: boolean;
@@ -39,6 +76,7 @@ export declare class ForeheadPokerMatch {
         type: "POKER_PRIVATE_HAND";
         round: number;
         card: number | null;
+        slot: number | null;
         history: number[];
     } | null;
     /**
@@ -51,6 +89,7 @@ export declare class ForeheadPokerMatch {
         cards: Array<{
             player_id: string;
             card: number | null;
+            slot: number | null;
             history: number[];
         }>;
     } | null;

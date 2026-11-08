@@ -128,6 +128,8 @@ var _sim_total_contributions: Dictionary = {} # seat_index -> int
 var _sim_folded: Dictionary = {}              # seat_index -> bool
 var _sim_all_in: Dictionary = {}              # seat_index -> bool
 var _sim_has_acted: Dictionary = {}           # seat_index -> bool
+var _sim_used_hand_slots: Dictionary = {}     # seat_index -> Array[int]
+var _sim_used_forehead_slots: Dictionary = {} # seat_index -> Array[int]
 var _sim_current_highest_bet: int = 0
 var _sim_min_raise_inc: int = 2
 var _sim_current_turn_seat: int = 0
@@ -291,6 +293,7 @@ func _setup_poker_hud() -> void:
 	hud_instance.request_draw_round.connect(_on_hud_request_draw_round)
 	hud_instance.request_reset_match.connect(_on_hud_request_reset_match)
 	hud_instance.betting_action_requested.connect(_on_hud_betting_action_requested)
+	hud_instance.card_picks_submitted.connect(_on_hud_card_picks_submitted)
 
 	# Seamless Mouse Hover Interaction: automatically release mouse when pointer enters HUD
 	hud_instance.hud_hover_changed.connect(func(is_hovered: bool):
@@ -363,6 +366,17 @@ func _replay_cached_network_state() -> void:
 	var bet_state: Dictionary = network_client.get("last_poker_betting_state") if network_client.get("last_poker_betting_state") != null else {}
 	if not bet_state.is_empty():
 		_on_poker_betting_state(bet_state)
+	var pick_phase: Dictionary = network_client.get("last_poker_pick_phase") if network_client.get("last_poker_pick_phase") != null else {}
+	if not pick_phase.is_empty():
+		_on_poker_pick_phase_started(
+			int(pick_phase.get("round", 1)),
+			int(pick_phase.get("total_rounds", 10)),
+			float(pick_phase.get("countdown", 15.0)),
+			pick_phase.get("available_hand_slots", []),
+			pick_phase.get("available_forehead_slots", []),
+			pick_phase.get("used_hand_slots", []),
+			pick_phase.get("used_forehead_slots", [])
+		)
 
 
 func _bind_network_signals() -> void:
@@ -392,6 +406,12 @@ func _bind_network_signals() -> void:
 		network_client.connect("room_state_received", _on_room_state_received)
 	if network_client.has_signal("player_looked_received") and not network_client.is_connected("player_looked_received", _on_player_looked_received):
 		network_client.connect("player_looked_received", _on_player_looked_received)
+	if network_client.has_signal("poker_pick_phase_started") and not network_client.is_connected("poker_pick_phase_started", _on_poker_pick_phase_started):
+		network_client.connect("poker_pick_phase_started", _on_poker_pick_phase_started)
+	if network_client.has_signal("poker_pick_confirmed") and not network_client.is_connected("poker_pick_confirmed", _on_poker_pick_confirmed):
+		network_client.connect("poker_pick_confirmed", _on_poker_pick_confirmed)
+	if network_client.has_signal("poker_pick_phase_ended") and not network_client.is_connected("poker_pick_phase_ended", _on_poker_pick_phase_ended):
+		network_client.connect("poker_pick_phase_ended", _on_poker_pick_phase_ended)
 
 
 var _last_look_sync_time: float = 0.0
@@ -420,6 +440,39 @@ func _on_player_looked_received(pid: String, yaw: float, pitch: float) -> void:
 	var s_idx: int = player_id_to_seat.get(pid, -1)
 	if s_idx >= 0 and s_idx < seat_nodes.size():
 		seat_nodes[s_idx].call("set_look_rotation", yaw, pitch)
+
+
+# ── CARD PICKING NETWORK HANDLERS ────────────────────────────────────────────
+
+func _on_poker_pick_phase_started(rnd: int, total: int, countdown: float, avail_h: Array, avail_f: Array, used_h: Array, used_f: Array) -> void:
+	if hud_instance != null:
+		hud_instance.show_card_picker(rnd, countdown, used_h, used_f)
+	if camera != null and camera.has_method("set_mouse_captured"):
+		camera.call("set_mouse_captured", false)
+
+
+func _on_poker_pick_confirmed(pid: String, hand_slot: Variant, forehead_slot: Variant) -> void:
+	if pid == local_player_id and hud_instance != null:
+		var h_str := str(int(hand_slot) + 1) if hand_slot != null else "?"
+		var f_str := str(int(forehead_slot) + 1) if forehead_slot != null else "?"
+		hud_instance.picker_status_label.text = "✅ Máy chủ đã nhận (Trên Tay: #%s, Trên Trán: #%s)" % [h_str, f_str]
+
+
+func _on_poker_pick_phase_ended(rnd: int, picks: Dictionary) -> void:
+	if hud_instance != null:
+		hud_instance.hide_card_picker()
+		var my_pick: Dictionary = picks.get(local_player_id, {})
+		var h_slot: int = int(my_pick.get("hand_slot", -1))
+		var f_slot: int = int(my_pick.get("forehead_slot", -1))
+		hud_instance.mark_slots_used(h_slot, f_slot)
+
+
+func _on_hud_card_picks_submitted(hand_slot: int, forehead_slot: int) -> void:
+	if is_online_match:
+		if network_client != null and not active_room_code.is_empty():
+			network_client.call("send_poker_pick_cards", active_room_code, hand_slot, forehead_slot)
+	else:
+		_finalize_simulated_round(hand_slot, forehead_slot)
 
 
 # ── HUD CONTROLS & LOCAL PLAYER BETTING ──────────────────────────────────────
@@ -486,6 +539,8 @@ func _init_offline_simulation() -> void:
 		_sim_forehead_decks[i] = forehead_cards
 		_sim_hand_history[i] = []
 		_sim_forehead_history[i] = []
+		_sim_used_hand_slots[i] = []
+		_sim_used_forehead_slots[i] = []
 
 		_sim_balances[i] = 100
 		_sim_round_bets[i] = 0
@@ -506,6 +561,16 @@ func _draw_simulated_round() -> void:
 
 	if hud_instance != null:
 		hud_instance.reset_action_history(_sim_round)
+		var used_h: Array = _sim_used_hand_slots.get(local_seat_index, [])
+		var used_f: Array = _sim_used_forehead_slots.get(local_seat_index, [])
+		hud_instance.show_card_picker(_sim_round, 15.0, used_h, used_f)
+	if camera != null and camera.has_method("set_mouse_captured"):
+		camera.call("set_mouse_captured", false)
+
+
+func _finalize_simulated_round(local_hand_slot: int, local_forehead_slot: int) -> void:
+	if hud_instance != null:
+		hud_instance.hide_card_picker()
 
 	# Reset round bets and acted flags
 	_sim_current_highest_bet = 0
@@ -521,8 +586,30 @@ func _draw_simulated_round() -> void:
 	for i in range(6):
 		var h_deck: Array = _sim_hand_decks[i]
 		var f_deck: Array = _sim_forehead_decks[i]
-		var h_card: int = h_deck.pop_back() if h_deck.size() > 0 else 0
-		var f_card: int = f_deck.pop_back() if f_deck.size() > 0 else 0
+		var used_h: Array = _sim_used_hand_slots[i]
+		var used_f: Array = _sim_used_forehead_slots[i]
+
+		var h_slot := -1
+		var f_slot := -1
+
+		if i == local_seat_index:
+			h_slot = local_hand_slot
+			f_slot = local_forehead_slot
+		else:
+			# NPC picks random remaining slot
+			var avail_h: Array = []
+			var avail_f: Array = []
+			for s in range(10):
+				if not used_h.has(s): avail_h.append(s)
+				if not used_f.has(s): avail_f.append(s)
+			if not avail_h.is_empty(): h_slot = avail_h[randi() % avail_h.size()]
+			if not avail_f.is_empty(): f_slot = avail_f[randi() % avail_f.size()]
+
+		if h_slot >= 0: used_h.append(h_slot)
+		if f_slot >= 0: used_f.append(f_slot)
+
+		var h_card: int = h_deck[h_slot] if h_slot >= 0 and h_slot < h_deck.size() else 1
+		var f_card: int = f_deck[f_slot] if f_slot >= 0 and f_slot < f_deck.size() else 1
 
 		drawn_hands[i] = h_card
 		drawn_foreheads[i] = f_card
@@ -559,6 +646,7 @@ func _draw_simulated_round() -> void:
 			drawn_hands[local_seat_index],
 			_sim_hand_history[local_seat_index]
 		)
+		hud_instance.mark_slots_used(local_hand_slot, local_forehead_slot)
 
 	# 2. Update Opponents' 3D Forehead Cards (Seats 1..5)
 	for i in range(6):

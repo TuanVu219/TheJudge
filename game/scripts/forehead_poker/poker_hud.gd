@@ -26,12 +26,29 @@ signal request_draw_round
 signal request_reset_match
 signal betting_action_requested(action: String, target_bet: int)
 signal hud_hover_changed(is_hovered: bool)
+signal card_picks_submitted(hand_slot: int, forehead_slot: int)
 
 var current_round: int = 0
 var total_rounds: int = 10
 var my_hand_card: Variant = null
 var my_hand_history: Array[int] = []
 var opponent_forehead_history: Dictionary = {} # player_id -> Array[int]
+
+# Card Picker State
+var card_picker_panel: PanelContainer
+var picker_title_label: Label
+var picker_timer_label: Label
+var picker_status_label: Label
+var picker_confirm_btn: Button
+var hand_slot_buttons: Array[Button] = []
+var forehead_slot_buttons: Array[Button] = []
+var selected_hand_slot: int = -1
+var selected_forehead_slot: int = -1
+var used_hand_slots: Array = []
+var used_forehead_slots: Array = []
+var _is_picker_active: bool = false
+var _picker_countdown: float = 15.0
+var _card_back_tex: Texture2D = preload("res://assets/textures/saloon/card_back_red.png")
 
 # Betting State Cache
 var local_player_id: String = ""
@@ -395,6 +412,9 @@ func _build_ui() -> void:
 	history_panel.add_child(history_text_label)
 	_update_history_text()
 
+	# ── CENTER: 15-SECOND 2-ROW CARD PICKER MODAL OVERLAY ───────────────────
+	_build_card_picker_ui(root)
+
 	# Initial button states disabled until game begins
 	_set_betting_buttons_enabled(false)
 
@@ -420,6 +440,326 @@ func _style_button(btn: Button, col: Color) -> void:
 	sb_disabled.bg_color = Color(0.2, 0.2, 0.2, 0.6)
 	sb_disabled.border_color = Color(0.3, 0.3, 0.3, 0.4)
 	btn.add_theme_stylebox_override("disabled", sb_disabled)
+
+
+func _process(delta: float) -> void:
+	if _is_picker_active:
+		_picker_countdown -= delta
+		if _picker_countdown <= 0.0:
+			_picker_countdown = 0.0
+			_is_picker_active = false
+			_on_picker_timeout()
+		else:
+			_update_picker_timer_display()
+
+
+# ── CARD PICKER OVERLAY (15-SECOND 2-ROW INTERFACE) ─────────────────────────
+
+func _build_card_picker_ui(parent: Control) -> void:
+	card_picker_panel = PanelContainer.new()
+	card_picker_panel.name = "CardPickerPanel"
+	card_picker_panel.set_anchors_preset(Control.PRESET_CENTER)
+	card_picker_panel.size = Vector2(760, 360)
+	card_picker_panel.position = Vector2(-380, -180)
+	card_picker_panel.visible = false
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.05, 0.04, 0.96)
+	style.set_corner_radius_all(16)
+	style.set_border_width_all(3)
+	style.border_color = Color(0.92, 0.78, 0.35, 1.0)
+	style.shadow_color = Color(0, 0, 0, 0.75)
+	style.shadow_size = 24
+	style.shadow_offset = Vector2(0, 8)
+	style.content_margin_left = 18
+	style.content_margin_right = 18
+	style.content_margin_top = 14
+	style.content_margin_bottom = 14
+	card_picker_panel.add_theme_stylebox_override("panel", style)
+	_bind_hover_events(card_picker_panel)
+	parent.add_child(card_picker_panel)
+
+	var main_vbox := VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 8)
+	card_picker_panel.add_child(main_vbox)
+
+	# 1. Header (Title & Countdown)
+	var header := HBoxContainer.new()
+	header.alignment = BoxContainer.ALIGNMENT_CENTER
+	main_vbox.add_child(header)
+
+	picker_title_label = Label.new()
+	picker_title_label.text = "🃏 GIAI ĐOẠN BỐC BÀI • VÒNG 1 / 10"
+	picker_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker_title_label.add_theme_font_size_override("font_size", 18)
+	picker_title_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.50, 1.0))
+	header.add_child(picker_title_label)
+
+	var timer_badge := PanelContainer.new()
+	var t_style := StyleBoxFlat.new()
+	t_style.bg_color = Color(0.65, 0.12, 0.12, 0.95)
+	t_style.set_corner_radius_all(10)
+	t_style.set_border_width_all(2)
+	t_style.border_color = Color(1.0, 0.85, 0.3, 1.0)
+	t_style.content_margin_left = 12
+	t_style.content_margin_right = 12
+	t_style.content_margin_top = 2
+	t_style.content_margin_bottom = 2
+	timer_badge.add_theme_stylebox_override("panel", t_style)
+	header.add_child(timer_badge)
+
+	picker_timer_label = Label.new()
+	picker_timer_label.text = "⏱️ 15s"
+	picker_timer_label.add_theme_font_size_override("font_size", 18)
+	picker_timer_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8, 1.0))
+	timer_badge.add_child(picker_timer_label)
+
+	# Instruction
+	var inst_lbl := Label.new()
+	inst_lbl.text = "Bốc 1 lá từ dãy TRÊN TAY và 1 lá từ dãy TRÊN TRÁN trong 15s (Hết giờ tự động random)"
+	inst_lbl.add_theme_font_size_override("font_size", 12)
+	inst_lbl.add_theme_color_override("font_color", Color(0.85, 0.80, 0.70, 0.9))
+	main_vbox.add_child(inst_lbl)
+
+	# 2. Row 1: Hand Deck
+	var row1_header := Label.new()
+	row1_header.text = "🎴 DÃY BÀI TRÊN TAY (BẠN SẼ THẤY SỐ)"
+	row1_header.add_theme_font_size_override("font_size", 13)
+	row1_header.add_theme_color_override("font_color", Color(0.95, 0.45, 0.40, 1.0))
+	main_vbox.add_child(row1_header)
+
+	var row1_hbox := HBoxContainer.new()
+	row1_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	row1_hbox.add_theme_constant_override("separation", 6)
+	main_vbox.add_child(row1_hbox)
+
+	hand_slot_buttons.clear()
+	for i in range(10):
+		var btn := Button.new()
+		btn.custom_minimum_size = Vector2(66, 88)
+		btn.clip_text = true
+		btn.pressed.connect(func(): _on_card_slot_clicked(true, i))
+		_bind_hover_events(btn)
+		row1_hbox.add_child(btn)
+		hand_slot_buttons.append(btn)
+
+	# 3. Row 2: Forehead Deck
+	var row2_header := Label.new()
+	row2_header.text = "🤠 DÃY BÀI TRÊN TRÁN (ĐỐI THỦ SẼ THẤY SỐ)"
+	row2_header.add_theme_font_size_override("font_size", 13)
+	row2_header.add_theme_color_override("font_color", Color(0.40, 0.75, 1.0, 1.0))
+	main_vbox.add_child(row2_header)
+
+	var row2_hbox := HBoxContainer.new()
+	row2_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	row2_hbox.add_theme_constant_override("separation", 6)
+	main_vbox.add_child(row2_hbox)
+
+	forehead_slot_buttons.clear()
+	for i in range(10):
+		var btn := Button.new()
+		btn.custom_minimum_size = Vector2(66, 88)
+		btn.clip_text = true
+		btn.pressed.connect(func(): _on_card_slot_clicked(false, i))
+		_bind_hover_events(btn)
+		row2_hbox.add_child(btn)
+		forehead_slot_buttons.append(btn)
+
+	# 4. Bottom Controls & Status
+	var bottom_bar := HBoxContainer.new()
+	bottom_bar.add_theme_constant_override("separation", 12)
+	main_vbox.add_child(bottom_bar)
+
+	picker_status_label = Label.new()
+	picker_status_label.text = "Trên Tay: [Chưa chọn]  •  Trên Trán: [Chưa chọn]"
+	picker_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker_status_label.add_theme_font_size_override("font_size", 13)
+	picker_status_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.55, 1.0))
+	bottom_bar.add_child(picker_status_label)
+
+	picker_confirm_btn = Button.new()
+	picker_confirm_btn.text = "XÁC NHẬN BỐC BÀI"
+	picker_confirm_btn.custom_minimum_size = Vector2(180, 36)
+	_style_button(picker_confirm_btn, Color(0.18, 0.55, 0.25, 1.0))
+	picker_confirm_btn.pressed.connect(_on_picker_confirm_clicked)
+	picker_confirm_btn.disabled = true
+	_bind_hover_events(picker_confirm_btn)
+	bottom_bar.add_child(picker_confirm_btn)
+
+
+func show_card_picker(round_num: int, countdown: float = 15.0, used_h: Array = [], used_f: Array = []) -> void:
+	current_round = round_num
+	_picker_countdown = countdown
+	_is_picker_active = true
+	selected_hand_slot = -1
+	selected_forehead_slot = -1
+	used_hand_slots = used_h.duplicate()
+	used_forehead_slots = used_f.duplicate()
+
+	if picker_title_label != null:
+		picker_title_label.text = "🃏 GIAI ĐOẠN BỐC BÀI • VÒNG %d / %d" % [round_num, total_rounds]
+	_update_picker_timer_display()
+	_refresh_card_picker_slots()
+	if picker_confirm_btn != null:
+		picker_confirm_btn.disabled = true
+		picker_confirm_btn.text = "XÁC NHẬN BỐC BÀI"
+	if picker_status_label != null:
+		picker_status_label.text = "Trên Tay: [Chưa chọn]  •  Trên Trán: [Chưa chọn]"
+	if card_picker_panel != null:
+		card_picker_panel.visible = true
+	
+	# Release mouse cursor so player can easily click cards
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func hide_card_picker() -> void:
+	_is_picker_active = false
+	if card_picker_panel != null:
+		card_picker_panel.visible = false
+
+
+func mark_slots_used(hand_slot: int, forehead_slot: int) -> void:
+	if hand_slot >= 0 and not used_hand_slots.has(hand_slot):
+		used_hand_slots.append(hand_slot)
+	if forehead_slot >= 0 and not used_forehead_slots.has(forehead_slot):
+		used_forehead_slots.append(forehead_slot)
+	_refresh_card_picker_slots()
+
+
+func _update_picker_timer_display() -> void:
+	if picker_timer_label == null:
+		return
+	var secs := ceili(_picker_countdown)
+	picker_timer_label.text = "⏱️ %ds" % secs
+	if secs <= 5:
+		picker_timer_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.2, 1.0))
+	else:
+		picker_timer_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.8, 1.0))
+
+
+func _on_card_slot_clicked(is_hand: bool, slot_idx: int) -> void:
+	if not _is_picker_active:
+		return
+	if is_hand:
+		if used_hand_slots.has(slot_idx):
+			return
+		selected_hand_slot = slot_idx
+	else:
+		if used_forehead_slots.has(slot_idx):
+			return
+		selected_forehead_slot = slot_idx
+
+	_refresh_card_picker_slots()
+
+	var h_str := "Ô #%d" % (selected_hand_slot + 1) if selected_hand_slot != -1 else "[Chưa chọn]"
+	var f_str := "Ô #%d" % (selected_forehead_slot + 1) if selected_forehead_slot != -1 else "[Chưa chọn]"
+	picker_status_label.text = "Trên Tay: %s  •  Trên Trán: %s" % [h_str, f_str]
+
+	# Enable confirm button
+	picker_confirm_btn.disabled = false
+	if selected_hand_slot != -1 and selected_forehead_slot != -1:
+		picker_confirm_btn.text = "XÁC NHẬN BỐC BÀI ✓"
+	else:
+		picker_confirm_btn.text = "XÁC NHẬN (CÒN LẠI RANDOM)"
+
+
+func _update_slot_button_style(btn: Button, slot_idx: int, is_hand: bool, is_used: bool, is_selected: bool) -> void:
+	if is_used:
+		btn.text = "TRỐNG\n#%d" % (slot_idx + 1)
+		btn.icon = null
+		btn.disabled = true
+		var sb_empty := StyleBoxFlat.new()
+		sb_empty.bg_color = Color(0.04, 0.03, 0.02, 0.6)
+		sb_empty.set_corner_radius_all(6)
+		sb_empty.set_border_width_all(1)
+		sb_empty.border_color = Color(0.35, 0.30, 0.25, 0.3)
+		btn.add_theme_stylebox_override("disabled", sb_empty)
+		btn.add_theme_color_override("font_disabled_color", Color(0.40, 0.35, 0.30, 0.5))
+		btn.add_theme_font_size_override("font_size", 11)
+		return
+
+	btn.disabled = false
+	btn.icon = _card_back_tex
+	btn.expand_icon = true
+	btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+	btn.text = "#%d" % (slot_idx + 1)
+	btn.add_theme_font_size_override("font_size", 12)
+
+	var sb := StyleBoxFlat.new()
+	sb.set_corner_radius_all(6)
+	sb.content_margin_left = 2
+	sb.content_margin_right = 2
+	sb.content_margin_top = 2
+	sb.content_margin_bottom = 2
+
+	if is_selected:
+		var sel_color := Color(1.0, 0.85, 0.2, 1.0) if is_hand else Color(0.35, 0.85, 1.0, 1.0)
+		sb.bg_color = Color(0.20, 0.15, 0.05, 0.95) if is_hand else Color(0.05, 0.15, 0.20, 0.95)
+		sb.set_border_width_all(3)
+		sb.border_color = sel_color
+		btn.text = "✓ #%d" % (slot_idx + 1)
+		btn.add_theme_color_override("font_color", sel_color)
+		btn.add_theme_stylebox_override("normal", sb)
+		btn.add_theme_stylebox_override("hover", sb)
+	else:
+		sb.bg_color = Color(0.12, 0.08, 0.06, 0.9)
+		sb.set_border_width_all(1)
+		sb.border_color = Color(0.65, 0.50, 0.30, 0.8)
+		btn.add_theme_color_override("font_color", Color(1.0, 0.95, 0.85, 0.9))
+		btn.add_theme_stylebox_override("normal", sb)
+
+		var sb_hov := sb.duplicate() as StyleBoxFlat
+		sb_hov.border_color = Color(1.0, 0.85, 0.40, 1.0)
+		sb_hov.bg_color = Color(0.22, 0.16, 0.12, 0.95)
+		btn.add_theme_stylebox_override("hover", sb_hov)
+
+
+func _refresh_card_picker_slots() -> void:
+	for i in range(10):
+		if i < hand_slot_buttons.size():
+			var is_used: bool = used_hand_slots.has(i)
+			var is_sel: bool = (selected_hand_slot == i)
+			_update_slot_button_style(hand_slot_buttons[i], i, true, is_used, is_sel)
+		if i < forehead_slot_buttons.size():
+			var is_used: bool = used_forehead_slots.has(i)
+			var is_sel: bool = (selected_forehead_slot == i)
+			_update_slot_button_style(forehead_slot_buttons[i], i, false, is_used, is_sel)
+
+
+func _on_picker_timeout() -> void:
+	if selected_hand_slot == -1:
+		var avail_hand: Array = []
+		for i in range(10):
+			if not used_hand_slots.has(i):
+				avail_hand.append(i)
+		if not avail_hand.is_empty():
+			selected_hand_slot = avail_hand[randi() % avail_hand.size()]
+
+	if selected_forehead_slot == -1:
+		var avail_forehead: Array = []
+		for i in range(10):
+			if not used_forehead_slots.has(i):
+				avail_forehead.append(i)
+		if not avail_forehead.is_empty():
+			selected_forehead_slot = avail_forehead[randi() % avail_forehead.size()]
+
+	_refresh_card_picker_slots()
+	picker_status_label.text = "⏳ Hết giờ! Tự động chọn Trên Tay: #%d, Trên Trán: #%d" % [selected_hand_slot + 1, selected_forehead_slot + 1]
+	picker_confirm_btn.disabled = true
+	card_picks_submitted.emit(selected_hand_slot, selected_forehead_slot)
+
+
+func _on_picker_confirm_clicked() -> void:
+	if not _is_picker_active:
+		return
+	if selected_hand_slot == -1 or selected_forehead_slot == -1:
+		_on_picker_timeout()
+		return
+	_is_picker_active = false
+	picker_confirm_btn.disabled = true
+	picker_status_label.text = "✅ Đã xác nhận bốc bài! Đang chia bài..."
+	card_picks_submitted.emit(selected_hand_slot, selected_forehead_slot)
 
 
 ## Updates HUD with authoritative server betting state.
@@ -667,6 +1007,9 @@ func reset_hud() -> void:
 	my_hand_history.clear()
 	opponent_forehead_history.clear()
 	_action_history_entries.clear()
+	used_hand_slots.clear()
+	used_forehead_slots.clear()
+	hide_card_picker()
 	_update_round_label()
 	waiting_label.visible = true
 	waiting_label.text = "READY"

@@ -18,6 +18,7 @@ export declare class Room {
     gridTiles: number[];
     redScore: number;
     blueScore: number;
+    pickPhaseTimer: NodeJS.Timeout | null;
     pokerMatch?: ForeheadPokerMatch;
     constructor(roomCode: string, hostPlayer: Player, roomName?: string, maxPlayers?: number, visibility?: "PUBLIC" | "PRIVATE", gameMode?: string);
     addPlayer(player: Player): {
@@ -84,5 +85,16 @@ export declare class Room {
         round: number;
         error?: string;
     };
+    startPokerRound(): {
+        success: boolean;
+        round: number;
+        error?: string;
+    };
+    handlePlayerPokerPick(playerId: string, handSlot: number | null | undefined, foreheadSlot: number | null | undefined): {
+        success: boolean;
+        allConfirmed: boolean;
+        error?: string;
+    };
+    finalizePokerPickPhase(): void;
     resetPokerMatch(): void;
 }

@@ -1,22 +1,34 @@
 export declare class PokerDeck {
-    cards: number[];
+    slots: (number | null)[];
     usedCards: number[];
+    usedSlots: number[];
     currentCard: number | null;
+    currentSlot: number | null;
     readonly deckName: string;
     readonly playerId: string;
     constructor(playerId: string, deckName: "HAND" | "FOREHEAD");
     /**
-     * Restores deck to full set [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] and clears history.
+     * Restores deck to full set [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] across slots 0..9 and clears history.
      */
     reset(): void;
     /**
-     * Shuffles cards using cryptographically secure Fisher-Yates algorithm.
+     * Shuffles cards across slots 0..9 using cryptographically secure Fisher-Yates algorithm.
      */
     shuffle(): void;
+    isSlotAvailable(slotIndex: number): boolean;
+    getAvailableSlots(): number[];
+    getUsedSlots(): number[];
     /**
-     * Draws the next card from the deck.
-     * The card is permanently removed from this deck for the match and recorded in used history.
-     * Returns null if deck is exhausted.
+     * Draws a card from a specific slot index (0..9).
+     * If slotIndex is not specified or slot is already taken, picks a random available slot.
+     * Permanently clears that slot (sets to null) and records it in usedSlots & usedCards.
+     */
+    drawSlot(slotIndex?: number | null): {
+        card: number | null;
+        slot: number | null;
+    };
+    /**
+     * Backward-compatible draw(): draws a random available slot.
      */
     draw(): number | null;
     remainingCount(): number;
