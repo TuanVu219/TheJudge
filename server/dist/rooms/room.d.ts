@@ -1,5 +1,7 @@
+import type { WebSocket } from "ws";
 import { Player, type PlayerRecord } from "../players/player.js";
 import type { RoomRecord, ServerMessage } from "../websocket/protocol.js";
+import { ForeheadPokerMatch } from "../poker/poker_match.js";
 export declare class Room {
     roomId: string;
     roomCode: string;
@@ -16,6 +18,7 @@ export declare class Room {
     gridTiles: number[];
     redScore: number;
     blueScore: number;
+    pokerMatch?: ForeheadPokerMatch;
     constructor(roomCode: string, hostPlayer: Player, roomName?: string, maxPlayers?: number, visibility?: "PUBLIC" | "PRIVATE", gameMode?: string);
     addPlayer(player: Player): {
         success: boolean;
@@ -58,6 +61,11 @@ export declare class Room {
         message?: string;
         roster?: PlayerRecord[];
     };
+    reconnectPlayer(playerId: string, reconnectToken: string, newWs: WebSocket): {
+        success: boolean;
+        error_code?: string;
+        message?: string;
+    };
     claimTile(playerId: string, col: number, row: number): {
         success: boolean;
         redScore: number;
@@ -70,4 +78,11 @@ export declare class Room {
     broadcastExcept(excludePlayerId: string, message: ServerMessage): void;
     broadcastRoomState(): void;
     toRecord(): RoomRecord;
+    initPokerMatch(): ForeheadPokerMatch;
+    drawPokerRound(): {
+        success: boolean;
+        round: number;
+        error?: string;
+    };
+    resetPokerMatch(): void;
 }

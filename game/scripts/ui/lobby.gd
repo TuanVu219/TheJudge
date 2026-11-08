@@ -7,6 +7,7 @@ extends Control
 const MAIN_MENU_SCENE_PATH := "res://scenes/main_menu/MainMenu.tscn"
 const MATCH_ENTRY_SCENE_PATH := "res://scenes/match/RoomMatchEntry.tscn"
 const ARENA_SCENE_PATH := "res://scenes/arena/TerritoryArena.tscn"
+const FOREHEAD_POKER_SCENE_PATH := "res://scenes/saloon/ForeheadPokerRoom.tscn"
 const PLAYER_SCENE := preload("res://scenes/characters/PlayerCharacter.tscn")
 const Wardrobe = preload("res://scripts/characters/wardrobe.gd")
 const WebMobileInput = preload("res://scripts/ui/web_mobile_input.gd")
@@ -30,6 +31,10 @@ var _ready_button: Button
 var _start_button: Button
 var _start_hint: Label
 var _customize_button: Button
+var _teams_box: HBoxContainer
+var _poker_container: PanelContainer
+var _poker_seats_list: VBoxContainer
+var _poker_player_count_label: Label
 var _team_rows: Dictionary = {}
 var _custom_panel: PanelContainer
 var _custom_preview: SubViewport
@@ -141,13 +146,18 @@ func _build_ui() -> void:
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	page.add_child(_message)
 
-	var teams_box := HBoxContainer.new()
-	teams_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	teams_box.add_theme_constant_override("separation", 18)
-	page.add_child(teams_box)
+	_teams_box = HBoxContainer.new()
+	_teams_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_teams_box.add_theme_constant_override("separation", 18)
+	page.add_child(_teams_box)
 
-	_team_rows[TEAM_RED] = _make_team_panel(teams_box, TEAM_RED)
-	_team_rows[TEAM_BLUE] = _make_team_panel(teams_box, TEAM_BLUE)
+	_team_rows[TEAM_RED] = _make_team_panel(_teams_box, TEAM_RED)
+	_team_rows[TEAM_BLUE] = _make_team_panel(_teams_box, TEAM_BLUE)
+
+	_poker_container = _make_poker_panel()
+	_poker_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_poker_container.visible = false
+	page.add_child(_poker_container)
 
 	var footer := VBoxContainer.new()
 	footer.name = "LobbyFooter"
@@ -273,6 +283,243 @@ func _make_team_panel(parent: HBoxContainer, team_id: int) -> VBoxContainer:
 	join.pressed.connect(_join_team.bind(team_id))
 	content.add_child(join)
 	return list
+
+
+func _make_poker_panel() -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#fff5dc")
+	style.border_color = Color("#a66d3b")
+	style.set_border_width_all(5)
+	style.set_corner_radius_all(24)
+	style.content_margin_left = 20
+	style.content_margin_right = 20
+	style.content_margin_top = 16
+	style.content_margin_bottom = 16
+	panel.add_theme_stylebox_override("panel", style)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 10)
+	panel.add_child(content)
+
+	var heading := _label("SALOON POKER TABLE (2–6 PLAYERS)", 23, Color("#8c4d1f"))
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(heading)
+
+	_poker_player_count_label = _label("0 / 6 PLAYERS SEATED", 14, Color("#5e391b"))
+	_poker_player_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	content.add_child(_poker_player_count_label)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content.add_child(scroll)
+
+	_poker_seats_list = VBoxContainer.new()
+	_poker_seats_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_poker_seats_list.add_theme_constant_override("separation", 8)
+	scroll.add_child(_poker_seats_list)
+
+	return panel
+
+
+func _refresh_poker_ui(players: Array, _local_player: Dictionary) -> void:
+	if _poker_seats_list == null:
+		return
+	for child in _poker_seats_list.get_children():
+		_poker_seats_list.remove_child(child)
+		child.queue_free()
+
+	if _poker_player_count_label != null:
+		_poker_player_count_label.text = "%d / 6 PLAYERS SEATED" % players.size()
+
+	var seat_players: Dictionary = {}
+	for p in players:
+		var s_idx := int(p.get("seat_index", -1))
+		if s_idx >= 0 and s_idx < 6 and not seat_players.has(s_idx):
+			seat_players[s_idx] = p
+
+	for p in players:
+		var s_idx := int(p.get("seat_index", -1))
+		if s_idx < 0 or s_idx >= 6 or (seat_players.has(s_idx) and str(seat_players[s_idx].get("player_id", "")) != str(p.get("player_id", ""))):
+			for check_s in range(6):
+				if not seat_players.has(check_s):
+					seat_players[check_s] = p
+					break
+
+	for s in range(6):
+		if seat_players.has(s):
+			_poker_seats_list.add_child(_make_poker_seat_row(s, seat_players[s]))
+		else:
+			_poker_seats_list.add_child(_make_poker_empty_seat_row(s))
+
+
+func _make_poker_seat_row(seat_index: int, player: Dictionary) -> Control:
+	var card := PanelContainer.new()
+	var card_style := StyleBoxFlat.new()
+	var is_local := str(player.get("player_id", "")) == _local_player_id
+	card_style.bg_color = Color("#fffdf7") if not is_local else Color("#fcf6e8")
+	card_style.set_corner_radius_all(14)
+	card_style.content_margin_left = 12
+	card_style.content_margin_right = 12
+	card_style.content_margin_top = 8
+	card_style.content_margin_bottom = 8
+	if is_local:
+		card_style.border_color = Color("#d49b45")
+		card_style.set_border_width_all(2)
+	card.add_theme_stylebox_override("panel", card_style)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	card.add_child(row)
+
+	var seat_badge := PanelContainer.new()
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("#8c4d1f")
+	badge_style.set_corner_radius_all(10)
+	badge_style.content_margin_left = 10
+	badge_style.content_margin_right = 10
+	badge_style.content_margin_top = 4
+	badge_style.content_margin_bottom = 4
+	seat_badge.add_theme_stylebox_override("panel", badge_style)
+	var seat_lbl := _label("SEAT %d" % seat_index, 14, Color("#ffffff"))
+	seat_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	seat_badge.add_child(seat_lbl)
+	seat_badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(seat_badge)
+
+	var portrait_viewport := SubViewport.new()
+	portrait_viewport.size = Vector2i(70, 70)
+	portrait_viewport.own_world_3d = true
+	portrait_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	portrait_viewport.ready.connect(_setup_viewport_world_for_player.bind(portrait_viewport, player), CONNECT_ONE_SHOT)
+	row.add_child(_viewport_container(portrait_viewport, Vector2(60, 60)))
+
+	var labels := VBoxContainer.new()
+	labels.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	labels.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(labels)
+
+	var raw_name := str(player.get("display_name", player.get("player_id", "Player")))
+	var clean_pname := Wardrobe.clean_name(raw_name)
+	var name_box := HBoxContainer.new()
+	name_box.add_theme_constant_override("separation", 8)
+	var name_lbl := _label(clean_pname, 18, Color("#18364d"))
+	name_box.add_child(name_lbl)
+
+	if is_local:
+		var you_tag := _label("(YOU)", 14, Color("#d49b45"))
+		name_box.add_child(you_tag)
+
+	if bool(player.get("is_host", false)):
+		var host_tag := _label("[HOST]", 14, Color("#d4881f"))
+		name_box.add_child(host_tag)
+
+	labels.add_child(name_box)
+
+	var is_ready := bool(player.get("is_ready", false))
+	var status_text := "READY" if is_ready else "NOT READY"
+	var status_color := Color("#27804e") if is_ready else Color("#8c4d1f")
+	var status_lbl := _label(status_text, 14, status_color)
+	labels.add_child(status_lbl)
+
+	return card
+
+
+func _make_poker_empty_seat_row(seat_index: int) -> Control:
+	var card := PanelContainer.new()
+	var card_style := StyleBoxFlat.new()
+	card_style.bg_color = Color(0.95, 0.93, 0.88, 0.6)
+	card_style.border_color = Color(0.7, 0.65, 0.58, 0.5)
+	card_style.set_border_width_all(1)
+	card_style.set_corner_radius_all(14)
+	card_style.content_margin_left = 12
+	card_style.content_margin_right = 12
+	card_style.content_margin_top = 8
+	card_style.content_margin_bottom = 8
+	card.add_theme_stylebox_override("panel", card_style)
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	card.add_child(row)
+
+	var seat_badge := PanelContainer.new()
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color(0.65, 0.6, 0.55, 0.7)
+	badge_style.set_corner_radius_all(10)
+	badge_style.content_margin_left = 10
+	badge_style.content_margin_right = 10
+	badge_style.content_margin_top = 4
+	badge_style.content_margin_bottom = 4
+	seat_badge.add_theme_stylebox_override("panel", badge_style)
+	var seat_lbl := _label("SEAT %d" % seat_index, 14, Color("#ffffff"))
+	seat_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	seat_badge.add_child(seat_lbl)
+	seat_badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(seat_badge)
+
+	var open_lbl := _label("Open Seat — Waiting for player...", 15, Color("#8a8376"))
+	open_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(open_lbl)
+
+	return card
+
+
+func _refresh_territory_ui(players: Array, local_player: Dictionary, waiting_for_players: bool) -> void:
+	for team_id in [TEAM_RED, TEAM_BLUE]:
+		var list: VBoxContainer = _team_rows[team_id]
+		for child in list.get_children():
+			list.remove_child(child)
+			child.queue_free()
+
+		var members: Array = []
+		if _is_preview_mode:
+			for p in players:
+				if int(p.get("team_id", 0)) == team_id:
+					members.append(p)
+		else:
+			members = _manager.call("get_players_by_team", str(_room.get("room_code", "")), team_id)
+
+		var capacity := int(int(_room.get("max_players", 0)) / 2)
+		var heading: Label = list.get_parent().get_child(1)
+		heading.text = "%d / %d PLAYERS" % [members.size(), capacity]
+
+		for player in members:
+			list.add_child(_make_player_row(player, team_id))
+
+		if members.is_empty():
+			var empty := _label("No players yet - this team is open.", 15, Color("#71838a"))
+			empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			list.add_child(empty)
+
+		var fill := Control.new()
+		fill.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		list.add_child(fill)
+
+		var join_button: Button = list.get_parent().get_child(list.get_parent().get_child_count() - 1)
+		var is_on_this_team: bool = not local_player.is_empty() and int(local_player.get("team_id", 0)) == team_id
+		var team_is_full: bool = members.size() >= capacity and not is_on_this_team
+		var can_change_team: bool = not local_player.is_empty() and waiting_for_players
+
+		if is_on_this_team:
+			join_button.disabled = true
+			join_button.text = "YOUR TEAM"
+			join_button.tooltip_text = "You are already on this team."
+		elif team_is_full:
+			join_button.disabled = true
+			join_button.text = "RED TEAM FULL" if team_id == TEAM_RED else "BLUE TEAM FULL"
+			join_button.tooltip_text = "Each team can hold up to %d players." % capacity
+		elif not can_change_team:
+			join_button.disabled = true
+			join_button.text = "TEAM LOCKED" if waiting_for_players else "MATCH STARTED"
+			join_button.tooltip_text = "Team selection is unavailable without an active player in a waiting room."
+		else:
+			join_button.disabled = false
+			join_button.text = "JOIN RED" if team_id == TEAM_RED else "JOIN BLUE"
+			join_button.tooltip_text = "Move your player to this team."
 
 
 func _build_customizer() -> void:
@@ -576,16 +823,31 @@ func _refresh() -> void:
 	else:
 		ready_count = int(_manager.call("get_ready_count", str(_room.get("room_code", ""))))
 
-	var mode_text := str(_room.get("game_mode", "")).to_upper()
-	var mode_prefix := "%s - " % mode_text if not mode_text.is_empty() else ""
-	_header.text = "%s%d / %d PLAYERS - %d / %d READY - %s" % [
-		mode_prefix,
-		players.size(),
-		int(_room.get("max_players", 0)),
-		ready_count,
-		players.size(),
-		str(_room.get("visibility", "PRIVATE"))
-	]
+	var is_poker := str(_room.get("game_mode", "")) == "FOREHEAD_POKER"
+
+	if _teams_box != null:
+		_teams_box.visible = not is_poker
+	if _poker_container != null:
+		_poker_container.visible = is_poker
+
+	if is_poker:
+		_header.text = "FOREHEAD POKER - %d / 6 PLAYERS - %d / %d READY - %s" % [
+			players.size(),
+			ready_count,
+			players.size(),
+			str(_room.get("visibility", "PRIVATE"))
+		]
+	else:
+		var mode_text := str(_room.get("game_mode", "")).to_upper()
+		var mode_prefix := "%s - " % mode_text if not mode_text.is_empty() else ""
+		_header.text = "%s%d / %d PLAYERS - %d / %d READY - %s" % [
+			mode_prefix,
+			players.size(),
+			int(_room.get("max_players", 0)),
+			ready_count,
+			players.size(),
+			str(_room.get("visibility", "PRIVATE"))
+		]
 	_copy_button.text = "ROOM %s - COPY" % str(_room.get("room_code", "------"))
 
 	var local_player := _find_player(players, _local_player_id)
@@ -608,57 +870,10 @@ func _refresh() -> void:
 	else:
 		_message.text = "Waiting for the host to start the match. You are %s." % ("READY" if bool(local_player.get("is_ready", false)) else "NOT READY")
 
-	for team_id in [TEAM_RED, TEAM_BLUE]:
-		var list: VBoxContainer = _team_rows[team_id]
-		for child in list.get_children():
-			list.remove_child(child)
-			child.queue_free()
-
-		var members: Array = []
-		if _is_preview_mode:
-			for p in players:
-				if int(p.get("team_id", 0)) == team_id:
-					members.append(p)
-		else:
-			members = _manager.call("get_players_by_team", str(_room.get("room_code", "")), team_id)
-
-		var capacity := int(int(_room.get("max_players", 0)) / 2)
-		var heading: Label = list.get_parent().get_child(1)
-		heading.text = "%d / %d PLAYERS" % [members.size(), capacity]
-
-		for player in members:
-			list.add_child(_make_player_row(player, team_id))
-
-		if members.is_empty():
-			var empty := _label("No players yet - this team is open.", 15, Color("#71838a"))
-			empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			list.add_child(empty)
-
-		var fill := Control.new()
-		fill.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		list.add_child(fill)
-
-		var join_button: Button = list.get_parent().get_child(list.get_parent().get_child_count() - 1)
-		var is_on_this_team: bool = not local_player.is_empty() and int(local_player.get("team_id", 0)) == team_id
-		var team_is_full: bool = members.size() >= capacity and not is_on_this_team
-		var can_change_team: bool = not local_player.is_empty() and waiting_for_players
-
-		if is_on_this_team:
-			join_button.disabled = true
-			join_button.text = "YOUR TEAM"
-			join_button.tooltip_text = "You are already on this team."
-		elif team_is_full:
-			join_button.disabled = true
-			join_button.text = "RED TEAM FULL" if team_id == TEAM_RED else "BLUE TEAM FULL"
-			join_button.tooltip_text = "Each team can hold up to %d players." % capacity
-		elif not can_change_team:
-			join_button.disabled = true
-			join_button.text = "TEAM LOCKED" if waiting_for_players else "MATCH STARTED"
-			join_button.tooltip_text = "Team selection is unavailable without an active player in a waiting room."
-		else:
-			join_button.disabled = false
-			join_button.text = "JOIN RED" if team_id == TEAM_RED else "JOIN BLUE"
-			join_button.tooltip_text = "Move your player to this team."
+	if is_poker:
+		_refresh_poker_ui(players, local_player)
+	else:
+		_refresh_territory_ui(players, local_player, waiting_for_players)
 
 	if not local_player.is_empty():
 		var raw_name := str(local_player.get("display_name", ""))
@@ -878,11 +1093,12 @@ func _toggle_ready() -> void:
 
 func _start_match() -> void:
 	if _is_preview_mode:
-		var arena_scene := load(ARENA_SCENE_PATH) as PackedScene
-		if arena_scene != null:
-			var arena_inst := arena_scene.instantiate()
-			arena_inst.set("room_code", "TEST99")
-			get_tree().root.add_child(arena_inst)
+		var target_scene := FOREHEAD_POKER_SCENE_PATH if str(_room.get("game_mode", "")) == "FOREHEAD_POKER" else ARENA_SCENE_PATH
+		var scene := load(target_scene) as PackedScene
+		if scene != null:
+			var inst := scene.instantiate()
+			inst.set("room_code", "TEST99")
+			get_tree().root.add_child(inst)
 			queue_free()
 		return
 
@@ -904,7 +1120,10 @@ func _start_match() -> void:
 
 	var is_online: bool = bool(_manager.call("is_online")) if _manager.has_method("is_online") else false
 	if not is_online:
-		_navigate_to_scene(ARENA_SCENE_PATH)
+		if str(_room.get("game_mode", "")) == "FOREHEAD_POKER":
+			_navigate_to_scene(FOREHEAD_POKER_SCENE_PATH)
+		else:
+			_navigate_to_scene(ARENA_SCENE_PATH)
 
 
 func _navigate_to_scene(scene_path: String) -> void:
@@ -945,8 +1164,14 @@ func _on_match_started(arg1: Variant = null, _arg2: Variant = null, _arg3: Varia
 	elif _manager != null and _manager.has_method("get_active_room_record"):
 		_room = _manager.call("get_active_room_record")
 	var active_code := str(_room.get("room_code", ""))
-	print("[Lobby] Match started signal received for room: %s. Transitioning directly to Arena..." % active_code)
-	_navigate_to_scene(ARENA_SCENE_PATH)
+	var g_mode := str(_room.get("game_mode", ""))
+	if _arg3 is String and not (_arg3 as String).is_empty():
+		g_mode = _arg3 as String
+	print("[Lobby] Match started signal received for room: %s (mode: %s)..." % [active_code, g_mode])
+	if g_mode == "FOREHEAD_POKER":
+		_navigate_to_scene(FOREHEAD_POKER_SCENE_PATH)
+	else:
+		_navigate_to_scene(ARENA_SCENE_PATH)
 
 
 func _on_room_closed(room_code: String = "", reason: String = "") -> void:

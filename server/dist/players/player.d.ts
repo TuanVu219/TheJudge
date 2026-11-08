@@ -6,6 +6,8 @@ export interface PlayerRecord {
     character_id: string;
     is_host: boolean;
     is_ready: boolean;
+    seat_index?: number;
+    is_disconnected?: boolean;
 }
 export declare class Player {
     playerId: string;
@@ -17,6 +19,10 @@ export declare class Player {
     currentRoomCode: string | null;
     ws: WebSocket;
     isAlive: boolean;
+    reconnectToken: string;
+    seatIndex: number;
+    isDisconnected: boolean;
+    disconnectTimeout: NodeJS.Timeout | null;
     constructor(playerId: string, displayName: string, ws: WebSocket, characterId?: string);
     toRecord(): PlayerRecord;
     send(message: Record<string, any>): void;

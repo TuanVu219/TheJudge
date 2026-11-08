@@ -14,6 +14,17 @@ signal tile_claimed_received(col: int, row: int, team_id: int, red_score: int, b
 signal match_reset_received(room_code: String)
 signal error_received(error_code: String, message: String)
 
+# Forehead Poker Signals
+signal poker_match_init_received(room_code: String, total_rounds: int)
+signal poker_private_hand_received(round: int, card: int, history: Array)
+signal poker_opponent_foreheads_received(round: int, cards: Array)
+signal poker_round_status_received(round: int, total_rounds: int, is_exhausted: bool)
+signal poker_match_reset_received(room_code: String)
+signal poker_betting_state_received(data: Dictionary)
+signal poker_action_result_received(data: Dictionary)
+signal poker_betting_completed_received(data: Dictionary)
+signal poker_reconnect_response_received(success: bool, data: Dictionary)
+
 const NetworkConfig = preload("res://scripts/network/network_config.gd")
 const RECONNECT_INTERVAL_SECONDS := 2.0
 
@@ -23,6 +34,7 @@ const RECONNECT_INTERVAL_SECONDS := 2.0
 var _peer: WebSocketPeer = WebSocketPeer.new()
 var is_connected_to_server := false
 var client_player_id := ""
+var reconnect_token := ""
 var _last_state := WebSocketPeer.STATE_CLOSED
 var _reconnect_timer := 0.0
 
@@ -117,6 +129,7 @@ func _handle_server_message(raw_json: String) -> void:
 	match msg_type:
 		"CONNECTED":
 			client_player_id = str(data.get("client_id", ""))
+			reconnect_token = str(data.get("reconnect_token", reconnect_token))
 			print("[NetworkClient] Assigned client ID: %s" % client_player_id)
 			client_id_assigned.emit(client_player_id)
 
@@ -127,7 +140,9 @@ func _handle_server_message(raw_json: String) -> void:
 		"MATCH_STARTED":
 			var code := str(data.get("room_code", ""))
 			var roster: Array = data.get("roster", [])
-			var mode := str(data.get("game_mode", ""))
+			var mode := str(data.get("game_mode", data.get("mode", "")))
+			if mode.is_empty() and data.has("mode"):
+				mode = str(data.get("mode", ""))
 			match_started_received.emit(code, roster, mode)
 
 		"ROOM_CLOSED":
@@ -155,6 +170,45 @@ func _handle_server_message(raw_json: String) -> void:
 		"MATCH_RESET":
 			var code := str(data.get("room_code", ""))
 			match_reset_received.emit(code)
+
+		"POKER_MATCH_INIT":
+			var code := str(data.get("room_code", ""))
+			var total := int(data.get("total_rounds", 10))
+			poker_match_init_received.emit(code, total)
+
+		"POKER_PRIVATE_HAND":
+			var rnd := int(data.get("round", 0))
+			var card_val := int(data.get("card", 0))
+			var hist: Array = data.get("history", [])
+			poker_private_hand_received.emit(rnd, card_val, hist)
+
+		"POKER_OPPONENT_FOREHEADS":
+			var rnd := int(data.get("round", 0))
+			var card_list: Array = data.get("cards", [])
+			poker_opponent_foreheads_received.emit(rnd, card_list)
+
+		"POKER_ROUND_STATUS":
+			var rnd := int(data.get("round", 0))
+			var total := int(data.get("total_rounds", 10))
+			var exhausted := bool(data.get("is_exhausted", false))
+			poker_round_status_received.emit(rnd, total, exhausted)
+
+		"POKER_MATCH_RESET":
+			var code := str(data.get("room_code", ""))
+			poker_match_reset_received.emit(code)
+
+		"POKER_BETTING_STATE":
+			poker_betting_state_received.emit(data)
+
+		"POKER_ACTION_RESULT":
+			poker_action_result_received.emit(data)
+
+		"POKER_BETTING_COMPLETED":
+			poker_betting_completed_received.emit(data)
+
+		"POKER_RECONNECT_RESPONSE":
+			var success := bool(data.get("success", true))
+			poker_reconnect_response_received.emit(success, data)
 
 		"ERROR":
 			var code := str(data.get("error_code", "ERROR"))
@@ -190,3 +244,38 @@ func send_rematch_request(room_code: String) -> void:
 		"type": "REMATCH_REQUEST",
 		"room_code": room_code,
 	})
+
+
+func send_poker_draw_round(room_code: String) -> void:
+	send_message({
+		"type": "POKER_DRAW_ROUND",
+		"room_code": room_code,
+	})
+
+
+func send_poker_reset_match(room_code: String) -> void:
+	send_message({
+		"type": "POKER_RESET_MATCH",
+		"room_code": room_code,
+	})
+
+
+func send_poker_betting_action(room_code: String, action: String, target_bet: int = 0) -> void:
+	var msg: Dictionary = {
+		"type": "POKER_BETTING_ACTION",
+		"room_code": room_code,
+		"action": action,
+	}
+	if action == "RAISE":
+		msg["target_bet"] = target_bet
+	send_message(msg)
+
+
+func send_poker_reconnect(room_code: String, player_id: String, token: String) -> void:
+	send_message({
+		"type": "POKER_RECONNECT",
+		"room_code": room_code,
+		"player_id": player_id,
+		"reconnect_token": token,
+	})
+

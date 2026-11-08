@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { CONFIG } from "../config/config.js";
 export class Player {
     playerId;
@@ -9,6 +10,10 @@ export class Player {
     currentRoomCode = null;
     ws;
     isAlive = true;
+    reconnectToken;
+    seatIndex = -1;
+    isDisconnected = false;
+    disconnectTimeout = null;
     constructor(playerId, displayName, ws, characterId = CONFIG.DEFAULT_CHARACTER_ID) {
         this.playerId = playerId;
         this.displayName = displayName.trim() || "Player";
@@ -17,6 +22,7 @@ export class Player {
         this.isReady = false;
         this.isHost = false;
         this.ws = ws;
+        this.reconnectToken = randomUUID();
     }
     toRecord() {
         return {
@@ -26,6 +32,8 @@ export class Player {
             character_id: this.characterId,
             is_host: this.isHost,
             is_ready: this.isReady,
+            seat_index: this.seatIndex,
+            is_disconnected: this.isDisconnected,
         };
     }
     send(message) {

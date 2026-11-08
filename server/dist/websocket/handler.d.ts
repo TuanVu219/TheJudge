@@ -19,4 +19,9 @@ export declare class WebSocketHandler {
     private handlePlayerMove;
     private handleClaimTile;
     private handleRematch;
+    private handlePokerStartMatch;
+    private handlePokerReconnect;
+    private handlePokerDrawRound;
+    private handlePokerBettingAction;
+    private handlePokerResetMatch;
 }

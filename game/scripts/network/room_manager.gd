@@ -23,11 +23,13 @@ const VALID_CHARACTER_IDS: Array[String] = ["mint", "peach", "sky"]
 const MODE_1V1 := "1v1"
 const MODE_2V2 := "2v2"
 const MODE_3V3 := "3v3"
-const VALID_MODES: Array[String] = [MODE_1V1, MODE_2V2, MODE_3V3]
+const MODE_POKER := "FOREHEAD_POKER"
+const VALID_MODES: Array[String] = [MODE_1V1, MODE_2V2, MODE_3V3, MODE_POKER]
 const MODE_CAPACITIES := {
 	MODE_1V1: 2,
 	MODE_2V2: 4,
 	MODE_3V3: 6,
+	MODE_POKER: 6,
 }
 const MODE_GRID_SIZES := {
 	MODE_1V1: 6,
@@ -128,6 +130,7 @@ func create_room_online(
 		"max_players": max_players,
 		"visibility": visibility.strip_edges().to_upper(),
 		"game_mode": selected_mode,
+		"mode": selected_mode,
 		"display_name": clean_disp,
 	}
 	network_client.send_message(msg)
@@ -267,6 +270,8 @@ func _on_server_match_started(code: String, roster: Array, mode: String) -> void
 	var room: RoomData = _rooms_by_code.get(code)
 	if room != null:
 		room.status = STATUS_STARTED
+		if not mode.is_empty():
+			room.game_mode = mode
 		room.started_match_roster.clear()
 		for p in roster:
 			if p is Dictionary:
@@ -340,6 +345,7 @@ func create_room(
 		"character_id": DEFAULT_CHARACTER_ID,
 		"is_host": true,
 		"is_ready": false,
+		"seat_index": 0 if selected_mode == MODE_POKER else -1,
 	}
 	if not room.add_player(host_record):
 		return _failure("HOST_REGISTRATION_FAILED", "The host could not be added to the room.")
@@ -355,6 +361,7 @@ func create_room(
 			"max_players": max_players,
 			"visibility": normalized_visibility,
 			"game_mode": selected_mode,
+			"mode": selected_mode,
 			"display_name": _clean_display_name(host_display_name, "Host"),
 		})
 	return {"success": true, "room": room.to_dictionary(), "error_code": "", "message": "Room created."}
@@ -603,6 +610,17 @@ func join_room(room_code: String, player_id: String, display_name: String) -> Di
 	if room.players.size() >= room.max_players:
 		return _failure("ROOM_FULL", "This room is full.")
 
+	var assigned_seat := -1
+	if str(room.game_mode) == MODE_POKER:
+		var occupied: Dictionary = {}
+		for p in room.players:
+			if p.has("seat_index") and int(p["seat_index"]) >= 0:
+				occupied[int(p["seat_index"])] = true
+		for s in range(6):
+			if not occupied.has(s):
+				assigned_seat = s
+				break
+
 	var guest_record := {
 		"player_id": normalized_player_id,
 		"display_name": _clean_display_name(display_name, "Player"),
@@ -610,6 +628,7 @@ func join_room(room_code: String, player_id: String, display_name: String) -> Di
 		"character_id": DEFAULT_CHARACTER_ID,
 		"is_host": false,
 		"is_ready": false,
+		"seat_index": assigned_seat,
 	}
 	if not room.add_player(guest_record):
 		return _failure("JOIN_FAILED", "The player could not be added to the room.")
@@ -687,20 +706,31 @@ func _validate_match_start(room: Variant, requesting_player_id: String) -> Dicti
 	var blue_count := 0
 	var ready_count := 0
 	var seen_ids: Dictionary = {}
+	var is_poker := str(room.game_mode) == MODE_POKER
+
 	for player in room.players:
 		var player_id := str(player.get("player_id", ""))
 		if player_id.is_empty() or seen_ids.has(player_id):
 			return _failure("INVALID_ROSTER", "Every player must have a unique player ID.")
 		seen_ids[player_id] = true
-		match int(player.get("team_id", 0)):
-			TEAM_RED:
-				red_count += 1
-			TEAM_BLUE:
-				blue_count += 1
-			_:
-				return _failure("INVALID_TEAM", "Every player must be assigned to Red or Blue Team.")
+		if not is_poker:
+			match int(player.get("team_id", 0)):
+				TEAM_RED:
+					red_count += 1
+				TEAM_BLUE:
+					blue_count += 1
+				_:
+					return _failure("INVALID_TEAM", "Every player must be assigned to Red or Blue Team.")
 		if bool(player.get("is_ready", false)):
 			ready_count += 1
+
+	if is_poker:
+		if player_count < 2:
+			return _failure("NOT_ENOUGH_PLAYERS", "At least 2 players are required to start Forehead Poker.")
+		if ready_count != player_count:
+			return _failure("PLAYERS_NOT_READY", "Every player must be READY before the host can start.")
+		return {"success": true, "error_code": "", "message": "The poker room is ready to start."}
+
 	if VALID_MODES.has(str(room.game_mode)):
 		var expected_capacity := int(MODE_CAPACITIES[str(room.game_mode)])
 		var target_per_team := int(expected_capacity / 2)

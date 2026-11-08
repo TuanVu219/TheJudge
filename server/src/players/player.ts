@@ -1,4 +1,5 @@
 import type { WebSocket } from "ws";
+import { randomUUID } from "crypto";
 import { CONFIG } from "../config/config.js";
 
 export interface PlayerRecord {
@@ -8,6 +9,8 @@ export interface PlayerRecord {
   character_id: string;
   is_host: boolean;
   is_ready: boolean;
+  seat_index?: number;
+  is_disconnected?: boolean;
 }
 
 export class Player {
@@ -20,6 +23,10 @@ export class Player {
   public currentRoomCode: string | null = null;
   public ws: WebSocket;
   public isAlive: boolean = true;
+  public reconnectToken: string;
+  public seatIndex: number = -1;
+  public isDisconnected: boolean = false;
+  public disconnectTimeout: NodeJS.Timeout | null = null;
 
   constructor(playerId: string, displayName: string, ws: WebSocket, characterId: string = CONFIG.DEFAULT_CHARACTER_ID) {
     this.playerId = playerId;
@@ -29,6 +36,7 @@ export class Player {
     this.isReady = false;
     this.isHost = false;
     this.ws = ws;
+    this.reconnectToken = randomUUID();
   }
 
   public toRecord(): PlayerRecord {
@@ -39,6 +47,8 @@ export class Player {
       character_id: this.characterId,
       is_host: this.isHost,
       is_ready: this.isReady,
+      seat_index: this.seatIndex,
+      is_disconnected: this.isDisconnected,
     };
   }
 

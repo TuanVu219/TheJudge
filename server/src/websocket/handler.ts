@@ -21,6 +21,7 @@ export class WebSocketHandler {
     player.send({
       type: "CONNECTED",
       client_id: player.playerId,
+      reconnect_token: player.reconnectToken,
     });
 
     ws.on("message", (data: RawData) => {
@@ -44,6 +45,12 @@ export class WebSocketHandler {
       const room = this.roomManager.findRoomByCode(player.currentRoomCode);
       if (room) {
         const { roomClosed } = room.removePlayer(player.playerId);
+        if (room.pokerMatch) {
+          room.pokerMatch.bettingManager.handleDisconnect(player.playerId);
+          if (room.pokerMatch.bettingManager.bettingPhaseActive) {
+            room.broadcast(room.pokerMatch.getPublicBettingPayload());
+          }
+        }
         if (roomClosed) {
           room.broadcast({
             type: "ROOM_CLOSED",
@@ -135,6 +142,26 @@ export class WebSocketHandler {
         this.handleRematch(player, msg);
         break;
 
+      case "POKER_START_MATCH":
+        this.handlePokerStartMatch(player, msg);
+        break;
+
+      case "POKER_DRAW_ROUND":
+        this.handlePokerDrawRound(player, msg);
+        break;
+
+      case "POKER_RESET_MATCH":
+        this.handlePokerResetMatch(player, msg);
+        break;
+
+      case "POKER_BETTING_ACTION":
+        this.handlePokerBettingAction(player, msg);
+        break;
+
+      case "POKER_RECONNECT":
+        this.handlePokerReconnect(player, msg);
+        break;
+
       default:
         player.send({ type: "ERROR", error_code: "UNKNOWN_MESSAGE", message: `Unknown message type: ${(msg as any).type}` });
         break;
@@ -169,7 +196,7 @@ export class WebSocketHandler {
 
     const maxPlayers = msg.max_players || 2;
     const visibility = (msg.visibility?.toUpperCase() === "PUBLIC" ? "PUBLIC" : "PRIVATE") as "PUBLIC" | "PRIVATE";
-    const gameMode = msg.game_mode || "1v1";
+    const gameMode = msg.game_mode || msg.mode || "1v1";
     const roomName = msg.room_name || "";
 
     const res = this.roomManager.createRoom(player, roomName, maxPlayers, visibility, gameMode, msg.room_code);
@@ -337,6 +364,7 @@ export class WebSocketHandler {
       room_code: room.roomCode,
       roster: res.roster,
       game_mode: room.gameMode,
+      mode: room.gameMode,
     });
   }
 
@@ -386,5 +414,220 @@ export class WebSocketHandler {
       room_code: room.roomCode,
     });
     room.broadcastRoomState();
+  }
+
+  private handlePokerStartMatch(player: Player, msg: ClientMessage): void {
+    const code = msg.room_code || player.currentRoomCode;
+    if (!code) {
+      player.send({ type: "ERROR", error_code: "NOT_IN_ROOM", message: "You are not in a room." });
+      return;
+    }
+
+    const room = this.roomManager.findRoomByCode(code);
+    if (!room) {
+      player.send({ type: "ERROR", error_code: "ROOM_NOT_FOUND", message: "Room not found." });
+      return;
+    }
+
+    if (player.playerId !== room.hostPlayerId) {
+      player.send({ type: "ERROR", error_code: "NOT_HOST", message: "Only the host can start the poker match." });
+      return;
+    }
+
+    if (room.status === "WAITING") {
+      const res = room.startMatch(player.playerId);
+      if (!res.success) {
+        player.send({ type: "ERROR", error_code: res.error_code || "START_FAILED", message: res.message || "Failed to start match." });
+        return;
+      }
+      room.broadcast({
+        type: "MATCH_STARTED",
+        room_code: room.roomCode,
+        roster: res.roster,
+        game_mode: room.gameMode,
+      });
+    }
+
+    room.broadcast({
+      type: "POKER_MATCH_INIT",
+      room_code: room.roomCode,
+      total_rounds: 10,
+    });
+  }
+
+  private handlePokerReconnect(player: Player, msg: ClientMessage): void {
+    const code = msg.room_code?.trim().toUpperCase();
+    const pid = msg.player_id?.trim();
+    const token = msg.reconnect_token?.trim();
+
+    if (!code || !pid || !token) {
+      player.send({
+        type: "ERROR",
+        error_code: "INVALID_RECONNECT_DATA",
+        message: "Room code, player ID and reconnect token are required to reconnect.",
+      });
+      return;
+    }
+
+    const room = this.roomManager.findRoomByCode(code);
+    if (!room) {
+      player.send({
+        type: "ERROR",
+        error_code: "ROOM_NOT_FOUND",
+        message: "Room not found.",
+      });
+      return;
+    }
+
+    const res = room.reconnectPlayer(pid, token, player.ws);
+    if (!res.success) {
+      player.send({
+        type: "ERROR",
+        error_code: res.error_code || "RECONNECT_FAILED",
+        message: res.message || "Reconnect failed.",
+      });
+      return;
+    }
+
+    this.playersByWs.delete(player.ws);
+    const existingPlayer = room.players.get(pid)!;
+    this.playersByWs.set(existingPlayer.ws, existingPlayer);
+  }
+
+  private handlePokerDrawRound(player: Player, msg: ClientMessage): void {
+    const code = msg.room_code || player.currentRoomCode;
+    if (!code) {
+      player.send({ type: "ERROR", error_code: "NOT_IN_ROOM", message: "You are not in a room." });
+      return;
+    }
+
+    const room = this.roomManager.findRoomByCode(code);
+    if (!room) {
+      player.send({ type: "ERROR", error_code: "ROOM_NOT_FOUND", message: "Room not found." });
+      return;
+    }
+
+    if (player.playerId !== room.hostPlayerId) {
+      player.send({ type: "ERROR", error_code: "NOT_HOST", message: "Only the host can draw a new round." });
+      return;
+    }
+
+    if (!room.pokerMatch) {
+      room.initPokerMatch();
+    }
+
+    const drawRes = room.pokerMatch!.drawRound();
+    if (!drawRes.success) {
+      player.send({
+        type: "ERROR",
+        error_code: drawRes.error || "DRAW_FAILED",
+        message: drawRes.error === "DECKS_EXHAUSTED" ? "All 10 rounds have been completed." : "Failed to draw round.",
+      });
+      return;
+    }
+
+    // SECURITY & PRIVACY ENFORCEMENT:
+    // Send strictly segregated payloads to each individual player's WebSocket.
+    for (const [pId, p] of room.players) {
+      const privateHand = room.pokerMatch!.getPrivateHandPayload(pId);
+      if (privateHand) {
+        p.send(privateHand);
+      }
+
+      const opponentForeheads = room.pokerMatch!.getOpponentForeheadsPayload(pId);
+      if (opponentForeheads) {
+        p.send(opponentForeheads);
+      }
+    }
+
+    // Broadcast public status (NO secret card values included)
+    room.broadcast(room.pokerMatch!.getPublicRoundStatusPayload());
+
+    // Broadcast initial betting state for this round (ante deducted, first player turn)
+    room.broadcast(room.pokerMatch!.getPublicBettingPayload());
+  }
+
+  private handlePokerBettingAction(player: Player, msg: ClientMessage): void {
+    const code = msg.room_code || player.currentRoomCode;
+    if (!code) {
+      player.send({ type: "ERROR", error_code: "NOT_IN_ROOM", message: "You are not in a room." });
+      return;
+    }
+
+    const room = this.roomManager.findRoomByCode(code);
+    if (!room) {
+      player.send({ type: "ERROR", error_code: "ROOM_NOT_FOUND", message: "Room not found." });
+      return;
+    }
+
+    if (!room.pokerMatch || !room.pokerMatch.bettingManager.bettingPhaseActive) {
+      player.send({ type: "ERROR", error_code: "BETTING_INACTIVE", message: "Betting phase is not active." });
+      return;
+    }
+
+    if (!msg.action) {
+      player.send({ type: "ERROR", error_code: "MISSING_ACTION", message: "Betting action must be specified." });
+      return;
+    }
+
+    // Process action server-authoritatively
+    const targetBet = typeof msg.target_bet === "number" ? msg.target_bet : 0;
+    const result = room.pokerMatch.processBettingAction(player.playerId, msg.action, targetBet);
+
+    if (!result.success) {
+      player.send({
+        type: "ERROR",
+        error_code: result.error || "ILLEGAL_ACTION",
+        message: `Illegal action ${msg.action}: ${result.error}`,
+      });
+      return;
+    }
+
+    // Broadcast action result
+    room.broadcast({
+      type: "POKER_ACTION_RESULT",
+      action_result: {
+        success: true,
+        action: result.action,
+        player_id: result.playerId,
+        amount_added: result.amountAdded,
+        target_bet: result.targetBet,
+        is_round_complete: result.isRoundComplete,
+        next_turn_player_id: result.nextTurnPlayerId,
+      },
+    });
+
+    // Broadcast updated betting state (pot, balances, current turn)
+    room.broadcast(room.pokerMatch.getPublicBettingPayload());
+
+    // If betting completed, broadcast completion
+    if (result.isRoundComplete) {
+      room.broadcast({
+        type: "POKER_BETTING_COMPLETED",
+        round: room.pokerMatch.round,
+        total_pot: room.pokerMatch.bettingManager.totalPot,
+        main_pot: room.pokerMatch.bettingManager.mainPot,
+        side_pots: room.pokerMatch.bettingManager.sidePots,
+      });
+    }
+  }
+
+  private handlePokerResetMatch(player: Player, msg: ClientMessage): void {
+    const code = msg.room_code || player.currentRoomCode;
+    if (!code) return;
+
+    const room = this.roomManager.findRoomByCode(code);
+    if (!room) return;
+
+    if (player.playerId !== room.hostPlayerId) {
+      player.send({ type: "ERROR", error_code: "NOT_HOST", message: "Only host can reset match." });
+      return;
+    }
+
+    room.resetPokerMatch();
+    room.broadcast({
+      type: "POKER_MATCH_RESET",
+      room_code: room.roomCode,
+    });
   }
 }

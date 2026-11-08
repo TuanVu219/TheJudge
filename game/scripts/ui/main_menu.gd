@@ -44,6 +44,7 @@ const LOCAL_DISPLAY_NAME := "You"
 @onready var menu_card: PanelContainer = $Layout/Columns/MenuCard
 @onready var preview_card: PanelContainer = $Layout/Columns/PreviewCard if has_node("Layout/Columns/PreviewCard") else null
 
+var game_mode_option: OptionButton = null
 var _bus_indices: Dictionary = {}
 
 
@@ -51,6 +52,7 @@ func _ready() -> void:
 	_ensure_audio_bus("Master")
 	_ensure_audio_bus("Music")
 	_ensure_audio_bus("SFX")
+	_setup_game_mode_selector()
 	_connect_navigation()
 	_connect_settings()
 	_connect_button_feedback()
@@ -60,6 +62,56 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_update_responsive_layout)
 	_update_responsive_layout()
 	_show_page(PAGE_HOME, false)
+
+
+func _setup_game_mode_selector() -> void:
+	var create_page := $Layout/Columns/MenuCard/MenuContent/CreateRoomPage as VBoxContainer
+	if create_page == null:
+		return
+	var label := Label.new()
+	label.name = "GameModeLabel"
+	label.text = "GAME MODE"
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", Color(0.17, 0.31, 0.39, 1))
+
+	game_mode_option = OptionButton.new()
+	game_mode_option.name = "GameModeOption"
+	game_mode_option.custom_minimum_size = Vector2(0, 42)
+	game_mode_option.add_theme_font_size_override("font_size", 17)
+	game_mode_option.add_item("Forehead Poker (Saloon 2–6 Players)", 0)
+	game_mode_option.add_item("Territory Battle (Original)", 1)
+	game_mode_option.selected = 0
+	game_mode_option.item_selected.connect(_on_game_mode_changed)
+
+	var max_lbl := create_page.get_node_or_null("MaxPlayersLabel")
+	if max_lbl != null:
+		var idx := max_lbl.get_index()
+		create_page.add_child(label)
+		create_page.move_child(label, idx)
+		create_page.add_child(game_mode_option)
+		create_page.move_child(game_mode_option, idx + 1)
+	else:
+		create_page.add_child(label)
+		create_page.add_child(game_mode_option)
+	_on_game_mode_changed(0)
+
+
+func _on_game_mode_changed(idx: int) -> void:
+	var create_page := $Layout/Columns/MenuCard/MenuContent/CreateRoomPage as VBoxContainer
+	if create_page == null:
+		return
+	var max_lbl := create_page.get_node_or_null("MaxPlayersLabel") as Label
+	if idx == 0:
+		if max_lbl != null:
+			max_lbl.text = "CAPACITY: 2–6 PLAYERS (POKER SALOON)"
+		if max_players_option != null:
+			max_players_option.visible = false
+	else:
+		if max_lbl != null:
+			max_lbl.text = "MAXIMUM PLAYERS"
+		if max_players_option != null:
+			max_players_option.visible = true
+
 
 
 func _update_responsive_layout() -> void:
@@ -234,6 +286,8 @@ func _on_open_create_room_pressed() -> void:
 	create_room_name_input.text = ""
 	max_players_option.select(max_players_option.get_item_count() - 1)
 	visibility_option.select(1)
+	if game_mode_option != null:
+		_on_game_mode_changed(game_mode_option.selected)
 	_show_page(PAGE_CREATE_ROOM)
 
 
@@ -251,15 +305,18 @@ func _on_open_join_room_pressed() -> void:
 
 
 func _on_create_room_pressed() -> void:
-	var max_players := max_players_option.get_selected_id()
+	var is_poker := (game_mode_option != null and game_mode_option.selected == 0)
+	var max_players := 6 if is_poker else max_players_option.get_selected_id()
 	var visibility := visibility_option.get_item_text(visibility_option.selected).to_upper()
-	var game_mode := ""
-	if max_players == 2:
-		game_mode = "1v1"
-	elif max_players == 4:
-		game_mode = "2v2"
-	elif max_players == 6:
-		game_mode = "3v3"
+	var game_mode := "FOREHEAD_POKER" if is_poker else ""
+	if not is_poker:
+		if max_players == 2:
+			game_mode = "1v1"
+		elif max_players == 4:
+			game_mode = "2v2"
+		else:
+			game_mode = "3v3"
+			max_players = 6
 
 	var rm := _get_room_manager()
 	var player_name := create_player_name_input.text.strip_edges()

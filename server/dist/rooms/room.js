@@ -1,4 +1,5 @@
 import { CONFIG } from "../config/config.js";
+import { ForeheadPokerMatch } from "../poker/poker_match.js";
 export class Room {
     roomId;
     roomCode;
@@ -15,6 +16,7 @@ export class Room {
     gridTiles = [];
     redScore = 0;
     blueScore = 0;
+    pokerMatch;
     constructor(roomCode, hostPlayer, roomName = "", maxPlayers = 2, visibility = "PRIVATE", gameMode = "1v1") {
         this.roomCode = roomCode;
         this.roomId = `room_${roomCode}`;
@@ -34,6 +36,7 @@ export class Room {
         hostPlayer.isHost = true;
         hostPlayer.teamId = CONFIG.TEAM_RED;
         hostPlayer.isReady = false;
+        hostPlayer.seatIndex = 0;
         this.addPlayer(hostPlayer);
     }
     addPlayer(player) {
@@ -52,6 +55,20 @@ export class Room {
             player.isHost = false;
             player.isReady = false;
         }
+        // Assign seat index if FOREHEAD_POKER
+        if (this.gameMode === "FOREHEAD_POKER") {
+            const occupiedSeats = new Set();
+            for (const p of this.players.values()) {
+                if (p.seatIndex >= 0)
+                    occupiedSeats.add(p.seatIndex);
+            }
+            for (let s = 0; s < 6; s++) {
+                if (!occupiedSeats.has(s)) {
+                    player.seatIndex = s;
+                    break;
+                }
+            }
+        }
         player.currentRoomCode = this.roomCode;
         this.players.set(player.playerId, player);
         return { success: true };
@@ -60,6 +77,22 @@ export class Room {
         const player = this.players.get(playerId);
         if (!player) {
             return { success: false, roomClosed: false };
+        }
+        // If match started in Forehead Poker, preserve player state for reconnection
+        if (this.status === "STARTED" && this.gameMode === "FOREHEAD_POKER") {
+            player.isDisconnected = true;
+            if (this.pokerMatch) {
+                this.pokerMatch.bettingManager.handleDisconnect(playerId);
+                if (this.pokerMatch.bettingManager.bettingPhaseActive) {
+                    this.broadcast(this.pokerMatch.getPublicBettingPayload());
+                }
+            }
+            const anyConnected = Array.from(this.players.values()).some((p) => !p.isDisconnected);
+            if (!anyConnected) {
+                this.status = "CLOSED";
+                return { success: true, roomClosed: true };
+            }
+            return { success: true, roomClosed: false };
         }
         player.currentRoomCode = null;
         this.players.delete(playerId);
@@ -172,6 +205,15 @@ export class Room {
             if (p.isReady)
                 readyCount++;
         }
+        if (this.gameMode === "FOREHEAD_POKER") {
+            if (playerCount < 2) {
+                return { success: false, error_code: "NOT_ENOUGH_PLAYERS", message: "At least 2 players are required to start Forehead Poker." };
+            }
+            if (readyCount !== playerCount) {
+                return { success: false, error_code: "PLAYERS_NOT_READY", message: "Every player must be READY before starting." };
+            }
+            return { success: true };
+        }
         if (this.gameMode && CONFIG.VALID_MODES.includes(this.gameMode)) {
             const expectedCapacity = CONFIG.MODE_CAPACITIES[this.gameMode];
             const targetPerTeam = Math.floor(expectedCapacity / 2);
@@ -197,6 +239,37 @@ export class Room {
         if (!val.success) {
             return val;
         }
+        if (this.gameMode === "FOREHEAD_POKER") {
+            const seatMap = new Map();
+            const playerIds = Array.from(this.players.keys());
+            for (let i = 0; i < playerIds.length; i++) {
+                const p = this.players.get(playerIds[i]);
+                if (p.seatIndex < 0 || p.seatIndex > 5) {
+                    p.seatIndex = i;
+                }
+                seatMap.set(p.playerId, p.seatIndex);
+            }
+            this.pokerMatch = new ForeheadPokerMatch(playerIds, seatMap, this.roomCode);
+            this.startedMatchRoster = Array.from(this.players.values()).map((p) => p.toRecord());
+            this.status = "STARTED";
+            // Draw initial round 1
+            this.pokerMatch.drawRound();
+            // Dispatch private hands & opponent foreheads
+            for (const [pId, p] of this.players) {
+                if (p.isDisconnected)
+                    continue;
+                const privateHand = this.pokerMatch.getPrivateHandPayload(pId);
+                if (privateHand)
+                    p.send(privateHand);
+                const opponentForeheads = this.pokerMatch.getOpponentForeheadsPayload(pId);
+                if (opponentForeheads)
+                    p.send(opponentForeheads);
+            }
+            // Broadcast public status and betting state
+            this.broadcast(this.pokerMatch.getPublicRoundStatusPayload());
+            this.broadcast(this.pokerMatch.getPublicBettingPayload());
+            return { success: true, roster: this.startedMatchRoster };
+        }
         this.gridColumns = CONFIG.MODE_GRID_SIZES[this.gameMode] || 6;
         this.gridRows = this.gridColumns;
         this.gridTiles = new Array(this.gridColumns * this.gridRows).fill(0);
@@ -205,6 +278,44 @@ export class Room {
         this.startedMatchRoster = Array.from(this.players.values()).map((p) => p.toRecord());
         this.status = "STARTED";
         return { success: true, roster: this.startedMatchRoster };
+    }
+    reconnectPlayer(playerId, reconnectToken, newWs) {
+        const player = this.players.get(playerId);
+        if (!player) {
+            return { success: false, error_code: "PLAYER_NOT_FOUND", message: "Player not found in room." };
+        }
+        if (player.reconnectToken !== reconnectToken) {
+            return { success: false, error_code: "INVALID_TOKEN", message: "Invalid reconnect token." };
+        }
+        player.ws = newWs;
+        player.isDisconnected = false;
+        player.isAlive = true;
+        if (player.disconnectTimeout) {
+            clearTimeout(player.disconnectTimeout);
+            player.disconnectTimeout = null;
+        }
+        if (this.pokerMatch) {
+            this.pokerMatch.bettingManager.handleReconnect(playerId);
+        }
+        player.send({
+            type: "POKER_RECONNECT_RESPONSE",
+            client_id: player.playerId,
+            room_code: this.roomCode,
+            seat_index: player.seatIndex,
+            message: "Reconnected successfully.",
+        });
+        if (this.pokerMatch) {
+            const privateHand = this.pokerMatch.getPrivateHandPayload(playerId);
+            if (privateHand)
+                player.send(privateHand);
+            const opponentForeheads = this.pokerMatch.getOpponentForeheadsPayload(playerId);
+            if (opponentForeheads)
+                player.send(opponentForeheads);
+            player.send(this.pokerMatch.getPublicRoundStatusPayload());
+            player.send(this.pokerMatch.getPublicBettingPayload());
+        }
+        this.broadcastRoomState();
+        return { success: true };
     }
     claimTile(playerId, col, row) {
         if (this.status !== "STARTED")
@@ -306,5 +417,21 @@ export class Room {
             players: Array.from(this.players.values()).map((p) => p.toRecord()),
             started_match_roster: this.startedMatchRoster,
         };
+    }
+    initPokerMatch() {
+        const playerIds = Array.from(this.players.keys());
+        this.pokerMatch = new ForeheadPokerMatch(playerIds);
+        return this.pokerMatch;
+    }
+    drawPokerRound() {
+        if (!this.pokerMatch) {
+            this.initPokerMatch();
+        }
+        return this.pokerMatch.drawRound();
+    }
+    resetPokerMatch() {
+        if (this.pokerMatch) {
+            this.pokerMatch.resetMatch();
+        }
     }
 }

@@ -46,11 +46,11 @@ static func is_production_configured() -> bool:
 
 
 ## Returns the environment-appropriate default server URL.
-## Local dev: "ws://127.0.0.1:8080"
-## Web build: configured production URL or placeholder
+## Local dev (Desktop / Editor): "ws://127.0.0.1:8080"
+## Web build (Browser): configured production URL (Render)
 static func get_default_server_url(force_web: Variant = null) -> String:
 	var check_web: bool = is_web() if force_web == null else bool(force_web)
-	if check_web or is_production_configured():
+	if check_web:
 		return get_production_server_url()
 	return LOCAL_SERVER_URL
 

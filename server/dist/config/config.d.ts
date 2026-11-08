@@ -4,7 +4,7 @@ export declare const CONFIG: {
     CLIENT_TIMEOUT_MS: number;
     ROOM_CODE_ALPHABET: string;
     ROOM_CODE_LENGTH: number;
-    VALID_MODES: readonly ["1v1", "2v2", "3v3"];
+    VALID_MODES: readonly ["1v1", "2v2", "3v3", "FOREHEAD_POKER"];
     MODE_CAPACITIES: Record<string, number>;
     MODE_GRID_SIZES: Record<string, number>;
     VALID_CHARACTERS: readonly ["mint", "peach", "sky", "lemon", "berry", "lavender"];
